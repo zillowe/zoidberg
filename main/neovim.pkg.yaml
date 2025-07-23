@@ -1,0 +1,46 @@
+name: neovim
+repo: main
+version: 0.10.0
+description: A hyper-extensible, Vim-based text editor focused on modern features and usability
+website: https://neovim.io
+git: https://github.com/neovim/neovim.git
+maintainer:
+  name: ZilloweZ
+  email: zillowez@gmail.com
+license: Apache-2.0 
+
+installation:
+  - type: binary
+    url: "https://github.com/neovim/neovim/releases/download/v{version}/nvim.appimage"
+    platforms: [linux-amd64, linux-arm64]
+
+  - type: binary
+    url: "https://github.com/neovim/neovim/releases/download/v{version}/nvim-macos.tar.gz"
+    platforms: [macos-amd64, macos-arm64]
+
+  - type: binary
+    url: "https://github.com/neovim/neovim/releases/download/v{version}/nvim-win64.zip"
+    platforms: [windows-amd64]
+
+  - type: source
+    url: "{git}"
+    platforms: [linux, macos]
+    commands:
+      - make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX={prefix}
+      - make install
+
+dependencies:
+  runtime:
+    - "native:git"
+    - "native:gcc"
+
+  build:
+    - "native:make"
+    - "native:cmake"
+    - "native:gcc"
+    - "native:ninja"
+    - "native:gettext"
+    - "native:libtool"
+    - "native:autoconf"
+    - "native:automake"
+    - "native:pkg-config"

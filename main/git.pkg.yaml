@@ -1,0 +1,41 @@
+name: git
+repo: main
+version: 2.45.1
+description: A free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
+website: https://git-scm.com
+git: https://github.com/git/git.git
+maintainer:
+  name: ZilloweZ
+  email: zillowez@gmail.com
+license: GPL-2.0-only 
+
+installation:
+  - type: binary
+    url: "https://github.com/git-for-windows/git/releases/download/v{version}.windows.1/PortableGit-{version}-64-bit.7z.exe"
+    platforms: [windows-amd64]
+
+  - type: binary
+    url: "https://sourceforge.net/projects/git-osx-installer/files/git-{version}-intel-and-apple-silicon-mavericks.tar.gz/download"
+    platforms: [macos-amd64, macos-arm64]
+
+  - type: source
+    url: "https://www.kernel.org/pub/software/scm/git/git-{version}.tar.gz"
+    platforms: [linux]
+    commands:
+      - ./configure --prefix={prefix}
+      - make all
+      - make install
+
+dependencies:
+  runtime:
+    - "native:perl"
+    - "native:openssh"
+
+  build:
+    - "native:make"
+    - "native:gcc"
+    - "native:gettext"
+    - "native:zlib-dev"
+    - "native:openssl-dev"
+    - "native:curl-dev"
+    - "native:expat-dev"

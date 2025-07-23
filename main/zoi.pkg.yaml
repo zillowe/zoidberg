@@ -1,0 +1,47 @@
+name: zoi
+repo: main
+version: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/version.json
+description: Universal Package Manager & Environment Setup Tool
+website: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi
+git: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi.git
+maintainer:
+  name: ZilloweZ
+  email: zillowez@gmail.com
+license: Apache-2.0 
+
+installation:
+  - type: com_binary
+    url: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/releases/{version}/downloads/zoi_{platfrom}.{platfromComExt}
+    platforms: [linux, macos, windows-arm64]
+
+  - type: script
+    url: "https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/install.{platformExt}"
+    platforms: [all]
+  
+  - type: source
+    url: "{git}" 
+    platforms: [linux, macos] 
+    commands:
+      - ./configure --prefix={prefix}
+      - make
+      - sudo make install
+      - make install-completions 
+
+  - type: source
+    url: "{git}"
+    platforms: [windows] 
+    commands:
+      - cargo build --release
+      - cmd /c copy "target\\release\\zoi.exe" "{prefix}\\bin\\zoi.exe"
+
+dependencies:
+  runtime:
+    - "native:git"
+
+  build:
+    - "native:rust"
+    - "native:cargo"
+    - "native:make"
+    - "native:gcc"
+    - "native:pkg-config"
+    - "native:openssl-dev"
