@@ -11,7 +11,7 @@ license: Apache-2.0
 
 installation:
   - type: com_binary
-    url: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/releases/{version}/downloads/zoi_{platfrom}.{platfromComExt}
+    url: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/releases/{version}/downloads/zoi_{platform}.{platformComExt}
     platforms: [linux, macos, windows-arm64]
 
   - type: script
