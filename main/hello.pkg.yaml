@@ -1,0 +1,43 @@
+name: hello
+repo: main
+version: 1.0.0
+description: Hello World
+website: https://github.com/Zillowe/Hello
+git: https://github.com/Zillowe/Hello.git
+maintainer:
+  name: ZilloweZ
+  email: zillowez@gmail.com
+license: Apache-2.0
+
+installation:
+  - type: binary
+    url: "https://github.com/Zillowe/Hello/releases/download/v1.0.0/hello-{platfrom}"
+    plaforms: [all]
+
+  - type: com_binary
+    url: "https://github.com/Zillowe/Hello/releases/download/v1.0.0/hello-{platfrom}.{platfromComExt}"
+    platforms: [all]
+
+  - type: script
+    url: "https://raw.githubusercontent.com/Zillowe/Hello/refs/heads/main/app/install.{platformExt}"
+    platforms: [all]
+
+  - type: source
+    url: "{git}"
+    platforms: [linux, macos]
+    commands:
+      - chmox +x ./configure
+      - ./configure --prefix={prefix}
+      - make
+      - sudo make install
+
+  - type: source
+    url: "{git}"
+    platforms: [windows]
+    commands:
+      - go build -o hello.exe -ldflags="-s -w" .
+      - cmd /c copy "hello.exe" "{prefix}\\bin\\hello.exe"
+
+dependencies:
+  build:
+    - "native:go"
