@@ -7,16 +7,17 @@ git: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi.git
 maintainer:
   name: ZilloweZ
   email: zillowez@gmail.com
-license: Apache-2.0 
+license: Apache-2.0
+updater: script
 
 installation:
   - type: com_binary
     url: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/releases/{version}/downloads/zoi_{platform}.{platformComExt}
-    platforms: [linux, macos, windows-arm64]
+    platforms: [linux, macos, windows-amd64]
 
   - type: script
     url: "https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/install.{platformExt}"
-    platforms: [all]
+    platforms: [linux, macos, windows-amd64]
   
   - type: source
     url: "{git}" 
