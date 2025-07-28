@@ -13,27 +13,20 @@ updater: script
 installation:
   - type: com_binary
     url: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/releases/{version}/downloads/zoi_{platform}.{platformComExt}
-    platforms: [linux, macos, windows-amd64]
+    platforms: [linux, macos, windows-amd64, freebsd, openbsd-amd64]
 
   - type: script
     url: "https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/install.{platformExt}"
-    platforms: [linux, macos, windows-amd64]
-  
+    platforms: [linux, macos, windows-amd64, freebsd, openbsd-amd64]
+
   - type: source
-    url: "{git}" 
-    platforms: [linux, macos] 
+    url: "{git}"
+    platforms: [linux, macos, windows, freebsd, openbsd]
     commands:
       - ./configure --prefix={prefix}
       - make
       - sudo make install
-      - make install-completions 
-
-  - type: source
-    url: "{git}"
-    platforms: [windows] 
-    commands:
-      - cargo build --release
-      - cmd /c copy "target\\release\\zoi.exe" "{prefix}\\bin\\zoi.exe"
+      - make install-completions
 
 dependencies:
   runtime:
