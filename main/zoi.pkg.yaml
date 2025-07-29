@@ -8,34 +8,5 @@ maintainer:
   name: ZilloweZ
   email: zillowez@gmail.com
 license: Apache-2.0
-updater: script
-
-installation:
-  - type: com_binary
-    url: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/releases/{version}/downloads/zoi_{platform}.{platformComExt}
-    platforms: [linux, macos, windows-amd64, freebsd, openbsd-amd64]
-
-  - type: script
-    url: "https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/install.{platformExt}"
-    platforms: [linux, macos, windows-amd64, freebsd, openbsd-amd64]
-
-  - type: source
-    url: "{git}"
-    platforms: [linux, macos, windows, freebsd, openbsd]
-    commands:
-      - ./configure --prefix={prefix}
-      - make
-      - sudo make install
-      - make install-completions
-
-dependencies:
-  runtime:
-    - "native:git"
-
-  build:
-    - "native:rust"
-    - "native:cargo"
-    - "native:make"
-    - "native:gcc"
-    - "native:pkg-config"
-    - "native:openssl-dev"
+type: alt
+alt: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/packages/zoi/zoi.pkg.yaml
