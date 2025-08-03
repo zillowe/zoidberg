@@ -1,0 +1,17 @@
+name: vim
+repo: core
+type: collection
+version: 9.1
+description: Vi IMproved, a programmer's text editor
+maintainer:
+  name: ZilloweZ
+  email: zillowez@gmail.com
+license: Vim
+
+dependencies:
+  runtime:
+    required:
+      - native:vim
+    optional:
+      - native:ripgrep:for faster grep integration
+      - native:fd:for faster file finding

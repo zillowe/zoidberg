@@ -1,0 +1,14 @@
+name: nano
+repo: core
+type: collection
+version: 8.5
+description: "A small and friendly text editor"
+maintainer:
+  name: ZilloweZ
+  email: zillowez@gmail.com
+license: GPL-3.0-or-later
+
+dependencies:
+  runtime:
+    required:
+      - native:nano
