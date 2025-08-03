@@ -1,0 +1,10 @@
+name: astronvim
+repo: extra
+version: 1.0.0
+description: Hello World
+website: https://github.com/Zillowe/Hello
+git: https://github.com/AstroNvim/AstroNvim.git
+maintainer:
+  name: ZilloweZ
+  email: zillowez@gmail.com
+license: Apache-2.0

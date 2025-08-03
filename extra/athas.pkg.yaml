@@ -1,0 +1,30 @@
+name: athas
+repo: extra
+version: 0.1.0
+description: A lightweight code editor
+website: https://athas.dev
+git: https://github.com/athasdev/athas.git
+maintainer:
+  name: ZilloweZ
+  email: zillowez@gmail.com
+license: AGPL-3.0
+
+installation:
+  - type: source
+    url: "{git}"
+    platforms: [linux, macos]
+    commands:
+      -
+
+  - type: source
+    url: "{git}"
+    platforms: [windows]
+    commands:
+      - go build -o hello.exe -ldflags="-s -w" .
+      - cmd /c copy "hello.exe" "{prefix}\\bin\\hello.exe"
+
+dependencies:
+  build:
+    - "native:nodejs"
+    - "npm:bun"
+    - "cargo:tauri-cli"

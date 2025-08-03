@@ -10,5 +10,4 @@ license: GPL-3.0-or-later
 
 dependencies:
   runtime:
-    required:
-      - native:nano
+    - native:nano

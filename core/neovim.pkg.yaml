@@ -10,8 +10,7 @@ license: Apache-2.0
 
 dependencies:
   runtime:
-    required:
-      - native:neovim
+    - native:neovim
     optional:
       - native:ripgrep:for faster grep integration
       - native:fd:for faster file finding
