@@ -10,7 +10,8 @@ license: Vim
 
 dependencies:
   runtime:
-    - native:vim
+    required:
+      - native:vim
     optional:
       - native:ripgrep:for faster grep integration
       - native:fd:for faster file finding
