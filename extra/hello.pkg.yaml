@@ -17,6 +17,10 @@ installation:
   - type: com_binary
     url: "https://github.com/Zillowe/Hello/releases/download/v1.0.0/hello-{platform}.{platformComExt}"
     platforms: [all]
+    platformComExt:
+      linux: "tar.xz"
+      macos: "tar.xz"
+      windows: "zip"
 
   - type: script
     url: "https://raw.githubusercontent.com/Zillowe/Hello/refs/heads/main/app/install.{platformExt}"
