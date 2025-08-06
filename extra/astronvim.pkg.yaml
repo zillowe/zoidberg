@@ -1,0 +1,32 @@
+name: astronvim
+repo: extra
+type: config
+version: "1.0"
+description: "Configuration files for my-app."
+maintainer:
+  name: "Your Name"
+  email: "your.email@example.com"
+
+dependencies:
+  runtime:
+    - "zoi:neovim"
+    - "native:git"
+
+config:
+  - platforms: ["linux", "macos"]
+    install:
+      - "mv ~/.config/nvim ~/.config/nvim.nv.bak"
+      - "git clone --depth 1 https://github.com/AstroNvim/template ~/.config/nvim"
+      - "rm -rf ~/.config/nvim/.git"
+    uninstall:
+      - "rm -rf ~/.config/nvim"
+      - "mv ~/.config/nvim.nv.bak ~/.config/nvim"
+
+  - platforms: ["linux", "macos"]
+    install: 
+      - "move $ENV:USERPROFILE\AppData\Local\nvim $ENV:USERPROFILE\AppData\Local\nvim.nv.bak"
+      - "git clone --depth 1 https://github.com/AstroNvim/template $ENV:USERPROFILE\AppData\Local\nvim"
+      - "del ~/.config/nvim/.git"
+    uninstall:
+      - "del ~/.config/nvim"
+      - "move ~/.config/nvim.nv.bak ~/.config/nvim"
