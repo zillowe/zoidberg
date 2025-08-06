@@ -4,8 +4,8 @@ type: collection
 version: 9.1
 description: Vi IMproved, a programmer's text editor
 maintainer:
-  name: ZilloweZ
-  email: zillowez@gmail.com
+  name: "Zillowe Foundation"
+  email: "contact@zillowe.rf.gd"
 license: Vim
 
 dependencies:

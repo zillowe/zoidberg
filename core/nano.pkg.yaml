@@ -4,8 +4,8 @@ type: collection
 version: 8.5
 description: "A small and friendly text editor"
 maintainer:
-  name: ZilloweZ
-  email: zillowez@gmail.com
+  name: "Zillowe Foundation"
+  email: "contact@zillowe.rf.gd"
 license: GPL-3.0-or-later
 
 dependencies:

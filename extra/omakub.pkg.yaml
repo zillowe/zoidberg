@@ -1,0 +1,19 @@
+name: omakub
+repo: extra
+type: config
+version: "latest"
+description: "Opinionated Ubuntu Setup"
+maintainer:
+  name: "Zillowe Foundation"
+  email: "contact@zillowe.rf.gd"
+
+dependencies:
+  runtime:
+    - "native:git"
+    - "native:bash"
+    - "native:wget"
+
+config:
+  - platforms: ["linux"]
+    install:
+      - "wget -qO- https://omakub.org/install | bash"

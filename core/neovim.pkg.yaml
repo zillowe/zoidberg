@@ -4,8 +4,8 @@ type: collection
 version: 0.11
 description: Vim-fork focused on extensibility and usability
 maintainer:
-  name: ZilloweZ
-  email: zillowez@gmail.com
+  name: "Zillowe Foundation"
+  email: "contact@zillowe.rf.gd"
 license: Apache-2.0
 
 dependencies:

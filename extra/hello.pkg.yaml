@@ -5,8 +5,8 @@ description: Hello World
 website: https://github.com/Zillowe/Hello
 git: https://github.com/Zillowe/Hello.git
 maintainer:
-  name: ZilloweZ
-  email: zillowez@gmail.com
+  name: "Zillowe Foundation"
+  email: "contact@zillowe.rf.gd"
 license: Apache-2.0
 
 installation:

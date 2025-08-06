@@ -5,8 +5,8 @@ description: Hello World Spanish
 website: https://github.com/Zillowe/Hola
 git: https://github.com/Zillowe/Hola.git
 maintainer:
-  name: ZilloweZ
-  email: zillowez@gmail.com
+  name: "Zillowe Foundation"
+  email: "contact@zillowe.rf.gd"
 license: Apache-2.0
 
 installation:
