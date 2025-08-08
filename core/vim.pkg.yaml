@@ -7,6 +7,8 @@ maintainer:
   name: "Zillowe Foundation"
   email: "contact@zillowe.rf.gd"
 license: Vim
+bins: ["vim"]
+conflicts: ["vim"]
 
 dependencies:
   runtime:

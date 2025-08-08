@@ -8,8 +8,7 @@ maintainer:
   email: "contact@zillowe.rf.gd"
 license: GPL-3.0-or-later
 bins: ["nano"]
-conflicts:
-  - nano
+conflicts: ["nano"]
 
 dependencies:
   runtime:

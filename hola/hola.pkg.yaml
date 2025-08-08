@@ -8,6 +8,8 @@ maintainer:
   name: "Zillowe Foundation"
   email: "contact@zillowe.rf.gd"
 license: Apache-2.0
+bins: ["hola"]
+conflicts: ["hola"]
 
 installation:
   - type: binary

@@ -6,11 +6,12 @@ description: "Opinionated Ubuntu Setup"
 maintainer:
   name: "Zillowe Foundation"
   email: "contact@zillowe.rf.gd"
+license: MIT
 
 dependencies:
   runtime:
     - "native:git"
-    - "native:bash"
+    - "zoi:bash"
     - "native:wget"
 
 config:
