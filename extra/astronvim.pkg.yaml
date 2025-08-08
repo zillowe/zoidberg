@@ -23,9 +23,9 @@ config:
       - "mv ~/.config/nvim.nv.bak ~/.config/nvim"
 
   - platforms: ["windows"]
-    install: 
-      - "mv $ENV:USERPROFILE\AppData\Local\nvim $ENV:USERPROFILE\AppData\Local\nvim.nv.bak"
-      - "git clone --depth 1 https://github.com/AstroNvim/template $ENV:USERPROFILE\AppData\Local\nvim"
+    install:
+      - "mv $ENV:USERPROFILE/AppData/Local/nvim $ENV:USERPROFILE/AppData/Local/nvim.nv.bak"
+      - "git clone --depth 1 https://github.com/AstroNvim/template $ENV:USERPROFILE/AppData/Local/nvim"
       - "rm ~/.config/nvim/.git"
     uninstall:
       - "rm ~/.config/nvim"
