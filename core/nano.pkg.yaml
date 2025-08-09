@@ -4,8 +4,9 @@ type: collection
 version: 8.5
 description: "A small and friendly text editor"
 maintainer:
-  name: "Zillowe Foundation"
+  name: "Zillowe Community"
   email: "contact@zillowe.rf.gd"
+  website: "https://zillowe.rf.gd"
 license: GPL-3.0-or-later
 bins: ["nano"]
 conflicts: ["nano"]

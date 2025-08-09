@@ -1,0 +1,43 @@
+name: claude-code
+repo: main
+version: "latest"
+description: "Agentic coding tool that lives in your terminal"
+website: https://www.anthropic.com/claude-code
+git: https://github.com/anthropics/claude-code
+maintainer:
+  name: "Zillowe Community"
+  email: "contact@zillowe.rf.gd"
+  website: "https://zillowe.rf.gd"
+author:
+  name: "Anthrpopic"
+  website: "https://anthropic.com"
+license: "Proprietary"
+type: collection
+bins: ["claude"]
+conflicts: ["claude"]
+tags:
+  - cli
+  - devtools
+  - ai
+  - claude
+  - anthrpopic
+
+dependencies:
+  runtime:
+    required:
+      - native:nodejs
+    options:
+      - name: "Package Manager"
+        desc: "Choose the package manager to install Claude Code CLI"
+        all: false
+        depends:
+          - "bun:@anthropic-ai/claude-code:Use bun to install the CLI globally"
+          - "pnpm:@anthropic-ai/claude-code:Use pnpm to install the CLI globally"
+          - "npm:@anthropic-ai/claude-code:Use npm to install the CLI globally"
+          - "yarn:@anthropic-ai/claude-code:Use yarn to install the CLI globally"
+          - "script:claude.ai/install:Use native install script (beta)"
+    optional:
+      - bun:ccusage:Provides usage tracking for Claude Code (bun)
+      - pnpm:ccusage:Provides usage tracking for Claude Code (pnpm)
+      - npm:ccusage:Provides usage tracking for Claude Code (npm)
+      - yarn:ccusage:Provides usage tracking for Claude Code (yarn)

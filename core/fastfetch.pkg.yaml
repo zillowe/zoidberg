@@ -1,0 +1,16 @@
+name: fastfetch
+repo: core
+type: collection
+description: "A maintained, feature-rich and performance oriented, neofetch like system information tool"
+git: https://github.com/fastfetch-cli/fastfetch
+license: MIT
+maintainer:
+  name: "Zillowe Community"
+  email: "contact@zillowe.rf.gd"
+bins: ["fastfetch"]
+conflicts: ["fastfetch"]
+
+dependencies:
+  runtime:
+    required:
+      - native:fastfetch
