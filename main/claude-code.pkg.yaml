@@ -25,7 +25,7 @@ tags:
 dependencies:
   runtime:
     required:
-      - native:nodejs
+      - zoi:node
     options:
       - name: "Package Manager"
         desc: "Choose the package manager to install Claude Code CLI"

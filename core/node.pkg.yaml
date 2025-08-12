@@ -1,0 +1,23 @@
+name: node
+repo: core
+version: "latest"
+description: "Node.js JavaScript runtime"
+website: https://nodejs.org
+git: https://github.com/nodejs/node
+maintainer:
+  name: "Zillowe Community"
+  email: "contact@zillowe.rf.gd"
+  website: "https://zillowe.rf.gd"
+license: "MIT"
+type: collection
+bins: ["node", "npm"]
+conflicts: ["node", "npm"]
+tags:
+  - node
+  - javascript
+  - npm
+
+dependencies:
+  runtime:
+    required:
+      - native:nodejs
