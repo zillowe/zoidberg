@@ -18,5 +18,4 @@ dependencies:
     optional:
       - native:ripgrep:for faster grep integration
       - native:fd:for faster file finding
-      - zoi:astronvim:
-      - zoi:lazyvim:
+      - zoi:astronvim:Aesthetic and feature-rich Neovim config

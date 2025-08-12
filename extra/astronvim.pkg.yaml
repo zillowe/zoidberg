@@ -2,15 +2,21 @@ name: astronvim
 repo: extra
 type: config
 version: "1.0"
-description: "Configuration files for my-app."
+description: "Aesthetic and feature-rich Neovim config"
 maintainer:
-  name: "Zillowe Foundation"
+  name: "Zillowe Community"
   email: "contact@zillowe.rf.gd"
 
 dependencies:
   runtime:
-    - "zoi:neovim"
-    - "native:git"
+    required:
+      - zoi:neovim
+      - native:git
+    optional:
+      - native:ripgrep:for faster grep integration
+      - native:fd:for faster file finding
+      - native:lazygit:git ui toggle terminal
+      - native:bottom:process viewer toggle terminal
 
 config:
   - platforms: ["linux", "macos"]
