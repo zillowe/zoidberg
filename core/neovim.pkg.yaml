@@ -1,7 +1,7 @@
 name: neovim
 repo: core
 type: collection
-version: 0.11
+version: "0.11"
 description: Vim-fork focused on extensibility and usability
 maintainer:
   name: "Zillowe Community"
