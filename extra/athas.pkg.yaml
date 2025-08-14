@@ -1,0 +1,56 @@
+name: athas
+repo: extra
+version: "{git}"
+description: "A lightweight code editor. Modular, free, open."
+website: https://athas.dev
+git: https://github.com/athasdev/athas
+maintainer:
+  name: "Zillowe Community"
+  email: "contact@zillowe.rf.gd"
+  website: "https://zillowe.rf.gd"
+license: "AGPLv3"
+bins: ["athas"]
+conflicts: ["athas"]
+tags:
+  - ide
+  - editor
+  - devtools
+  - ai
+  - athas
+
+installation:
+  - type: binary
+    url: "{git}/releases/download/{version}/athas-{platform}"
+    binary_types: ["dmg", "appimage", "msi"]
+    platforms: ["macos", "linux", "windows-amd64"]
+
+  - type: source
+    url: "{git}"
+    platforms: ["linux"]
+    commands:
+      - bun run setup
+      - bun install
+      - bun run build
+      - mv src-tauri/target/release/athas {store}/athas
+
+  - type: source
+    url: "{git}"
+    platforms: ["windows"]
+    commands:
+      - bun run setup-win
+      - bun install
+      - bun run build
+      - mv src-tauri/target/release/athas.exe {store}/athas.exe
+
+  - type: source
+    url: "{git}"
+    platforms: ["macos"]
+    commands:
+      - bun install
+      - bun run build
+      - mv src-tauri/target/release/athas {store}/athas
+
+dependencies:
+  build:
+    - brew:oven-sh/bun/bun
+    - brew:rust

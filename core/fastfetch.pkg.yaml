@@ -1,5 +1,6 @@
 name: fastfetch
 repo: core
+version: latest
 type: collection
 description: "A maintained, feature-rich and performance oriented, neofetch like system information tool"
 git: https://github.com/fastfetch-cli/fastfetch

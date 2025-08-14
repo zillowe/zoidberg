@@ -1,7 +1,7 @@
 name: astronvim
 repo: extra
 type: config
-version: "1.0"
+version: latest
 description: "Aesthetic and feature-rich Neovim config"
 maintainer:
   name: "Zillowe Community"
