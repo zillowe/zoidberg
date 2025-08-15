@@ -1,6 +1,7 @@
 name: athas
 repo: extra
-version: "{git}"
+# version: "{git}" # when stable binaries
+version: "git"
 description: "A lightweight code editor. Modular, free, open."
 website: https://athas.dev
 git: https://github.com/athasdev/athas
@@ -19,10 +20,10 @@ tags:
   - athas
 
 installation:
-  - type: binary
-    url: "{git}/releases/download/{version}/athas-{platform}"
-    binary_types: ["dmg", "appimage", "msi"]
-    platforms: ["macos", "linux", "windows-amd64"]
+  # - type: binary # when stable binaries
+  #   url: "{git}/releases/download/{version}/athas-{platform}"
+  #   binary_types: ["dmg", "appimage", "msi"]
+  #   platforms: ["macos", "linux", "windows-amd64"]
 
   - type: source
     url: "{git}"
@@ -52,5 +53,6 @@ installation:
 
 dependencies:
   build:
-    - brew:oven-sh/bun/bun
-    - brew:rust
+    optional:
+      - brew:rust:Install Rust if you dont have it
+      - brew:oven-sh/bun/bun:Install Bun if you dont have it
