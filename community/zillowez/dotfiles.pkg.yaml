@@ -1,0 +1,11 @@
+name: dotfiles
+repo: community/zillowez
+type: extension
+version: 1
+description: Initialize Zaid's Configs
+
+extension:
+  type: zoi
+  changes:
+    - type: repo-git
+      add: git@gitlab.com:ZilloweZ/Zoi-Pkgs.git
