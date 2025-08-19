@@ -3,6 +3,10 @@ repo: community/zillowez
 type: extension
 version: 1
 description: Initialize Zaid's Configs
+maintainer:
+  name: "ZilloweZ"
+  email: "zillowez@gmail.com"
+  website: "https://zillowez.rf.gd"
 
 extension:
   type: zoi
