@@ -1,8 +1,8 @@
 name: zoi
-repo: core
+repo: core/zillowe
 version: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/version.json
 description: Universal Package Manager & Environment Setup Tool
-website: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi
+website: https://zillowe.rf.gd/docs/zds/zoi/
 git: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi.git
 maintainer:
   name: "Zillowe Foundation"

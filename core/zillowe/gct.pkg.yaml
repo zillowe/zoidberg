@@ -1,0 +1,11 @@
+name: zoi
+repo: core/zillowe
+version: "latest"
+description: An intelligent, AI-powered Git assistant.
+website: https://zillowe.rf.gd/docs/zds/gct/
+git: https://gitlab.com/Zillowe/Zillwen/Zusty/GCT.git
+maintainer:
+  name: "Zillowe Foundation"
+  email: "contact@zillowe.rf.gd"
+license: Apache-2.0
+alt: https://gitlab.com/Zillowe/Zillwen/Zusty/GCT/-/raw/main/packages/zoi/gct.pkg.yaml
