@@ -1,5 +1,5 @@
 name: zoi
-repo: core/zillowe
+repo: zillowe
 version: "latest"
 description: An intelligent, AI-powered Git assistant.
 website: https://zillowe.rf.gd/docs/zds/gct/
