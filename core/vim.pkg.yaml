@@ -5,8 +5,8 @@ version: 9.1
 description: Vi IMproved, a programmer's text editor
 maintainer:
   name: "Zillowe Community"
-  email: "contact@zillowe.rf.gd"
-  website: "https://zillowe.rf.gd"
+  website: "https://zillowe.qzz.io"
+  email: "contact@zillowe.qzz.io"
 license: Vim
 bins: ["vim"]
 conflicts: ["vim"]

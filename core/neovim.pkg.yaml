@@ -5,8 +5,8 @@ version: "0.11"
 description: Vim-fork focused on extensibility and usability
 maintainer:
   name: "Zillowe Community"
-  email: "contact@zillowe.rf.gd"
-  website: "https://zillowe.rf.gd"
+  website: "https://zillowe.qzz.io"
+  email: "contact@zillowe.qzz.io"
 license: Apache-2.0
 bins: ["nvim"]
 conflicts: ["nvim"]

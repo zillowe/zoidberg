@@ -1,14 +1,13 @@
 name: athas
 repo: extra
-# version: "{git}" # when stable binaries
-version: "git"
+version: "{git}"
 description: "A lightweight code editor. Modular, free, open."
 website: https://athas.dev
 git: https://github.com/athasdev/athas
 maintainer:
   name: "Zillowe Community"
-  email: "contact@zillowe.rf.gd"
-  website: "https://zillowe.rf.gd"
+  website: "https://zillowe.qzz.io"
+  email: "contact@zillowe.qzz.io"
 license: "AGPLv3"
 bins: ["athas"]
 conflicts: ["athas"]
@@ -20,10 +19,10 @@ tags:
   - athas
 
 installation:
-  # - type: binary # when stable binaries
-  #   url: "{git}/releases/download/{version}/athas-{platform}"
-  #   binary_types: ["dmg", "appimage", "msi"]
-  #   platforms: ["macos", "linux", "windows-amd64"]
+  - type: binary
+    url: "{git}/releases/download/{version}/athas-{platform}"
+    binary_types: ["dmg", "appimage", "msi"]
+    platforms: ["macos", "linux", "windows-amd64"]
 
   - type: source
     url: "{git}"

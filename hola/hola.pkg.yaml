@@ -6,8 +6,8 @@ website: https://github.com/Zillowe/Hola
 git: https://github.com/Zillowe/Hola.git
 maintainer:
   name: "Zillowe Community"
-  email: "contact@zillowe.rf.gd"
-  website: "https://zillowe.rf.gd"
+  website: "https://zillowe.qzz.io"
+  email: "contact@zillowe.qzz.io"
 license: Apache-2.0
 bins: ["hola"]
 conflicts: ["hola"]

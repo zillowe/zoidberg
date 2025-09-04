@@ -5,7 +5,8 @@ version: latest
 description: "Aesthetic and feature-rich Neovim config"
 maintainer:
   name: "Zillowe Community"
-  email: "contact@zillowe.rf.gd"
+  website: "https://zillowe.qzz.io"
+  email: "contact@zillowe.qzz.io"
 
 dependencies:
   runtime:

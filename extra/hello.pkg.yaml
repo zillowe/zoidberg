@@ -6,8 +6,8 @@ website: https://github.com/Zillowe/Hello
 git: https://github.com/Zillowe/Hello.git
 maintainer:
   name: "Zillowe Community"
-  email: "contact@zillowe.rf.gd"
-  website: "https://zillowe.rf.gd"
+  website: "https://zillowe.qzz.io"
+  email: "contact@zillowe.qzz.io"
 license: Apache-2.0
 bins: ["hello"]
 conflicts: ["hello"]

@@ -5,8 +5,8 @@ version: 8.5
 description: "A small and friendly text editor"
 maintainer:
   name: "Zillowe Community"
-  email: "contact@zillowe.rf.gd"
-  website: "https://zillowe.rf.gd"
+  website: "https://zillowe.qzz.io"
+  email: "contact@zillowe.qzz.io"
 license: GPL-3.0-or-later
 bins: ["nano"]
 conflicts: ["nano"]
