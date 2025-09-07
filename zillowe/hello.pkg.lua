@@ -1,0 +1,139 @@
+local repo_owner = "Zillowe"
+local repo_name = "Hello"
+local version = "2.0.0"
+local git_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. ".git"
+local release_base_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. "/releases/download/v" .. version
+
+package({
+	name = "hello",
+	repo = "zillowe",
+	version = version,
+	description = "Hello World",
+	website = "https://github.com/Zillowe/Hello",
+	git = git_url,
+	maintainer = {
+		name = "Zillowe Foundation",
+		website = "https://zillowe.qzz.io",
+		email = "contact@zillowe.qzz.io",
+	},
+	author = {
+		name = "Zillowe Foundation",
+		website = "https://zillowe.qzz.io",
+		email = "contact@zillowe.qzz.io",
+		key = "https://zillowe.pages.dev/keys/zillowe-main.asc",
+		key_name = "zillowe-main",
+	},
+	license = "Apache-2.0",
+	bins = { "hello" },
+	conflicts = { "hello" },
+})
+
+install({
+	selectable = true,
+	{
+		name = "Binary",
+		type = "binary",
+		url = (function()
+			return release_base_url .. "/hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH
+		end)(),
+		platforms = { "all" },
+		checksums = (function()
+			return release_base_url .. "/checksums-512.txt"
+		end)(),
+		sigs = {
+			{
+				file = (function()
+					return "hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH
+				end)(),
+				sig = (function()
+					return release_base_url .. "/hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH .. ".sig"
+				end)(),
+			},
+		},
+	},
+	{
+		name = "Compressed Binary",
+		type = "com_binary",
+		url = (function()
+			local ext
+			if SYSTEM.OS == "windows" then
+				ext = "zip"
+			else
+				ext = "tar.xz"
+			end
+			return release_base_url .. "/hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH .. "." .. ext
+		end)(),
+		platforms = { "all" },
+		checksums = (function()
+			return release_base_url .. "/checksums-512.txt"
+		end)(),
+		sigs = {
+			{
+				file = (function()
+					local ext
+					if SYSTEM.OS == "windows" then
+						ext = "zip"
+					else
+						ext = "tar.xz"
+					end
+					return "hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH .. "." .. ext
+				end)(),
+				sig = (function()
+					local ext
+					if SYSTEM.OS == "windows" then
+						ext = "zip"
+					else
+						ext = "tar.xz"
+					end
+					return release_base_url .. "/hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH .. "." .. ext .. ".sig"
+				end)(),
+			},
+		},
+	},
+	{
+		name = "Install Script",
+		type = "script",
+		url = (function()
+			local ext
+			if SYSTEM.OS == "windows" then
+				ext = "ps1"
+			else
+				ext = "sh"
+			end
+			return "https://raw.githubusercontent.com/Zillowe/Hello/refs/heads/main/app/install." .. ext
+		end)(),
+		platforms = { "all" },
+	},
+	{
+		name = "Build from source (Linux/macOS)",
+		type = "source",
+		url = git_url,
+		platforms = { "linux", "macos" },
+		build_commands = {
+			"chmod +x ./configure",
+			"./configure",
+			"make",
+		},
+		install_commands = {
+			'make install DESTDIR="${Zoi_DESTDIR}"',
+		},
+	},
+	{
+		name = "Build from source (Windows)",
+		type = "source",
+		url = git_url,
+		platforms = { "windows" },
+		build_commands = {
+			'go build -o hello.exe -ldflags="-s -w" .',
+		},
+		install_commands = {
+			'cmd /c copy "hello.exe" "${Zoi_DESTDIR}\binhello.exe"',
+		},
+	},
+})
+
+dependencies({
+	build = {
+		required = { "native:go" },
+	},
+})
