@@ -4,6 +4,19 @@ local version = "2.0.0"
 local git_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. ".git"
 local release_base_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. "/releases/download/v" .. version
 
+local platform_map = {
+	macos = "darwin",
+}
+
+local function get_mapped_platform()
+	local current_platform = SYSTEM.OS .. "-" .. SYSTEM.ARCH
+	return platform_map[current_platform] or platform_map[SYSTEM.OS] or current_platform
+end
+
+local function get_mapped_os()
+	return get_mapped_platform():match("([^%-]+)")
+end
+
 package({
 	name = "hello",
 	repo = "zillowe",
@@ -34,7 +47,7 @@ install({
 		name = "Binary",
 		type = "binary",
 		url = (function()
-			return release_base_url .. "/hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH
+			return release_base_url .. "/hello-" .. get_mapped_os() .. "-" .. SYSTEM.ARCH
 		end)(),
 		platforms = { "all" },
 		checksums = (function()
@@ -43,10 +56,10 @@ install({
 		sigs = {
 			{
 				file = (function()
-					return "hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH
+					return "hello-" .. get_mapped_os() .. "-" .. SYSTEM.ARCH
 				end)(),
 				sig = (function()
-					return release_base_url .. "/hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH .. ".sig"
+					return release_base_url .. "/hello-" .. get_mapped_os() .. "-" .. SYSTEM.ARCH .. ".sig"
 				end)(),
 			},
 		},
@@ -61,7 +74,7 @@ install({
 			else
 				ext = "tar.xz"
 			end
-			return release_base_url .. "/hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH .. "." .. ext
+			return release_base_url .. "/hello-" .. get_mapped_os() .. "-" .. SYSTEM.ARCH .. "." .. ext
 		end)(),
 		platforms = { "all" },
 		checksums = (function()
@@ -76,7 +89,7 @@ install({
 					else
 						ext = "tar.xz"
 					end
-					return "hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH .. "." .. ext
+					return "hello-" .. get_mapped_os() .. "-" .. SYSTEM.ARCH .. "." .. ext
 				end)(),
 				sig = (function()
 					local ext
@@ -85,7 +98,14 @@ install({
 					else
 						ext = "tar.xz"
 					end
-					return release_base_url .. "/hello-" .. SYSTEM.OS .. "-" .. SYSTEM.ARCH .. "." .. ext .. ".sig"
+					return release_base_url
+						.. "/hello-"
+						.. get_mapped_os()
+						.. "-"
+						.. SYSTEM.ARCH
+						.. "."
+						.. ext
+						.. ".sig"
 				end)(),
 			},
 		},
