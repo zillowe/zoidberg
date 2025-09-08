@@ -24,6 +24,7 @@ package({
 	description = "Hello World",
 	website = "https://github.com/Zillowe/Hello",
 	git = git_url,
+	man = "https://raw.githubusercontent.com/Zillowe/Hello/refs/heads/main/app/man.md",
 	maintainer = {
 		name = "Zillowe Foundation",
 		website = "https://zillowe.qzz.io",
@@ -49,7 +50,7 @@ install({
 		url = (function()
 			return release_base_url .. "/hello-" .. get_mapped_os() .. "-" .. SYSTEM.ARCH
 		end)(),
-		platforms = { "all" },
+		platforms = { "linux", "macos", "windows" },
 		checksums = (function()
 			return release_base_url .. "/checksums-512.txt"
 		end)(),
@@ -76,7 +77,7 @@ install({
 			end
 			return release_base_url .. "/hello-" .. get_mapped_os() .. "-" .. SYSTEM.ARCH .. "." .. ext
 		end)(),
-		platforms = { "all" },
+		platforms = { "linux", "macos", "windows" },
 		checksums = (function()
 			return release_base_url .. "/checksums-512.txt"
 		end)(),
@@ -99,30 +100,16 @@ install({
 						ext = "tar.xz"
 					end
 					return release_base_url
-						.. "/hello-"
-						.. get_mapped_os()
-						.. "-"
-						.. SYSTEM.ARCH
-						.. "."
-						.. ext
-						.. ".sig"
+							.. "/hello-"
+							.. get_mapped_os()
+							.. "-"
+							.. SYSTEM.ARCH
+							.. "."
+							.. ext
+							.. ".sig"
 				end)(),
 			},
 		},
-	},
-	{
-		name = "Install Script",
-		type = "script",
-		url = (function()
-			local ext
-			if SYSTEM.OS == "windows" then
-				ext = "ps1"
-			else
-				ext = "sh"
-			end
-			return "https://raw.githubusercontent.com/Zillowe/Hello/refs/heads/main/app/install." .. ext
-		end)(),
-		platforms = { "all" },
 	},
 	{
 		name = "Build from source (Linux/macOS)",
@@ -147,7 +134,7 @@ install({
 			'go build -o hello.exe -ldflags="-s -w" .',
 		},
 		install_commands = {
-			'cmd /c copy "hello.exe" "${Zoi_DESTDIR}\binhello.exe"',
+			'copy "hello.exe" "${Zoi_DESTDIR}/bin/hello.exe"',
 		},
 	},
 })
