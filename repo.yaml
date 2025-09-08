@@ -4,3 +4,4 @@ repo-git: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi-Pkgs.git
 mirrors-git:
   - https://github.com/Zillowe/Zoi-Pkgs.git
   - https://codeberg.org/Zillowe/Zoi-Pkgs.git
+repo-pkg: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}
