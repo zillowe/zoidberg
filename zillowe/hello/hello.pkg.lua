@@ -112,30 +112,22 @@ install({
 		},
 	},
 	{
-		name = "Build from source (Linux/macOS)",
+		name = "Build from source",
 		type = "source",
 		url = git_url,
-		platforms = { "linux", "macos" },
+		platforms = { "linux", "macos", "windows" },
 		build_commands = {
-			"chmod +x ./configure",
-			"./configure",
-			"make",
+			'go build -o hello -ldflags="-s -w" src',
 		},
-		install_commands = {
-			'make install DESTDIR="${Zoi_DESTDIR}"',
-		},
-	},
-	{
-		name = "Build from source (Windows)",
-		type = "source",
-		url = git_url,
-		platforms = { "windows" },
-		build_commands = {
-			'go build -o hello.exe -ldflags="-s -w" .',
-		},
-		install_commands = {
-			'copy "hello.exe" "${Zoi_DESTDIR}/bin/hello.exe"',
-		},
+		bin_path = (function()
+			local bin
+			if SYSTEM.OS == "windows" then
+				bin = "hello.exe"
+			else
+				bin = "hello"
+			end
+			return bin
+		end)(),
 	},
 })
 
