@@ -100,13 +100,13 @@ install({
 						ext = "tar.xz"
 					end
 					return release_base_url
-							.. "/hello-"
-							.. get_mapped_os()
-							.. "-"
-							.. SYSTEM.ARCH
-							.. "."
-							.. ext
-							.. ".sig"
+						.. "/hello-"
+						.. get_mapped_os()
+						.. "-"
+						.. SYSTEM.ARCH
+						.. "."
+						.. ext
+						.. ".sig"
 				end)(),
 			},
 		},
@@ -117,7 +117,7 @@ install({
 		url = git_url,
 		platforms = { "linux", "macos", "windows" },
 		build_commands = {
-			'go build -o hello -ldflags="-s -w" src',
+			'go build -o hello -ldflags="-s -w" ./src',
 		},
 		bin_path = (function()
 			local bin
