@@ -1,6 +1,6 @@
 local repo_owner = "Zillowe"
 local repo_name = "Hello"
-local version = "3.0.0"
+local version = SYSTEM.VERSION or "3.0.0"
 local git_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. ".git"
 local release_base_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. "/releases/download/v" .. version
 
@@ -100,13 +100,13 @@ install({
 						ext = "tar.xz"
 					end
 					return release_base_url
-							.. "/hello-"
-							.. get_mapped_os()
-							.. "-"
-							.. SYSTEM.ARCH
-							.. "."
-							.. ext
-							.. ".sig"
+						.. "/hello-"
+						.. get_mapped_os()
+						.. "-"
+						.. SYSTEM.ARCH
+						.. "."
+						.. ext
+						.. ".sig"
 				end)(),
 			},
 		},
