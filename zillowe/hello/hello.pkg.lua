@@ -100,13 +100,13 @@ install({
 						ext = "tar.xz"
 					end
 					return release_base_url
-						.. "/hello-"
-						.. get_mapped_os()
-						.. "-"
-						.. SYSTEM.ARCH
-						.. "."
-						.. ext
-						.. ".sig"
+							.. "/hello-"
+							.. get_mapped_os()
+							.. "-"
+							.. SYSTEM.ARCH
+							.. "."
+							.. ext
+							.. ".sig"
 				end)(),
 			},
 		},
@@ -117,7 +117,7 @@ install({
 		url = git_url,
 		platforms = { "all" },
 		build_commands = {
-			"zig build-exe src/main.zig -O ReleaseSmall --name hello",
+			"zig build-exe main.zig -O ReleaseSmall --name hello",
 		},
 		bin_path = (function()
 			local bin
