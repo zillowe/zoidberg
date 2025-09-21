@@ -11,7 +11,7 @@ Zoidberg is the default package registry that comes with Zoi, could be different
 To check which registry you're using run this command:
 
 ```sh
-zoi sync show
+zoi sync list
 ```
 
 ### Mirrors
@@ -20,7 +20,7 @@ If you want to use any of Zoidberg's mirrors run this:
 
 ```sh
 zoi sync set {mirror}
-# default (gitlab), gitlab, github, codeberg
+# default (the packagers default one), gitlab, github, codeberg
 ```
 
 Official mirrors:
