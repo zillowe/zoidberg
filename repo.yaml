@@ -1,7 +1,38 @@
-name: Zoi Package Repo
-description: Offical Zoi packages repo
-repo-git: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi-Pkgs.git
-mirrors-git:
-  - https://github.com/Zillowe/Zoi-Pkgs.git
-  - https://codeberg.org/Zillowe/Zoi-Pkgs.git
-repo-pkg: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}
+name: Zoidberg
+description: Official Zoi packages repository
+git:
+  - type: main
+    url: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoidberg.git
+  - type: mirror
+    url: https://github.com/Zillowe/Zoidberg.git
+  - type: mirror
+    url: https://codeberg.org/Zillowe/Zoidberg.git
+pkg:
+  - type: main
+    url: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}
+    pgp: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.asc # optional
+pgp:
+  - name: zillowe-main
+    key: https://zillowe.pages.dev/keys/zillowe-main.asc
+repos:
+  - name: core
+    type: offical
+    active: true
+  - name: main
+    type: offical
+    active: true
+  - name: extra
+    type: offical
+    active: true
+  - name: community
+    type: community
+    active: false
+  - name: archive
+    type: archive
+    active: false
+  - name: test
+    type: test
+    active: false
+  - name: zillowe
+    type: offical
+    active: false
