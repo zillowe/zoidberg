@@ -1,5 +1,6 @@
 name: Zoidberg
 description: Official Zoi packages repository
+handle: zoidberg
 git:
   - type: main
     url: https://gitlab.com/Zillowe/Zillwen/Zusty/Zoidberg.git
