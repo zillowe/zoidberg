@@ -56,7 +56,6 @@ Generic repos:
 - Community: User-submitted packages. New entries start here and may graduate to higher tiers.
 - Test: Testing ground for new Zoi features and packages prior to release.
 - Archive: Archived packages that are no longer maintained.
-- Zillowe: Zillowe's own official packages.
 
 Note: Packages from `community`, `test`, and `archive` may carry higher risk. Zoi prints warnings where appropriate, [learn more](https://zillowe.qzz.io/docs/zds/zoi/repositories).
 
