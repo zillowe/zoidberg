@@ -1,6 +1,9 @@
-# Zoidberg
-
-The official Zoi packages repository
+<div align="center">
+    <img width="320" hspace="10" alt="Zoi Banner" src="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/images/zoidberg-banner.png"/>
+    <p><strong>The official Zoi packages repository</strong></p>
+</div>
+<hr/>
+<br/>
 
 ## Installing a package
 
