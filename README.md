@@ -1,5 +1,5 @@
 <div align="center">
-    <img width="320" hspace="10" alt="Zoi Banner" src="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/images/zoidberg-banner.png"/>
+    <img width="320" hspace="10" alt="Zoidberg Banner" src="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/raw/main/app/images/zoidberg-banner.svg"/>
     <p><strong>The official Zoi packages repository</strong></p>
 </div>
 <hr/>
