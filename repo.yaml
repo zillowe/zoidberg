@@ -11,7 +11,7 @@ git:
 pkg:
   - type: main
     url: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}
-    pgp: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.asc # optional
+    pgp: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.asc
 pgp:
   - name: zillowe-main
     key: https://zillowe.pages.dev/keys/zillowe-main.asc
