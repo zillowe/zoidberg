@@ -68,6 +68,6 @@ Other non-generic repos:
 
 ## Adding a package
 
-Create a [Merge Request](https://gitlab.com/Zillwen/Zusty/Zoidberg/-/merge_requests) to add a new package or an [Issue](https://gitlab.com/Zillwen/Zusty/Zoidberg/-/issues) to request a new package (MRs/PRs are only acceptable on [GitLab](https://gitlab.com/Zillwen/Zusty/Zoidberg), creating issues are acceptable on all the git [mirrors](https://github.com/Zillowe/Zoi#-repositories-mirrors)).
+Create a [Merge Request](https://gitlab.com/Zillwen/Zusty/Zoidberg/-/merge_requests) to add a new package or an [Issue](https://gitlab.com/Zillwen/Zusty/Zoidberg/-/issues) to request a new package (MRs/PRs are only acceptable on [GitLab](https://gitlab.com/Zillwen/Zusty/Zoidberg), creating issues are acceptable on all Zoidberg [mirrors](#mirrors)).
 
 Use [`@zillowe/hello`](https://github.com/Zillowe/Hello) as an example package, [learn more about packaging existing software](https://zillowe.qzz.io/docs/zds/zoi/creating-packages).
