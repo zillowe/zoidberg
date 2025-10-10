@@ -67,7 +67,7 @@ function prepare()
 			extension = ".zip"
 		end
 
-		local asset_name = "eza-" .. target .. extension
+		local asset_name = "eza_" .. target .. extension
 		local url = "https://github.com/"
 				.. repo_owner
 				.. "/"
