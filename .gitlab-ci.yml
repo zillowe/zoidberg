@@ -1,0 +1,96 @@
+stages:
+  - build-packages
+  - upload-packages
+
+variables:
+  ZOI_CLI_IMAGE: registry.gitlab.com/Zillowe/Zillwen/Zusty/Zoi/zoi:latest
+
+build-packages:
+  stage: build-packages
+  image: $ZOI_CLI_IMAGE
+  script:
+    - echo "Building packages..."
+    - mkdir -p built_packages
+    - echo "" > built_packages/package_map.txt
+    - |
+      find . -name "*.pkg.lua" | while read -r PKG_FILE; do
+      FILE_PATH_RELATIVE_TO_ROOT=$(echo "$PKG_FILE" | sed 's|^\./||');
+      REPO_AND_PKG_PATH=$(dirname "$FILE_PATH_RELATIVE_TO_ROOT");
+
+      echo "Processing package from $PKG_FILE (path: $REPO_AND_PKG_PATH)";
+
+      for PLATFORM in "linux-amd64" "linux-arm64" "windows-amd64" "macos-amd64" "macos-arm64"; do
+        echo "Building for $PLATFORM...";
+        BUILD_OUTPUT=$(zoi package build "$PKG_FILE" --type source --platform "$PLATFORM" -o built_packages);
+        if [ $? -eq 0 ]; then
+          BUILT_FILE_PATH=$(echo "$BUILD_OUTPUT" | grep 'Successfully built package:' | sed 's/Successfully built package: //');
+          if [ -n "$BUILT_FILE_PATH" ]; then
+            BUILT_FILE_NAME=$(basename "$BUILT_FILE_PATH");
+            echo "$BUILT_FILE_NAME $REPO_AND_PKG_PATH" >> built_packages/package_map.txt;
+            echo "Mapped $BUILT_FILE_NAME to $REPO_AND_PKG_PATH";
+          else
+            echo "Warning: Could not parse build output for $PKG_FILE on $PLATFORM";
+          fi
+        else
+          echo "Error: Failed to build $PKG_FILE for $PLATFORM";
+        fi;
+      done
+  artifacts:
+    paths:
+      - built_packages/
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_TAG
+
+upload-packages:
+  stage: upload-packages
+  image: curlimages/curl:latest
+  dependencies:
+    - build-packages
+  script:
+    - echo "Uploading packages to GitLab Generic Package Registry..."
+    - apk add --no-cache jq
+    - |
+      for PKG_FILE in built_packages/*.pkg.tar.zst; do
+      FILE_NAME=$(basename "$PKG_FILE");
+      if [[ "$FILE_NAME" =~ ^(.*)-([0-9]+\.[0-9]+\.[0-9]+(?:-.*)?)-(.*)-(.*)\.pkg\.tar\.zst$ ]]; then
+        PACKAGE_NAME="${BASH_REMATCH[1]}";
+        PACKAGE_VERSION="${BASH_REMATCH[2]}";
+        PACKAGE_OS="${BASH_REMATCH[3]}";
+        PACKAGE_ARCH="${BASH_REMATCH[4]}";
+      else
+        echo "Skipping $FILE_NAME: Does not match expected package filename format.";
+        continue;
+      fi;
+
+      echo "Processing $FILE_NAME (Name: $PACKAGE_NAME, Version: $PACKAGE_VERSION, OS: $PACKAGE_OS, Arch: $PACKAGE_ARCH)";
+
+      LOCAL_FILE_SHA256=$(sha256sum "$PKG_FILE" | awk '{print $1}');
+
+      GITLAB_PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}-${PACKAGE_OS}-${PACKAGE_ARCH}/${PACKAGE_VERSION}/${FILE_NAME}";
+
+      echo "Checking if package exists at $GITLAB_PACKAGE_URL";
+
+      METADATA_FILE=$(mktemp);
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent --show-error "${GITLAB_PACKAGE_URL}/metadata" > "$METADATA_FILE";
+      CURL_EXIT_CODE=$?;
+
+      EXISTING_PACKAGE_SHA256="";
+      if [ $CURL_EXIT_CODE -eq 0 ] && [ -s "$METADATA_FILE" ]; then
+        EXISTING_PACKAGE_SHA256=$(jq -r '.sha256' "$METADATA_FILE");
+      fi;
+      rm "$METADATA_FILE";
+
+      if [ "$EXISTING_PACKAGE_SHA256" == "$LOCAL_FILE_SHA256" ]; then
+        echo "Package $FILE_NAME (SHA256: $LOCAL_FILE_SHA256) already exists in registry with same hash. Skipping upload.";
+      else
+        echo "Uploading $FILE_NAME (SHA256: $LOCAL_FILE_SHA256) to registry...";
+        curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$PKG_FILE" "${GITLAB_PACKAGE_URL}" --verbose;
+        if [ $? -ne 0 ]; then
+          echo "Failed to upload $FILE_FILE";
+          exit 1;
+        fi;
+        echo "Successfully uploaded $FILE_NAME.";
+      fi;
+  rules:
+    - if: $CI_COMMIT_TAG
