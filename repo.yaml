@@ -8,11 +8,11 @@ git:
     url: https://github.com/Zillowe/Zoidberg.git
   - type: mirror
     url: https://codeberg.org/Zillowe/Zoidberg.git
-# pkg:
-#   - type: main
-#     url: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}
-#     pgp: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.asc
-#     hash: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.txt
+pkg:
+  - type: main
+    url: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}
+    pgp: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.sig
+    hash: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.txt
 pgp:
   - name: zillowe-main
     key: https://zillowe.pages.dev/keys/zillowe-main.asc
