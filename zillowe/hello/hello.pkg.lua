@@ -43,7 +43,9 @@ metadata({
 
 dependencies({
 	build = {
-		required = { "native:zig" },
+		source = {
+			required = { "native:zig" },
+		},
 	},
 })
 
