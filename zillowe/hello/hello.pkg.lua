@@ -43,13 +43,18 @@ metadata({
 
 dependencies({
 	build = {
-		source = {
-			required = { "native:zig" },
+		types = {
+			source = {
+				required = { "native:zig" },
+			},
 		},
 	},
 })
 
 function prepare()
+	print("Adding PGP key for verification...")
+	addPgpKey("https://zillowe.pages.dev/keys/zillowe-main.asc", "zillowe-main")
+
 	if BUILD_TYPE == "pre-compiled" then
 		local ext
 		if SYSTEM.OS == "windows" then
@@ -86,6 +91,42 @@ function package()
 end
 
 function verify()
+	if BUILD_TYPE == "pre-compiled" then
+		local checksum_url = release_base_url .. "/checksums-512.txt"
+		local checksum_content = UTILS.FETCH.url(checksum_url)
+
+		local ext
+		if SYSTEM.OS == "windows" then
+			ext = "zip"
+		else
+			ext = "tar.xz"
+		end
+		local file_name = "hello-" .. get_mapped_os() .. "-" .. SYSTEM.ARCH .. "." .. ext
+		local file_path = BUILD_DIR .. "/" .. file_name
+
+		local expected_checksum = UTILS.PARSE.checksumFile(checksum_content, file_name)
+
+		if not expected_checksum or not verifyHash(file_path, "sha512-" .. expected_checksum) then
+			print("Checksum verification failed!")
+			return false
+		end
+		print("Checksum verified successfully.")
+
+		print("Verifying signature...")
+		local sig_url = release_base_url .. "/" .. file_name .. ".sig"
+		local sig_path = BUILD_DIR .. "/" .. file_name .. ".sig"
+
+		print("Downloading signature from " .. sig_url)
+		UTILS.FILE(sig_url, sig_path)
+
+		if not verifySignature(file_path, sig_path, "zillowe-main") then
+			print("Signature verification failed!")
+			return false
+		end
+
+		print("Signature verified successfully.")
+		return true
+	end
 	return true
 end
 
