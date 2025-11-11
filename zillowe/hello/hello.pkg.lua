@@ -52,9 +52,6 @@ dependencies({
 })
 
 function prepare()
-	print("Adding PGP key for verification...")
-	addPgpKey("https://zillowe.pages.dev/keys/zillowe-main.asc", "zillowe-main")
-
 	if BUILD_TYPE == "pre-compiled" then
 		local ext
 		if SYSTEM.OS == "windows" then
@@ -110,13 +107,10 @@ function verify()
 			print("Checksum verification failed!")
 			return false
 		end
-		print("Checksum verified successfully.")
 
-		print("Verifying signature...")
 		local sig_url = release_base_url .. "/" .. file_name .. ".sig"
 		local sig_path = BUILD_DIR .. "/" .. file_name .. ".sig"
 
-		print("Downloading signature from " .. sig_url)
 		UTILS.FILE(sig_url, sig_path)
 
 		if not verifySignature(file_path, sig_path, "zillowe-main") then
@@ -124,7 +118,6 @@ function verify()
 			return false
 		end
 
-		print("Signature verified successfully.")
 		return true
 	end
 	return true
