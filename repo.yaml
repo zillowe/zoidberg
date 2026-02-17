@@ -10,10 +10,10 @@ git:
     url: https://codeberg.org/Zillowe/Zoidberg.git
 pkg:
   - type: main
-    url: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}
-    pgp: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.sig
-    hash: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.hash
-    size: https://zillowe.pages.dev/pkgs/{repo}/{os}/{arch}/{version}.size
+    url: https://pcfallvxqepocfzouujp.supabase.co/storage/v1/object/public/zoidberg/{repo}/{os}/{arch}/{name}-{version}.pkg.tar.zst
+    pgp: https://pcfallvxqepocfzouujp.supabase.co/storage/v1/object/public/zoidberg/{repo}/{os}/{arch}/{name}-{version}.sig
+    hash: https://pcfallvxqepocfzouujp.supabase.co/storage/v1/object/public/zoidberg/{repo}/{os}/{arch}/{name}-{version}.hash
+    size: https://pcfallvxqepocfzouujp.supabase.co/storage/v1/object/public/zoidberg/{repo}/{os}/{arch}/{name}-{version}.size
 pgp:
   - name: zillowe-main
     key: https://zillowe.pages.dev/keys/zillowe-main.asc
