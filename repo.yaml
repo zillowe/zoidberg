@@ -19,13 +19,13 @@ pgp:
     key: https://zillowe.pages.dev/keys/zillowe-main.asc
 repos:
   - name: core
-    type: offical
+    type: official
     active: true
   - name: main
-    type: offical
+    type: official
     active: true
   - name: extra
-    type: offical
+    type: official
     active: true
   - name: community
     type: community
@@ -37,5 +37,5 @@ repos:
     type: test
     active: false
   - name: zillowe
-    type: offical
+    type: official
     active: false
