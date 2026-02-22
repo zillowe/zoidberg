@@ -8,12 +8,13 @@ git:
     url: https://github.com/Zillowe/Zoidberg.git
   - type: mirror
     url: https://codeberg.org/Zillowe/Zoidberg.git
-pkg:
-  - type: main
-    url: https://pcfallvxqepocfzouujp.supabase.co/storage/v1/object/public/zoidberg/{repo}/{os}/{arch}/{name}-{version}.pkg.tar.zst
-    pgp: https://pcfallvxqepocfzouujp.supabase.co/storage/v1/object/public/zoidberg/{repo}/{os}/{arch}/{name}-{version}.sig
-    hash: https://pcfallvxqepocfzouujp.supabase.co/storage/v1/object/public/zoidberg/{repo}/{os}/{arch}/{name}-{version}.hash
-    size: https://pcfallvxqepocfzouujp.supabase.co/storage/v1/object/public/zoidberg/{repo}/{os}/{arch}/{name}-{version}.size
+# pkg:
+#   - type: main
+#     url: https://pkgs.zillowe.qzz.io/zoidberg/{repo}/{os}/{arch}/{name}-{version}.pkg.tar.zst
+#     pgp: https://pkgs.zillowe.qzz.io/zoidberg/{repo}/{os}/{arch}/{name}-{version}.sig
+#     hash: https://pkgs.zillowe.qzz.io/zoidberg/{repo}/{os}/{arch}/{name}-{version}.hash
+#     size: https://pkgs.zillowe.qzz.io/zoidberg/{repo}/{os}/{arch}/{name}-{version}.size
+#     files: https://pkgs.zillowe.qzz.io/zoidberg/{repo}/{os}/{arch}/{name}-{version}.files
 pgp:
   - name: zillowe-main
     key: https://zillowe.pages.dev/keys/zillowe-main.asc
