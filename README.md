@@ -11,6 +11,12 @@ To use Zoidberg packages with Zoi you'll need [Zoi](https://github.com/Zillowe/Z
 
 Zoidberg is the default package registry that comes with Zoi, could be different if you didn't use Zoi's [official binaries](https://github.com/Zillowe/Zoi/blob/main/SECURITY.md) or compiled your own with a different registry, [learn more](https://github.com/Zillowe/Zoi/blob/main/PACKAGING.md).
 
+If you installed Zoi from an unofficial source you'll need to add PGP keys of the maintainers of Zoidberg to be able to sync packages safely, if you installed Zoi from an official source you won't need to do that because it's backed into Zoi:
+
+```sh
+zoi pgp add https://zillowe.pages.dev/keys/zillowez.asc
+```
+
 To check which registry you're using run this command:
 
 ```sh
@@ -23,7 +29,7 @@ If you want to use any of Zoidberg's mirrors run this:
 
 ```sh
 zoi sync set {mirror}
-# default (the packagers default one), gitlab, github, codeberg
+# default (the packagers default one), gitlab, github, codeberg (Zoidberg mirrors)
 ```
 
 Official mirrors:
