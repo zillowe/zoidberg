@@ -11,10 +11,10 @@ git:
 pkg:
   - type: main
     url: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest
-    hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest/{name}-{version}-{platform}.hash
-    pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest/{name}-{version}-{platform}.sig
-    size: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest/{name}-{version}-{platform}.size
-    files: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest/{name}-{version}-{platform}.files
+    hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest/{name}-{version}-{platform}.pkg.tar.pkg.tar.zst.hash
+    pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest/{name}-{version}-{platform}.pkg.tar.pkg.tar.zst.sig
+    size: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest/{name}-{version}-{platform}.pkg.tar.pkg.tar.zst.size
+    files: https://gitlab.com/api/v4/projects/71125308/packages/generic/zoidberg/latest/{name}-{version}-{platform}.pkg.tar.pkg.tar.zst.files
 pgp:
   - name: zillowe-main
     key: https://zillowe.pages.dev/keys/zillowe-main.asc
