@@ -35,7 +35,7 @@ publish-packages:
           if [ -n "${GPG_KEY_ID:-}" ]; then
             SIGN_ARG="--sign $GPG_KEY_ID"
           fi
-          if ! zoi package build "$PKG_FILE" --type source --platform "$PLATFORM" $SIGN_ARG -o built_packages; then
+          if ! zoi package build "$PKG_FILE" --type pre-compiled --platform "$PLATFORM" $SIGN_ARG -o built_packages; then
             echo "Error: Failed to build $PKG_FILE for $PLATFORM"
             exit 1
           fi
