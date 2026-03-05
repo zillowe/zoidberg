@@ -10,7 +10,7 @@ publish-packages:
   rules:
     - if: "$CI_COMMIT_MESSAGE =~ /pkgs: publish/"
   before_script:
-    - pacman -Syu --noconfirm git curl zstd gnupg awk sed findutils base-devel
+    - pacman -Syu --noconfirm git curl zstd gnupg awk sed findutils base-devel zig sudo
     - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
     - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
     - zoi sync
