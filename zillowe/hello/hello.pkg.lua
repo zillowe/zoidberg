@@ -1,6 +1,6 @@
 local repo_owner = "Zillowe"
 local repo_name = "Hello"
-local version = ZOI.VERSION or "3.0.0"
+local version = ZOI.VERSION or "4.0.0"
 local git_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. ".git"
 local release_base_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. "/releases/download/v" .. version
 
