@@ -1,4 +1,4 @@
-local version = "2.60.0"
+local version = ZOI.VERSION or "2.60.0"
 local release_base = "https://github.com/fastfetch-cli/fastfetch/releases/download/" .. version
 
 INCLUDE("hashes.pkg.lua")
