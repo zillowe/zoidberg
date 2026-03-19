@@ -6,16 +6,19 @@ variables:
 
 publish-packages:
   stage: publish
-  image: docker:latest
+  image: archlinux:latest
   services:
     - docker:dind
   variables:
     PUBLISH_VERSION: "latest"
+    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   rules:
     - if: "$CI_COMMIT_MESSAGE =~ /pkgs: publish/"
   before_script:
-    - apk add --no-cache curl git bash gnupg zstd
+    - pacman -Syu --noconfirm docker curl git bash gnupg zstd coreutils awk
     - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
     - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
     - zoi sync
