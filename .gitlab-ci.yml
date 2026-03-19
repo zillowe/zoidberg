@@ -6,11 +6,16 @@ variables:
 
 publish-packages:
   stage: publish
-  image: archlinux:latest
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    PUBLISH_VERSION: "latest"
+    DOCKER_TLS_CERTDIR: "/certs"
   rules:
     - if: "$CI_COMMIT_MESSAGE =~ /pkgs: publish/"
   before_script:
-    - pacman -Syu --noconfirm --needed git curl zstd gnupg awk sed findutils base-devel zig sudo git go
+    - apk add --no-cache curl git bash gnupg zstd
     - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
     - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
     - zoi sync
@@ -35,7 +40,7 @@ publish-packages:
           if [ -n "${GPG_KEY_ID:-}" ]; then
             SIGN_ARG="--sign $GPG_KEY_ID"
           fi
-          if ! zoi package build "$PKG_FILE" --type pre-compiled --platform "$PLATFORM" $SIGN_ARG -o built_packages; then
+          if ! zoi package build "$PKG_FILE" --type pre-compiled --platform "$PLATFORM" $SIGN_ARG -o built_packages --method docker --image archlinux --install-deps; then
             echo "Error: Failed to build $PKG_FILE for $PLATFORM"
             exit 1
           fi
