@@ -24,32 +24,52 @@ dependencies({
       source = {
         required = {
           "native:cmake",
-          "native:pkg-config",
+          "native:pkgconf",
           "native:gcc",
           "native:yyjson",
-          "native:sqlite",
-          "native:zlib",
-        },
-        optional = {
-          "native:imagemagick",
           "native:chafa",
           "native:dbus",
-          "native:vulkan-loader",
-          "native:wayland",
-          "native:libxcb",
           "native:dconf",
           "native:ddcutil",
+          "native:imagemagick",
+          "native:libglvnd",
           "native:libpulse",
+          "native:libxcb",
           "native:libxrandr",
           "native:ocl-icd",
+          "native:sqlite",
+          "native:wayland",
           "native:xfconf",
-          "native:libglvnd",
+          "native:zlib",
+          "native:vulkan-headers",
+          "native:vulkan-icd-loader",
+          "native:opencl-headers",
+          "native:directx-headers",
         },
       },
     },
   },
   runtime = {
     required = { "native:yyjson" },
+    optional = {
+      "native:chafa:Image output as ascii art",
+      "native:dbus:Bluetooth, Player & Media detection",
+      "native:dconf:Needed for values that are only stored in DConf + Fallback for GSettings",
+      "native:ddcutil:Brightness detection of external displays",
+      "native:glib2:Output for values that are only stored in GSettings",
+      "native:hwdata:GPU output",
+      "native:imagemagick:Image output using sixel or kitty graphics protocol",
+      "native:libdrm:Displays detection",
+      "native:libelf:st term font detection and fast path of systemd version detection",
+      "native:libglvnd:OpenGL module",
+      "native:libpulse:Sound detection",
+      "native:libxrandr:Multi monitor support",
+      "native:ocl-icd:OpenCL module",
+      "native:python:Needed for zsh and fish completions",
+      "native:sqlite:Needed for Sqlite integration and Soar packages count",
+      "native:vulkan-icd-loader:Vulkan module & fallback for GPU output",
+      "native:zlib:Faster image output when using kitty graphics protocol",
+    },
   },
 })
 
@@ -77,7 +97,7 @@ end
 function package()
   if BUILD_TYPE == "source" then
     local build_args = "-DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr "
-        .. "-DBUILD_FLASHFETCH=OFF -DBUILD_TESTS=OFF -DENABLE_SQLITE3=ON "
+        .. "-DBUILD_FLASHFETCH=OFF -DBUILD_TESTS=ON -DENABLE_SQLITE3=ON "
         .. "-DENABLE_RPM=OFF -DENABLE_IMAGEMAGICK6=OFF -DENABLE_SYSTEM_YYJSON=ON "
         .. "-DPACKAGES_DISABLE_APK=ON -DPACKAGES_DISABLE_DPKG=ON -DPACKAGES_DISABLE_EMERGE=ON "
         .. "-DPACKAGES_DISABLE_EOPKG=ON -DPACKAGES_DISABLE_GUIX=ON -DPACKAGES_DISABLE_LINGLONG=ON "
@@ -107,6 +127,14 @@ function package()
       end
     end
   end
+end
+
+function test()
+  if BUILD_TYPE == "source" then
+    local _, _, exit_code = cmd("ctest --test-dir build --output-on-failure")
+    return exit_code == 0
+  end
+  return true
 end
 
 function verify()

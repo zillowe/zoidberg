@@ -45,7 +45,7 @@ dependencies({
 	build = {
 		types = {
 			source = {
-				required = { "native:zig" },
+				required = { "pacman:zig" },
 			},
 		},
 	},

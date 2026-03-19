@@ -27,7 +27,7 @@ dependencies({
   build = {
     types = {
       source = {
-        required = { "native:go", "native:git" },
+        required = { "pacman:go", "pacman:git" },
       },
     },
   },
