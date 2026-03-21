@@ -52,3 +52,5 @@ function package()
 		zcp("source/build/compiled/gct", "${pkgstore}/bin/gct")
 	end
 end
+
+function uninstall() end

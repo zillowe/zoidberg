@@ -158,3 +158,5 @@ function verify()
   end
   return true
 end
+
+function uninstall() end
