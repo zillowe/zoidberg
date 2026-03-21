@@ -36,6 +36,10 @@ dependencies({
 	},
 })
 
+function verify()
+	return true
+end
+
 function prepare()
 	if BUILD_TYPE == "source" then
 		cmd("git clone " .. PKG.git .. " source")
@@ -47,8 +51,4 @@ function package()
 		cmd("cd source && ./build/build-release.sh")
 		zcp("source/build/compiled/gct", "${pkgstore}/bin/gct")
 	end
-end
-
-function verify()
-	return true
 end
