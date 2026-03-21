@@ -50,12 +50,20 @@ advisory-id-assignment:
         ID_PADDING=$(printf "%04d" $NEXT_ID)
         
         SEVERITY=$(yq e '.severity' "$FILE" | tr '[:upper:]' '[:lower:]')
+        if [ "$SEVERITY" = "null" ]; then
+          echo "Error: 'severity' is mandatory in $FILE"
+          exit 1
+        fi
+
         case $SEVERITY in
           low) SEV_CHAR="A" ;;
           medium) SEV_CHAR="B" ;;
           high) SEV_CHAR="C" ;;
           critical) SEV_CHAR="D" ;;
-          *) SEV_CHAR="A" ;;
+          *) 
+            echo "Error: Invalid severity '$SEVERITY' in $FILE. Must be low, medium, high, or critical."
+            exit 1 
+            ;;
         esac
         
         FINAL_ID="${ADVISORY_PREFIX}-${CURRENT_YEAR}-${SEV_CHAR}${ID_PADDING}"
@@ -69,7 +77,14 @@ advisory-id-assignment:
         mv "$FILE" "$FINAL_FILE"
         
         PKG=$(yq e '.package' "$FINAL_FILE")
-        jq ".last_id = $NEXT_ID | .advisories[\"$ID_PADDING\"] = \"$PKG\"" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+        SUB=$(yq e '.sub_package' "$FINAL_FILE")
+        if [ "$SUB" != "null" ]; then
+          PKG_DISPLAY="${PKG}:${SUB}"
+        else
+          PKG_DISPLAY="$PKG"
+        fi
+        
+        jq ".last_id = $NEXT_ID | .advisories[\"$ID_PADDING\"] = \"$PKG_DISPLAY\"" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
         
         git add "$FINAL_FILE" "$FILE" advisories.json
       done

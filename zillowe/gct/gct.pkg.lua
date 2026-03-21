@@ -48,3 +48,7 @@ function package()
 		zcp("source/build/compiled/gct", "${pkgstore}/bin/gct")
 	end
 end
+
+function verify()
+	return true
+end
