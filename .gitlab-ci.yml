@@ -1,8 +1,81 @@
 stages:
+  - security
   - publish
 
 variables:
   PUBLISH_VERSION: "latest"
+
+advisory-id-assignment:
+  stage: security
+  image: alpine:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_BRANCH && $CI_COMMIT_MESSAGE !~ /security: automatically assign ZSA IDs/"
+  before_script:
+    - apk add --no-cache jq yq git bash
+  script:
+    - |
+      echo "Checking for temporary security advisories..."
+      TEMP_FILES=$(find . -name "*TEMP.sec.yaml")
+      if [ -z "$TEMP_FILES" ]; then
+        echo "No temporary advisories found."
+        exit 0
+      fi
+
+      if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
+        TARGET_BRANCH=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+      else
+        TARGET_BRANCH=$CI_COMMIT_BRANCH
+      fi
+
+      git config --global user.email "ci-bot@zillowe.qzz.io"
+      git config --global user.name "ZSA Registrar Bot"
+
+      git remote set-url origin "https://oauth2:${PROJECT_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+      git fetch origin $TARGET_BRANCH
+      git checkout $TARGET_BRANCH
+
+      ADVISORY_PREFIX=$(yq e '.advisory_prefix // "ZSA"' repo.yaml)
+      CURRENT_YEAR=$(date +%Y)
+
+      REG_YEAR=$(jq -r '.year' advisories.json)
+      if [ "$REG_YEAR" != "$CURRENT_YEAR" ]; then
+        echo "New year detected ($CURRENT_YEAR). Resetting counter."
+        jq ".year = $CURRENT_YEAR | .last_id = 0" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+      fi
+
+      for FILE in $TEMP_FILES; do
+        LAST_ID=$(jq -r '.last_id' advisories.json)
+        NEXT_ID=$((LAST_ID + 1))
+        ID_PADDING=$(printf "%04d" $NEXT_ID)
+        
+        SEVERITY=$(yq e '.severity' "$FILE" | tr '[:upper:]' '[:lower:]')
+        case $SEVERITY in
+          low) SEV_CHAR="A" ;;
+          medium) SEV_CHAR="B" ;;
+          high) SEV_CHAR="C" ;;
+          critical) SEV_CHAR="D" ;;
+          *) SEV_CHAR="A" ;;
+        esac
+        
+        FINAL_ID="${ADVISORY_PREFIX}-${CURRENT_YEAR}-${SEV_CHAR}${ID_PADDING}"
+        DIR=$(dirname "$FILE")
+        FINAL_FILE="${DIR}/${FINAL_ID}.sec.yaml"
+        
+        echo "Assigning ID $FINAL_ID to $FILE"
+        
+        yq e -i ".id = \"$FINAL_ID\"" "$FILE"
+        
+        mv "$FILE" "$FINAL_FILE"
+        
+        PKG=$(yq e '.package' "$FINAL_FILE")
+        jq ".last_id = $NEXT_ID | .advisories[\"$ID_PADDING\"] = \"$PKG\"" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+        
+        git add "$FINAL_FILE" "$FILE" advisories.json
+      done
+
+      git commit -m "security: automatically assign ZSA IDs [skip ci]"
+      git push origin HEAD:$TARGET_BRANCH
 
 publish-packages:
   stage: publish

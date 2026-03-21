@@ -77,3 +77,13 @@ Other non-generic repos:
 Create a [Merge Request](https://gitlab.com/Zillwen/Zusty/Zoidberg/-/merge_requests) to add a new package or an [Issue](https://gitlab.com/Zillwen/Zusty/Zoidberg/-/issues) to request a new package (MRs/PRs are only acceptable on [GitLab](https://gitlab.com/Zillwen/Zusty/Zoidberg), creating issues are acceptable on all Zoidberg [mirrors](#mirrors)).
 
 Use [`@zillowe/hello`](https://github.com/Zillowe/Hello) as an example package, [learn more about packaging existing software](https://zillowe.qzz.io/docs/zds/zoi/creating-packages).
+
+## Reporting Security Issues
+
+We take the security of Zoidberg packages seriously. If you discover a vulnerability in a package, please report it by opening a Merge Request with a security advisory file.
+
+1.  **Create an Advisory:** Add a `.sec.yaml` file to the package directory.
+2.  **Use Temporary ID:** Name it `ZSA-YYYY-TEMP.sec.yaml`.
+3.  **Submit MR:** Open a Merge Request on [GitLab](https://gitlab.com/Zillwen/Zusty/Zoidberg).
+
+For more details, see the [Security Advisories guide](https://zillowe.qzz.io/docs/zds/zoi/guides/security-advisories).
