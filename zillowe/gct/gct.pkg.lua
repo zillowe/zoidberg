@@ -6,7 +6,7 @@ metadata({
 	version = version,
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
-	git = "https://github.com/Zillowe/GCT.git",
+	git = "https://gitlab.com/Zillowe/Zillwen/Zusty/GCT",
 	maintainer = {
 		name = "Zillowe Foundation",
 		website = "https://zillowe.qzz.io",
