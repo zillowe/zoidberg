@@ -19,8 +19,8 @@ metadata({
 	},
 	license = "Apache-2.0",
 	bins = { "gct" },
-	conflicts = { "gct" },
 	types = { "source" },
+	tags = { "zillowe", "ai", "git", "cli" },
 })
 
 dependencies({

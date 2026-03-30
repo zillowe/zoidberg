@@ -11,7 +11,11 @@ metadata({
   website = "https://github.com/fastfetch-cli/fastfetch",
   git = "https://github.com/fastfetch-cli/fastfetch.git",
   license = "MIT",
-  maintainer = { name = "Zillowe Foundation", email = "contact@zillowe.qzz.io" },
+  maintainer = {
+    name = "Zillowe Foundation",
+    website = "https://zillowe.qzz.io",
+    email = "contact@zillowe.qzz.io",
+  },
   bins = { "fastfetch" },
   types = { "source", "pre-compiled" },
   tags = { "cli", "system-info", "neofetch", "utility" },
