@@ -1,6 +1,6 @@
 local repo_owner = "athasdev"
 local repo_name = "athas"
-local version = ZOI.VERSION or "0.4.4"
+local version = ZOI.VERSION or "0.4.7"
 local base_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. "/releases/download/v" .. version
 
 metadata({
@@ -64,7 +64,7 @@ function verify()
 	local filename = string.format("Athas_%s_%s.deb", version, arch)
 
 	if arch == "amd64" then
-		return verifyHash(filename, "sha256-fd36e7d785ee80018f89a58ee7147974a9c360b6612024dd17668dc3a3ffe6a1")
+		return verifyHash(filename, "sha256-c7502a7fe61acf4d2afcf80147f284b9af6d3bb253878cba5dd0bf2915f1bdfe")
 	end
 
 	return true
