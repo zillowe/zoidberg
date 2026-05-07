@@ -1,5 +1,7 @@
 {
-  "last_id": 0,
+  "last_id": 1,
   "year": 2026,
-  "advisories": {}
+  "advisories": {
+    "0001": "hello"
+  }
 }
