@@ -1,6 +1,5 @@
 id: ZSA-2026-D0042
 package: hello
-sub_package: devel
 summary: "Short description of the issue"
 severity: critical
 affected_range: ">=2.0.0, <5.0.0"
