@@ -29,7 +29,7 @@ advisory-id-assignment:
         TARGET_BRANCH=$CI_COMMIT_BRANCH
       fi
 
-      git config --global user.email "zillowez@gmail.com"
+      git config --global user.email "contact@zillowe.qzz.io"
       git config --global user.name "ZSA Registrar Bot"
 
       if [ -n "$GPG_PRIVATE_KEY" ]; then
@@ -62,7 +62,35 @@ advisory-id-assignment:
       REG_YEAR=$(jq -r '.year' advisories.json)
       if [ "$REG_YEAR" != "$CURRENT_YEAR" ]; then
         echo "New year detected ($CURRENT_YEAR). Resetting counter."
-        jq ".year = $CURRENT_YEAR | .last_id = 0" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+        jq ".year = $CURRENT_YEAR | .last_id = 0 | .advisories = {}" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+      else
+        echo "Rebuilding advisories.json from existing advisories..."
+        jq ".advisories = {}" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+
+        LAST_ID=0
+        for FILE in $(find . -name "*.sec.yaml" ! -name "*TEMP.sec.yaml"); do
+          ID=$(yq e '.id' "$FILE")
+          if [ "$ID" != "null" ] && [ -n "$ID" ]; then
+            ID_NUM=$(echo "$ID" | sed 's/.*\([0-9][0-9][0-9][0-9]\)$/\1/')
+            PKG=$(yq e '.package' "$FILE")
+            SUB=$(yq e '.sub_package' "$FILE")
+            if [ "$SUB" != "null" ] && [ -n "$SUB" ]; then
+              PKG_DISPLAY="${PKG}:${SUB}"
+            else
+              PKG_DISPLAY="$PKG"
+            fi
+            jq ".advisories[\"$ID_NUM\"] = \"$PKG_DISPLAY\"" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+            ID_NUM_CLEAN=$(echo "$ID_NUM" | sed 's/^0*//')
+            [ -z "$ID_NUM_CLEAN" ] && ID_NUM_CLEAN=0
+            if [ "$ID_NUM_CLEAN" -gt "$LAST_ID" ]; then
+              LAST_ID=$ID_NUM_CLEAN
+            fi
+          fi
+        done
+
+        if [ "$LAST_ID" -gt "$(jq -r '.last_id' advisories.json)" ]; then
+          jq ".last_id = $LAST_ID" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+        fi
       fi
 
       for FILE in $TEMP_FILES; do
