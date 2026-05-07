@@ -13,7 +13,7 @@ advisory-id-assignment:
     - if: "$CI_COMMIT_BRANCH && $CI_COMMIT_MESSAGE !~ /security: automatically assign
         ZSA IDs/"
   before_script:
-    - apk add --no-cache jq yq git bash
+    - apk add --no-cache jq yq git bash gnupg
   script:
     - |
       echo "Checking for temporary security advisories..."
@@ -29,8 +29,28 @@ advisory-id-assignment:
         TARGET_BRANCH=$CI_COMMIT_BRANCH
       fi
 
-      git config --global user.email "ci-bot@zillowe.qzz.io"
+      git config --global user.email "zillowez@gmail.com"
       git config --global user.name "ZSA Registrar Bot"
+
+      if [ -n "$GPG_PRIVATE_KEY" ]; then
+        mkdir -p ~/.gnupg
+        chmod 700 ~/.gnupg
+        echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
+        echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --import
+        gpgconf --kill gpg-agent
+
+        GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
+        if [ -n "$GPG_KEY_ID" ]; then
+          git config --global user.signingkey "$GPG_KEY_ID"
+        fi
+
+        if [ -n "$GPG_PASSWORD" ]; then
+          GPG_PASS=$(echo "$GPG_PASSWORD" | base32 -d); export GPG_PASS
+          printf '#!/bin/sh\nexec gpg --batch --passphrase "$GPG_PASS" --pinentry-mode loopback "$@"\n' > /tmp/git-gpg-wrapper
+          chmod +x /tmp/git-gpg-wrapper
+          git config --global gpg.program /tmp/git-gpg-wrapper
+        fi
+      fi
 
       git remote set-url origin "https://oauth2:${PROJECT_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git fetch origin refs/heads/$TARGET_BRANCH
@@ -90,7 +110,7 @@ advisory-id-assignment:
         git add "$FINAL_FILE" "$FILE" advisories.json
       done
 
-      git commit -m "security: automatically assign ZSA IDs [skip ci]"
+      git commit -S -m "security: automatically assign ZSA IDs [skip ci]"
       git push origin HEAD:$TARGET_BRANCH
 
 publish-packages:
