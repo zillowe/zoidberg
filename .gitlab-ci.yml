@@ -13,7 +13,7 @@ advisory-id-assignment:
     - if: "$CI_COMMIT_BRANCH && $CI_COMMIT_MESSAGE !~ /security: automatically assign
         ZSA IDs/"
   before_script:
-    - apk add --no-cache jq yq git bash gnupg
+    - apk add --no-cache jq yq git bash gnupg coreutils
   script:
     - |
       echo "Checking for temporary security advisories..."
