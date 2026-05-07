@@ -16,12 +16,7 @@ advisory-id-assignment:
     - apk add --no-cache jq yq git bash gnupg coreutils
   script:
     - |
-      echo "Checking for temporary security advisories..."
       TEMP_FILES=$(find . -name "*TEMP.sec.yaml")
-      if [ -z "$TEMP_FILES" ]; then
-        echo "No temporary advisories found."
-        exit 0
-      fi
 
       if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
         TARGET_BRANCH=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
@@ -93,53 +88,58 @@ advisory-id-assignment:
         fi
       fi
 
-      for FILE in $TEMP_FILES; do
-        LAST_ID=$(jq -r '.last_id' advisories.json)
-        NEXT_ID=$((LAST_ID + 1))
-        ID_PADDING=$(printf "%04d" $NEXT_ID)
-        
-        SEVERITY=$(yq e '.severity' "$FILE" | tr '[:upper:]' '[:lower:]')
-        if [ "$SEVERITY" = "null" ]; then
-          echo "Error: 'severity' is mandatory in $FILE"
-          exit 1
-        fi
+      if [ -n "$TEMP_FILES" ]; then
+        for FILE in $TEMP_FILES; do
+          LAST_ID=$(jq -r '.last_id' advisories.json)
+          NEXT_ID=$((LAST_ID + 1))
+          ID_PADDING=$(printf "%04d" $NEXT_ID)
+          
+          SEVERITY=$(yq e '.severity' "$FILE" | tr '[:upper:]' '[:lower:]')
+          if [ "$SEVERITY" = "null" ]; then
+            echo "Error: 'severity' is mandatory in $FILE"
+            exit 1
+          fi
 
-        case $SEVERITY in
-          low) SEV_CHAR="A" ;;
-          medium) SEV_CHAR="B" ;;
-          high) SEV_CHAR="C" ;;
-          critical) SEV_CHAR="D" ;;
-          *) 
-            echo "Error: Invalid severity '$SEVERITY' in $FILE. Must be low, medium, high, or critical."
-            exit 1 
-            ;;
-        esac
-        
-        FINAL_ID="${ADVISORY_PREFIX}-${CURRENT_YEAR}-${SEV_CHAR}${ID_PADDING}"
-        DIR=$(dirname "$FILE")
-        FINAL_FILE="${DIR}/${FINAL_ID}.sec.yaml"
-        
-        echo "Assigning ID $FINAL_ID to $FILE"
-        
-        yq e -i ".id = \"$FINAL_ID\"" "$FILE"
-        
-        mv "$FILE" "$FINAL_FILE"
-        
-        PKG=$(yq e '.package' "$FINAL_FILE")
-        SUB=$(yq e '.sub_package' "$FINAL_FILE")
-        if [ "$SUB" != "null" ]; then
-          PKG_DISPLAY="${PKG}:${SUB}"
-        else
-          PKG_DISPLAY="$PKG"
-        fi
-        
-        jq ".last_id = $NEXT_ID | .advisories[\"$ID_PADDING\"] = \"$PKG_DISPLAY\"" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
-        
-        git add "$FINAL_FILE" "$FILE" advisories.json
-      done
+          case $SEVERITY in
+            low) SEV_CHAR="A" ;;
+            medium) SEV_CHAR="B" ;;
+            high) SEV_CHAR="C" ;;
+            critical) SEV_CHAR="D" ;;
+            *) 
+              echo "Error: Invalid severity '$SEVERITY' in $FILE. Must be low, medium, high, or critical."
+              exit 1 
+              ;;
+          esac
+          
+          FINAL_ID="${ADVISORY_PREFIX}-${CURRENT_YEAR}-${SEV_CHAR}${ID_PADDING}"
+          DIR=$(dirname "$FILE")
+          FINAL_FILE="${DIR}/${FINAL_ID}.sec.yaml"
+          
+          echo "Assigning ID $FINAL_ID to $FILE"
+          
+          yq e -i ".id = \"$FINAL_ID\"" "$FILE"
+          
+          mv "$FILE" "$FINAL_FILE"
+          
+          PKG=$(yq e '.package' "$FINAL_FILE")
+          SUB=$(yq e '.sub_package' "$FINAL_FILE")
+          if [ "$SUB" != "null" ]; then
+            PKG_DISPLAY="${PKG}:${SUB}"
+          else
+            PKG_DISPLAY="$PKG"
+          fi
+          
+          jq ".last_id = $NEXT_ID | .advisories[\"$ID_PADDING\"] = \"$PKG_DISPLAY\"" advisories.json > advisories.json.tmp && mv advisories.json.tmp advisories.json
+          
+          git add "$FINAL_FILE"
+        done
+      fi
 
-      git commit -S -m "security: automatically assign ZSA IDs [skip ci]"
-      git push origin HEAD:$TARGET_BRANCH
+      if [ -n "$(git status --porcelain)" ]; then
+        git add advisories.json
+        git commit -S -m "security: automatically assign ZSA IDs [skip ci]"
+        git push origin HEAD:$TARGET_BRANCH
+      fi
 
 publish-packages:
   stage: publish
