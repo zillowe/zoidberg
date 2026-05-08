@@ -1,6 +1,6 @@
 local repo_owner = "athasdev"
 local repo_name = "athas"
-local version = ZOI.VERSION or "0.4.7"
+local version = ZOI.VERSION or "0.6.0"
 local base_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. "/releases/download/v" .. version
 
 metadata({
