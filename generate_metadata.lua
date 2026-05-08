@@ -132,7 +132,7 @@ f_adv:close()
 local packages = {}
 
 local repo_types = {}
-local repo_config_raw = execute("yq e -j '.repos' repo.yaml")
+local repo_config_raw = execute("yq e -o=json '.repos' repo.yaml")
 for name, rtype in repo_config_raw:gmatch('"name":%s*"([^"]+)".-"repo_type":%s*"([^"]+)"') do
 	repo_types[name] = rtype
 end
