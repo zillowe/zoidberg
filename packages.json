@@ -5,28 +5,28 @@
       "repo": "main",
       "repo_type": "official",
       "sub_packages": {},
-      "version": "1.0.0"
+      "version": "0.6.0"
     },
     "fastfetch": {
       "description": "A feature-rich and performance oriented neofetch like system information tool",
       "repo": "main",
       "repo_type": "official",
       "sub_packages": {},
-      "version": "1.0.0"
+      "version": "2.62.1"
     },
     "gct": {
       "description": "An intelligent, AI-powered Git assistant",
       "repo": "zillowe",
       "repo_type": "official",
       "sub_packages": {},
-      "version": "1.0.0"
+      "version": "1.3.0"
     },
     "hello": {
       "description": "Hello World",
       "repo": "zillowe",
       "repo_type": "official",
       "sub_packages": {},
-      "version": "1.0.0"
+      "version": "4.0.0"
     }
   }
 }
