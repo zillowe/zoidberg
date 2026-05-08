@@ -9,26 +9,46 @@ function string:trim()
 	return self:match("^%s*(.-)%s*$")
 end
 
-local function serialize_json(val)
+local function serialize_json(val, indent)
+	indent = indent or 0
+	local pad = string.rep("  ", indent)
+	local next_pad = string.rep("  ", indent + 1)
+
 	if type(val) == "string" then
-		return '"' .. val:gsub('"', '\\"'):gsub("\n", " ") .. '"'
+		return '"'
+			.. val:gsub("\\", "\\\\"):gsub('"', '\\"'):gsub("\n", "\\n"):gsub("\r", "\\r"):gsub("\t", "\\t")
+			.. '"'
 	elseif type(val) == "number" then
 		return tostring(val)
 	elseif type(val) == "boolean" then
 		return tostring(val)
 	elseif type(val) == "table" then
-		local is_array = #val > 0
+		local is_array = #val > 0 or (next(val) == nil and val._is_array)
 		local parts = {}
 		if is_array then
 			for _, v in ipairs(val) do
-				table.insert(parts, serialize_json(v))
+				table.insert(parts, serialize_json(v, indent + 1))
 			end
-			return "[" .. table.concat(parts, ",") .. "]"
+			if #parts == 0 then
+				return "[]"
+			end
+			return "[\n" .. next_pad .. table.concat(parts, ",\n" .. next_pad) .. "\n" .. pad .. "]"
 		else
-			for k, v in pairs(val) do
-				table.insert(parts, '"' .. k .. '":' .. serialize_json(v))
+			local keys = {}
+			for k in pairs(val) do
+				if k ~= "_is_array" then
+					table.insert(keys, k)
+				end
 			end
-			return "{" .. table.concat(parts, ",") .. "}"
+			table.sort(keys)
+
+			for _, k in ipairs(keys) do
+				table.insert(parts, '"' .. k .. '": ' .. serialize_json(val[k], indent + 1))
+			end
+			if #parts == 0 then
+				return "{}"
+			end
+			return "{\n" .. next_pad .. table.concat(parts, ",\n" .. next_pad) .. "\n" .. pad .. "}"
 		end
 	else
 		return "null"
@@ -71,7 +91,7 @@ end
 
 local advisories_raw = execute("cat advisories.json")
 local last_id = tonumber(advisories_raw:match('"last_id":%s*(%d+)')) or 0
-local year = tonumber(advisories_raw:match('"year":%s*(%d+)')) or os.date("%Y")
+local year = tonumber(advisories_raw:match('"year":%s*(%d+)')) or tonumber(os.date("%Y"))
 local current_year = tonumber(os.date("%Y"))
 
 if year ~= current_year then
@@ -133,8 +153,12 @@ local packages = {}
 
 local repo_types = {}
 local repo_config_raw = execute("yq e -o=json '.repos' repo.yaml")
-for name, rtype in repo_config_raw:gmatch('"name":%s*"([^"]+)".-"repo_type":%s*"([^"]+)"') do
-	repo_types[name] = rtype
+for item in repo_config_raw:gmatch("{(.-)}") do
+	local name = item:match('"name":%s*"([^"]+)"')
+	local rtype = item:match('"type":%s*"([^"]+)"')
+	if name and rtype then
+		repo_types[name] = rtype
+	end
 end
 
 local pkg_files = execute("find . -name '*.pkg.lua' -not -path '*/.*'")
@@ -153,7 +177,7 @@ for file in pkg_files:gmatch("[^\n]+") do
 				version = pkg_collect.versions.stable or pkg_collect.versions[next(pkg_collect.versions)]
 			end
 
-			local vulns = {}
+			local vulns = { _is_array = true }
 			local sec_files = execute("find " .. dir .. " -name '*.sec.yaml' ! -name '*TEMP.sec.yaml'")
 			for sec_file in sec_files:gmatch("[^\n]+") do
 				local v_id = execute("yq e '.id' " .. sec_file)
@@ -176,9 +200,13 @@ for file in pkg_files:gmatch("[^\n]+") do
 				repo_type = repo_types[major_repo] or "unofficial",
 				version = version or "unknown",
 				description = pkg_collect.description or "",
-				sub_packages = pkg_collect.sub_packages,
+				sub_packages = pkg_collect.sub_packages or { _is_array = true },
 				vuln = (#vulns > 0) and vulns or nil,
 			}
+
+			if pkg_collect.sub_packages then
+				packages[pkg_collect.name].sub_packages._is_array = true
+			end
 		end
 	end
 end
