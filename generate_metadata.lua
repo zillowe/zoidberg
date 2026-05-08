@@ -64,13 +64,13 @@ _G.updates = function() end
 _G.hooks = function() end
 _G.service = function() end
 _G.SYSTEM = { OS = "linux", ARCH = "amd64" }
-_G.ZOI = { VERSION = "1.0.0" }
+_G.ZOI = {}
 _G.UTILS = {
 	FETCH = {
 		GITHUB = {
 			LATEST = {
 				release = function()
-					return "1.0.0"
+					return nil
 				end,
 			},
 		},
