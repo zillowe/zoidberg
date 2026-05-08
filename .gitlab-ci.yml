@@ -52,8 +52,7 @@ advisory-id-assignment:
       lua5.4 generate_metadata.lua
 
       if [ -n "$(git status --porcelain)" ]; then
-        git add advisories.json packages.json
-        git add "**/*.sec.yaml"
+        git add .
         git commit -S -m "security: update metadata index [skip ci]"
         git push origin HEAD:$TARGET_BRANCH
       fi
