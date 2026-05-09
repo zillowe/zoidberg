@@ -7,13 +7,6 @@
       "sub_packages": {},
       "version": "0.6.0"
     },
-    "fastfetch": {
-      "description": "A feature-rich and performance oriented neofetch like system information tool",
-      "repo": "main",
-      "repo_type": "official",
-      "sub_packages": {},
-      "version": "2.62.1"
-    },
     "gct": {
       "description": "An intelligent, AI-powered Git assistant",
       "repo": "zillowe",
