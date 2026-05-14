@@ -6,10 +6,10 @@
 
 ### Action Type
 
-- [ ] Update version -> *Please use `Action/Update` label*
-- [ ] Fix broken package (build failure, dead link, etc.) -> *Please use `Action/Fix` labels*
-- [ ] Move to another repo/tier -> *Please use `Action/Move` label*
-- [ ] Remove package -> *Please use `Action/Remove` label*
+- [ ] Update version -> *Please use `Action::Update` label*
+- [ ] Fix broken package (build failure, dead link, etc.) -> *Please use `Action::Fix` labels*
+- [ ] Move to another repo/tier -> *Please use `Action::Move` label*
+- [ ] Remove package -> *Please use `Action::Remove` label*
 
 ### Details of Change
 

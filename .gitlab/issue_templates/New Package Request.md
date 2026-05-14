@@ -26,4 +26,4 @@
 
 <!-- Why should this package be added? Any specific build requirements? -->
 
-/label ~"Action/Add"
+/label ~"Action::Add"
