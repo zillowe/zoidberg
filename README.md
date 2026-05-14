@@ -6,10 +6,10 @@
 <br/>
 
 <div align="center">
-  <a href="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/issues/new?issuable_template=New%20Package%20Request"><strong>New Package Request</strong></a> •
-  <a href="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/issues/new?issuable_template=Package%20Update%20or%20Removal"><strong>Package Update or Removal</strong></a>
+  <a href="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoidberg/-/issues/new?issuable_template=New%20Package%20Request"><strong>New Package Request</strong></a> •
+  <a href="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoidberg/-/issues/new?issuable_template=Package%20Update%20or%20Removal"><strong>Package Update or Removal</strong></a>
   <br/>
-  <a href="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoi/-/issues/new?issuable_template=Security%20Vulnerability%20Report"><strong>Security Vulnerability Report</strong></a>
+  <a href="https://gitlab.com/Zillowe/Zillwen/Zusty/Zoidberg/-/issues/new?issuable_template=Security%20Vulnerability%20Report"><strong>Security Vulnerability Report</strong></a>
 </div>
 
 <br/>
