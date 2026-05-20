@@ -140,6 +140,7 @@ end
 
 last_id = math.max(last_id, max_id)
 local adv_json = {
+	version = "1",
 	last_id = last_id,
 	year = year,
 	advisories = advisories_map,
@@ -211,7 +212,7 @@ for file in pkg_files:gmatch("[^\n]+") do
 	end
 end
 
-local final_index = { packages = packages }
+local final_index = { version = "1", packages = packages }
 local f_idx = io.open("packages.json", "w")
 f_idx:write(serialize_json(final_index))
 f_idx:close()
