@@ -1,12 +1,12 @@
-local version = ZOI.VERSION or "1.4.0"
+local version = ZOI.VERSION or "1.1.0"
 
 metadata({
-	name = "gct",
+	name = "lct",
 	repo = "zillowe",
 	version = version,
-	description = "An intelligent, AI-powered Git assistant",
-	website = "https://zillowe.qzz.io/docs/zds/gct",
-	git = "https://gitlab.com/Zillowe/Zillwen/Zusty/GCT",
+	description = "Command-line tool for easily adding open-source licenses to your projects",
+	website = "https://zillowe.qzz.io/docs/zds/lct",
+	git = "https://gitlab.com/Zillowe/Zillwen/Zusty/LCT",
 	maintainer = {
 		name = "Zillowe Foundation",
 		website = "https://zillowe.qzz.io",
@@ -18,9 +18,9 @@ metadata({
 		email = "contact@zillowe.qzz.io",
 	},
 	license = "Apache-2.0",
-	bins = { "gct" },
+	bins = { "lct" },
 	types = { "source" },
-	tags = { "zillowe", "ai", "git", "cli" },
+	tags = { "zillowe", "lct", "license", "cli" },
 })
 
 dependencies({
@@ -30,9 +30,6 @@ dependencies({
 				required = { "pacman:go", "pacman:git" },
 			},
 		},
-	},
-	runtime = {
-		required = { "native:git" },
 	},
 })
 
@@ -49,7 +46,7 @@ end
 function package()
 	if BUILD_TYPE == "source" then
 		cmd("cd source && ./build/build-release.sh")
-		zcp("source/build/compiled/gct", "${pkgstore}/bin/gct")
+		zcp("source/build/compiled/lct", "${pkgstore}/bin/lct")
 	end
 end
 
