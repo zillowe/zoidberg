@@ -1,5 +1,5 @@
-local repo_owner = "Zillowe"
-local repo_name = "Hello"
+local repo_owner = "zillowe"
+local repo_name = "hello"
 local version = ZOI.VERSION or "4.0.0"
 local git_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. ".git"
 local release_base_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. "/releases/download/v" .. version
@@ -22,9 +22,9 @@ metadata({
 	repo = "zillowe",
 	version = version,
 	description = "Hello World",
-	website = "https://github.com/Zillowe/Hello",
+	website = "https://github.com/zillowe/hello",
 	git = git_url,
-	man = "https://raw.githubusercontent.com/Zillowe/Hello/refs/heads/main/app/man.md",
+	man = "https://raw.githubusercontent.com/zillowe/hello/refs/heads/main/app/man.md",
 	maintainer = {
 		name = "Zillowe Foundation",
 		website = "https://zillowe.qzz.io",

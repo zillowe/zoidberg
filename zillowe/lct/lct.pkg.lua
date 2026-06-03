@@ -6,7 +6,7 @@ metadata({
 	version = version,
 	description = "Command-line tool for easily adding open-source licenses to your projects",
 	website = "https://zillowe.qzz.io/docs/zds/lct",
-	git = "https://gitlab.com/Zillowe/Zillwen/Zusty/LCT",
+	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
 	maintainer = {
 		name = "Zillowe Foundation",
 		website = "https://zillowe.qzz.io",
