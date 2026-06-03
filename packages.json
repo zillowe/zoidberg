@@ -1,15 +1,6 @@
 {
   "version": "1",
   "packages": {
-    "gct": {
-      "repo": "zillowe",
-      "repo_type": "official",
-      "version": "1.4.0",
-      "description": "An intelligent, AI-powered Git assistant",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
-    },
     "hello": {
       "repo": "zillowe",
       "repo_type": "official",
@@ -19,11 +10,11 @@
       "sub_packages": null,
       "vuln": null
     },
-    "athas": {
-      "repo": "main",
+    "lct": {
+      "repo": "zillowe",
       "repo_type": "official",
-      "version": "0.6.0",
-      "description": "Lightweight code editor built with React, TypeScript, and Tauri",
+      "version": "1.1.0",
+      "description": "Command-line tool for easily adding open-source licenses to your projects",
       "dependencies": null,
       "sub_packages": null,
       "vuln": null
@@ -37,11 +28,11 @@
       "sub_packages": null,
       "vuln": null
     },
-    "lct": {
+    "gct": {
       "repo": "zillowe",
       "repo_type": "official",
-      "version": "1.1.0",
-      "description": "Command-line tool for easily adding open-source licenses to your projects",
+      "version": "1.4.0",
+      "description": "An intelligent, AI-powered Git assistant",
       "dependencies": null,
       "sub_packages": null,
       "vuln": null
