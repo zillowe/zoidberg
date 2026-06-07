@@ -1,6 +1,7 @@
 stages:
   - lint
   - metagen
+  - build
   - publish
 
 variables:
@@ -70,21 +71,30 @@ metadata-generation:
         git push origin HEAD:$TARGET_BRANCH
       fi
 
-publish-packages:
-  stage: publish
+build-packages:
+  stage: build
   image: archlinux:latest
   services:
     - docker:dind
   variables:
-    PUBLISH_VERSION: "latest"
     DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  parallel:
+    matrix:
+      - PLATFORM:
+          [
+            "linux-amd64",
+            "linux-arm64",
+            "windows-amd64",
+            "macos-amd64",
+            "macos-arm64",
+          ]
   rules:
-    - if: "$CI_COMMIT_MESSAGE =~ /pkgs: publish/"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   before_script:
-    - pacman -Syu --noconfirm docker curl git bash gnupg zstd coreutils awk
+    - pacman -Syu --noconfirm docker curl git bash gnupg zstd coreutils awk jq
     - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
     - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
     - zoi sync
@@ -97,33 +107,123 @@ publish-packages:
         echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --import --batch
         GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
         echo "Imported GPG Key: $GPG_KEY_ID"
+        echo "$GPG_KEY_ID" > gpg_key_id.txt
       fi
     - |
       if [ -n "$GPG_PASSWORD" ]; then
         export GPG_PASSWORD=$(echo "$GPG_PASSWORD" | base32 -d)
       fi
   script:
-    - mkdir -p built_packages
     - |
-      find . -name "*.pkg.lua" -not -path "*/.*" | while read -r PKG_FILE; do
-        echo "Processing package: $PKG_FILE"
-        for PLATFORM in "linux-amd64" "linux-arm64" "windows-amd64" "macos-amd64" "macos-arm64"; do
-          echo "Building for $PLATFORM..."
-          SIGN_ARG=""
-          if [ -n "${GPG_KEY_ID:-}" ]; then
-            SIGN_ARG="--sign $GPG_KEY_ID"
-          fi
-          if ! zoi package build "$PKG_FILE" --platform "$PLATFORM" $SIGN_ARG -o built_packages --method docker --image archlinux --install-deps; then
-            echo "Error: Failed to build $PKG_FILE for $PLATFORM"
-            exit 1
+      echo "Detecting changed packages..."
+      if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+        CHANGED_FILES=$(find . -name "*.pkg.lua" -not -path "*/.*")
+      else
+        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep "\.pkg\.lua$" || true)
+      fi
+
+      if [ -z "$CHANGED_FILES" ]; then
+        echo "No packages changed. Skipping build."
+        exit 0
+      fi
+
+      mkdir -p built_packages
+      export GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
+      for PKG_FILE in $CHANGED_FILES; do
+        if [ ! -f "$PKG_FILE" ]; then
+          continue
+        fi
+
+        echo "Building $PKG_FILE for $PLATFORM..."
+        SIGN_ARG=""
+        if [ -n "$GPG_KEY_ID" ]; then
+          SIGN_ARG="--sign $GPG_KEY_ID"
+        fi
+        zoi package build "$PKG_FILE" --platform "$PLATFORM" $SIGN_ARG -o built_packages --method docker --image archlinux --install-deps --fakeroot
+      done
+  artifacts:
+    paths:
+      - built_packages/
+    expire_in: 1 day
+
+upload-packages:
+  stage: publish
+  image: archlinux:latest
+  variables:
+    PUBLISH_VERSION: "latest"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  before_script:
+    - pacman -Syu --noconfirm curl git bash coreutils jq
+    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
+    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+  script:
+    - |
+      if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+        CHANGED_FILES=$(find . -name "*.pkg.lua" -not -path "*/.*")
+      else
+        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep "\.pkg\.lua$" || true)
+      fi
+
+      if [ -z "$CHANGED_FILES" ]; then
+        echo "No packages changed. Skipping upload."
+        exit 0
+      fi
+
+      for PKG_FILE in $CHANGED_FILES; do
+        if [ ! -f "$PKG_FILE" ]; then
+          echo "Package file deleted: $PKG_FILE. Proceeding to remove from registry."
+          PKG_NAME=$(basename "$PKG_FILE" .pkg.lua)
+          PKG_REPO=$(echo "$PKG_FILE" | sed -E 's|^\./||' | rev | cut -d'/' -f3- | rev)
+        else
+          echo "Processing package: $PKG_FILE"
+          PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)
+          PKG_NAME=$(echo "$PKG_JSON" | jq -r '.name')
+          PKG_REPO=$(echo "$PKG_JSON" | jq -r '.repo')
+        fi
+
+        if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then
+          PKG_ID="$PKG_NAME"
+        else
+          PKG_ID="$(echo "$PKG_REPO" | tr '/' '.').$PKG_NAME"
+        fi
+
+        echo "Uploading to temporary version (latest-tmp) for atomic replacement..."
+        find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do
+          FILENAME=$(basename "$FILE")
+          echo "Uploading $FILENAME to latest-tmp..."
+          curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+               --upload-file "$FILE" \
+               "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID}/latest-tmp/${FILENAME}"
+        done
+
+        echo "Cleaning old versions of $PKG_NAME from GitLab Generic Package Registry (ID: $PKG_ID)..."
+        PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID}&package_type=generic" | jq -r '.[].id')
+        for ID in $PACKAGE_IDS; do
+          if [ -n "$ID" ] && [ "$ID" != "null" ]; then
+            VERSION=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}" | jq -r '.version')
+            if [ "$VERSION" != "latest-tmp" ]; then
+              echo "Deleting old package ID: $ID (version: $VERSION)"
+              curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"
+            fi
           fi
         done
-      done
-    - |
-      echo "Uploading all artifacts to GitLab Generic Package Registry..."
-      find built_packages -type f | while read -r FILE; do
-        FILENAME=$(basename "$FILE")
-        curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-             --upload-file "$FILE" \
-             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/zoidberg/${PUBLISH_VERSION}/${FILENAME}"
+
+        if [ -f "$PKG_FILE" ]; then
+          find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do
+            FILENAME=$(basename "$FILE")
+            echo "Publishing $FILENAME to $PUBLISH_VERSION..."
+            curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+                 --upload-file "$FILE" \
+                 "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID}/${PUBLISH_VERSION}/${FILENAME}"
+          done
+        fi
+        
+        echo "Cleaning up latest-tmp..."
+        TMP_PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID}&package_version=latest-tmp&package_type=generic" | jq -r '.[].id')
+        for ID in $TMP_PACKAGE_IDS; do
+          if [ -n "$ID" ] && [ "$ID" != "null" ]; then
+            curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"
+          fi
+        done
       done
