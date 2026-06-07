@@ -6,6 +6,7 @@ stages:
 
 variables:
   PUBLISH_VERSION: "latest"
+  GIT_DEPTH: "0"
 
 registry-audit:
   stage: lint
