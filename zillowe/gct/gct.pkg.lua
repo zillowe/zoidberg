@@ -4,7 +4,7 @@ metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
-	description = "An intelligent, AI-powered Git assistant.",
+	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
 	maintainer = {
@@ -27,7 +27,7 @@ dependencies({
 	build = {
 		types = {
 			source = {
-				required = { "native:golang", "native:git" },
+				required = { "pacman:go", "pacman:git" },
 			},
 		},
 	},
