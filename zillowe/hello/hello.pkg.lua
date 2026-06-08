@@ -38,7 +38,7 @@ metadata({
 	license = "Apache-2.0",
 	bins = { "hello" },
 	types = { "source", "pre-compiled" },
-	tags = { "example", "hello", "cli", "zillowe" },
+	tags = { "zillowe", "example", "hello", "cli" },
 })
 
 dependencies({
