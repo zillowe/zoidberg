@@ -20,7 +20,7 @@ metadata({
 	license = "Apache-2.0",
 	bins = { "zsm" },
 	types = { "source" },
-	tags = { "cli", "script-manager", "zillowe" },
+	tags = { "zillowe", "cli", "script-manager" },
 })
 
 dependencies({
