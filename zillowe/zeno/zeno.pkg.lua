@@ -6,7 +6,7 @@ metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
-	description = "The typography system for the Zillowe Foundation",
+	description = "The typography system for the Zillowe Foundation.",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",
 	maintainer = {
