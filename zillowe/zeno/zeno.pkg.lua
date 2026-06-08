@@ -22,7 +22,7 @@ metadata({
 	license = "OFL-1.1",
 	types = { "pre-compiled" },
 	scope = "system",
-	tags = { "zillowe", "zeno", "font", "ttf" },
+	tags = { "zeno", "font", "ttf", "zillowe" },
 })
 
 function prepare()
