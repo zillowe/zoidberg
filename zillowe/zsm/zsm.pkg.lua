@@ -1,12 +1,12 @@
-local version = ZOI.VERSION or "1.1.0"
+local version = ZOI.VERSION or "1.0.0"
 
 metadata({
-	name = "lct",
+	name = "zsm",
 	repo = "zillowe",
 	version = version,
-	description = "Command-line tool for easily adding open-source licenses to your projects",
-	website = "https://zillowe.qzz.io/docs/zds/lct",
-	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
+	description = "Modern, security-first replacement for bash-based installation scripts",
+	website = "https://zillowe.qzz.io/docs/zds/zsm",
+	git = "https://gitlab.com/zillowe/zillwen/zusty/zsm",
 	maintainer = {
 		name = "Zillowe Foundation",
 		website = "https://zillowe.qzz.io",
@@ -18,36 +18,36 @@ metadata({
 		email = "contact@zillowe.qzz.io",
 	},
 	license = "Apache-2.0",
-	bins = { "lct" },
+	bins = { "zsm" },
 	types = { "source" },
-	tags = { "zillowe", "lct", "license", "cli" },
+	tags = { "zillowe", "cli" },
 })
 
 dependencies({
 	build = {
 		types = {
 			source = {
-				required = { "pacman:go", "pacman:git" },
+				required = { "pacman:zig" },
 			},
 		},
 	},
 })
 
-function verify()
-	return true
-end
-
 function prepare()
 	if BUILD_TYPE == "source" then
 		cmd("git clone " .. PKG.git .. " source")
+		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small")
 	end
 end
 
 function package()
 	if BUILD_TYPE == "source" then
-		cmd("cd source && ./build/build-release.sh")
-		zcp("source/build/compiled/lct", "${pkgstore}/bin/lct")
+		zcp("source/zig-out/bin/zsm", "${pkgstore}/bin/zsm")
 	end
+end
+
+function verify()
+	return true
 end
 
 function uninstall() end
