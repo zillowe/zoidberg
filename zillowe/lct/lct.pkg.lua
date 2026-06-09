@@ -20,7 +20,7 @@ metadata({
 	license = "Apache-2.0",
 	bins = { "lct" },
 	types = { "source" },
-	tags = { "lct", "license", "cli", "zillowe" },
+	tags = { "zillowe", "license", "cli" },
 })
 
 dependencies({
