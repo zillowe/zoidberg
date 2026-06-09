@@ -4,7 +4,7 @@ metadata({
 	name = "zsm",
 	repo = "zillowe",
 	version = version,
-	description = "Modern, security-first replacement for bash-based installation scripts",
+	description = "Modern, security-first replacement for shell-based installation scripts",
 	website = "https://zillowe.qzz.io/docs/zds/zsm",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zsm",
 	maintainer = {
