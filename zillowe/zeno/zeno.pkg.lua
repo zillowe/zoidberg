@@ -2,10 +2,34 @@ local version = ZOI.VERSION or "1.3.0"
 local url = "https://registry.npmjs.org/@zillowe/zeno/-/zeno-" .. version .. ".tgz"
 local archive = "zeno-" .. version .. ".tar.gz"
 
+local function get_font_dir()
+	if SYSTEM.OS == "linux" then
+		return (PKG.scope == "system") and "${usrroot}/usr/share/fonts/TTF" or "${usrhome}/.local/share/fonts"
+	elseif SYSTEM.OS == "macos" then
+		return (PKG.scope == "system") and "${usrroot}/Library/Fonts" or "${usrhome}/Library/Fonts"
+	elseif SYSTEM.OS == "windows" then
+		return (PKG.scope == "system") and "${usrroot}/Windows/Fonts"
+			or "${usrhome}/AppData/Local/Microsoft/Windows/Fonts"
+	end
+	return "${pkgstore}/share/fonts"
+end
+
+local function get_license_dir()
+	if SYSTEM.OS == "linux" then
+		return "${usrroot}/usr/share/licenses/ttf-zeno"
+	elseif SYSTEM.OS == "macos" then
+		return "${usrroot}/Library/Application Support/Zoi/Licenses/zeno"
+	elseif SYSTEM.OS == "windows" then
+		return "${usrroot}/ProgramData/Zoi/Licenses/zeno"
+	end
+	return "${pkgstore}/share/licenses"
+end
+
 metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
+	revision = "2",
 	description = "The typography system for the Zillowe Foundation",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",
@@ -38,18 +62,25 @@ function verify()
 end
 
 function package()
-	zcp("source/package/dist/ZenoMonoCode.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoMonoCode.ttf")
-	zcp("source/package/dist/ZenoMonoNerd.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoMonoNerd.ttf")
-	zcp("source/package/dist/ZenoMonoTerminal.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoMonoTerminal.ttf")
-	zcp("source/package/dist/ZenoMonoText.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoMonoText.ttf")
-	zcp("source/package/dist/ZenoSansDisplay.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoSansDisplay.ttf")
-	zcp("source/package/dist/ZenoSansText.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoSansText.ttf")
-	zcp("source/package/dist/ZenoSansUI.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoSansUI.ttf")
-	zcp("source/package/dist/ZenoSerifCaption.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoSerifCaption.ttf")
-	zcp("source/package/dist/ZenoSerifDisplay.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoSerifDisplay.ttf")
-	zcp("source/package/dist/ZenoSerifText.ttf", "${usrroot}/usr/share/fonts/TTF/ZenoSerifText.ttf")
+	local font_dir = get_font_dir()
+	local fonts = {
+		"ZenoMonoCode.ttf",
+		"ZenoMonoNerd.ttf",
+		"ZenoMonoTerminal.ttf",
+		"ZenoMonoText.ttf",
+		"ZenoSansDisplay.ttf",
+		"ZenoSansText.ttf",
+		"ZenoSansUI.ttf",
+		"ZenoSerifCaption.ttf",
+		"ZenoSerifDisplay.ttf",
+		"ZenoSerifText.ttf",
+	}
 
-	zcp("source/package/LICENSE", "${usrroot}/usr/share/licenses/ttf-zeno/LICENSE")
+	for _, font in ipairs(fonts) do
+		zcp("source/package/dist/" .. font, font_dir .. "/" .. font)
+	end
+
+	zcp("source/package/LICENSE", get_license_dir() .. "/LICENSE")
 end
 
 function uninstall() end

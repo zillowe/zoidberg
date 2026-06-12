@@ -1,9 +1,21 @@
 local version = ZOI.VERSION or "1.0.0"
 
+local function get_zig_target()
+	local os = SYSTEM.OS
+	local arch = SYSTEM.ARCH
+	if arch == "amd64" then
+		arch = "x86_64"
+	elseif arch == "arm64" then
+		arch = "aarch64"
+	end
+	return arch .. "-" .. os
+end
+
 metadata({
 	name = "zsm",
 	repo = "zillowe",
 	version = version,
+	revision = "2",
 	description = "Modern, security-first replacement for shell-based installation scripts",
 	website = "https://zillowe.qzz.io/docs/zds/zsm",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zsm",
@@ -36,13 +48,17 @@ dependencies({
 function prepare()
 	if BUILD_TYPE == "source" then
 		cmd("git clone " .. PKG.git .. " source")
-		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small")
+		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=" .. get_zig_target())
 	end
 end
 
 function package()
 	if BUILD_TYPE == "source" then
-		zcp("source/zig-out/bin/zsm", "${pkgstore}/bin/zsm")
+		local bin_name = "zsm"
+		if SYSTEM.OS == "windows" then
+			bin_name = "zsm.exe"
+		end
+		zcp("source/zig-out/bin/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
 end
 
