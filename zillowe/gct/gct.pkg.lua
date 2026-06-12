@@ -1,9 +1,16 @@
 local version = ZOI.VERSION or "1.4.0"
 
+local function get_go_env()
+	local os = SYSTEM.OS
+	local arch = SYSTEM.ARCH
+	return "GOOS=" .. os .. " GOARCH=" .. arch
+end
+
 metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
+	revision = "2",
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
@@ -48,8 +55,12 @@ end
 
 function package()
 	if BUILD_TYPE == "source" then
-		cmd("cd source && ./build/build-release.sh")
-		zcp("source/build/compiled/gct", "${pkgstore}/bin/gct")
+		cmd("cd source && " .. get_go_env() .. " ./build/build-release.sh")
+		local bin_name = "gct"
+		if SYSTEM.OS == "windows" then
+			bin_name = "gct.exe"
+		end
+		zcp("source/build/compiled/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
 end
 

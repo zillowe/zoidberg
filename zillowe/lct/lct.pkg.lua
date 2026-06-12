@@ -1,9 +1,16 @@
 local version = ZOI.VERSION or "1.1.0"
 
+local function get_go_env()
+	local os = SYSTEM.OS
+	local arch = SYSTEM.ARCH
+	return "GOOS=" .. os .. " GOARCH=" .. arch
+end
+
 metadata({
 	name = "lct",
 	repo = "zillowe",
 	version = version,
+	revision = "2",
 	description = "Command-line tool for easily adding open-source licenses to your projects",
 	website = "https://zillowe.qzz.io/docs/zds/lct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
@@ -45,8 +52,12 @@ end
 
 function package()
 	if BUILD_TYPE == "source" then
-		cmd("cd source && ./build/build-release.sh")
-		zcp("source/build/compiled/lct", "${pkgstore}/bin/lct")
+		cmd("cd source && " .. get_go_env() .. " ./build/build-release.sh")
+		local bin_name = "lct"
+		if SYSTEM.OS == "windows" then
+			bin_name = "lct.exe"
+		end
+		zcp("source/build/compiled/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
 end
 
