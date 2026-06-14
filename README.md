@@ -9,7 +9,9 @@
   <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/issues/new?issuable_template=New%20Package%20Request"><strong>New Package Request</strong></a> •
   <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/issues/new?issuable_template=Package%20Update%20or%20Removal"><strong>Package Update or Removal</strong></a>
   <br/>
-  <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/issues/new?issuable_template=Security%20Vulnerability%20Report"><strong>Security Vulnerability Report</strong></a>
+  <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/issues/new?issuable_template=Security%20Vulnerability%20Report"><strong>Security Vulnerability Report</strong></a> •
+  <a href="https://zillowe.qzz.io/docs/zds/zoi/zoidberg-guidelines"><strong>Zoidberg Guidelines</strong></a>
+  <br/>
 </div>
 
 <br/>
@@ -84,6 +86,8 @@ Other non-generic repos:
 - Zillowe: Official packages from Zillowe Foundation.
 
 ## Adding a package
+
+We welcome contributions to Zoidberg! To maintain high quality and consistency, all submissions must follow the official [Zoidberg Packaging Guidelines](https://zillowe.qzz.io/docs/zds/zoi/zoidberg-guidelines).
 
 Create a [Merge Request](https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/merge_requests) to add a new package or an [Issue](https://gitlab.com/zillwen/zusty/zoidberg/-/issues) to request a new package (MRs/PRs are only acceptable on [GitLab](https://gitlab.com/zillwen/zusty/zoidberg), creating issues are acceptable on all Zoidberg [mirrors](#mirrors)).
 
