@@ -29,7 +29,7 @@ metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "The typography system for the Zillowe Foundation",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",
@@ -57,7 +57,7 @@ end
 function verify()
 	return verifyHash(
 		archive,
-		"sha512-30bb0f39d1de9c8e836fb4bd291c684b7478568b97aa73ea0663446a5034aa6a748260bccc89474d843f5d2d43b85fe1856d7c2c3fa157993bf6d449e2d18110"
+		"sha512-097fcc7c9086cf4ed8422632419444ddffdda19e8115d2b3db55d7c4e9c3c0d923cee48fb72c9b7092d078a24b377f7d83ce1a8be8642fa3a9d95fdffeb2c6e3"
 	)
 end
 
