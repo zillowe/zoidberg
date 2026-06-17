@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.3.0"
+local version = ZOI.VERSION or "1.4.0"
 local url = "https://registry.npmjs.org/@zillowe/zeno/-/zeno-" .. version .. ".tgz"
 local archive = "zeno-" .. version .. ".tar.gz"
 
@@ -29,7 +29,7 @@ metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "The typography system for the Zillowe Foundation",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",
