@@ -1,32 +1,32 @@
 {
   "version": "1",
   "packages": {
-    "zeno": {
-      "repo": "zillowe",
-      "repo_type": "official",
-      "version": "1.4.0",
-      "revision": "1",
-      "description": "The typography system for the Zillowe Foundation",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
-    },
-    "zsm": {
-      "repo": "zillowe",
-      "repo_type": "official",
-      "version": "1.0.0",
-      "revision": "2",
-      "description": "Modern, security-first replacement for shell-based installation scripts",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
-    },
     "gct": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.4.0",
       "revision": "2",
       "description": "An intelligent, AI-powered Git assistant",
+      "dependencies": null,
+      "sub_packages": null,
+      "vuln": null
+    },
+    "zeno": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "1.4.0",
+      "revision": "2",
+      "description": "The typography system for the Zillowe Foundation",
+      "dependencies": null,
+      "sub_packages": null,
+      "vuln": null
+    },
+    "hello": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "4.0.0",
+      "revision": "2",
+      "description": "Hello World",
       "dependencies": null,
       "sub_packages": null,
       "vuln": null
@@ -41,12 +41,12 @@
       "sub_packages": null,
       "vuln": null
     },
-    "hello": {
+    "zsm": {
       "repo": "zillowe",
       "repo_type": "official",
-      "version": "4.0.0",
+      "version": "1.0.0",
       "revision": "2",
-      "description": "Hello World",
+      "description": "Modern, security-first replacement for shell-based installation scripts",
       "dependencies": null,
       "sub_packages": null,
       "vuln": null
