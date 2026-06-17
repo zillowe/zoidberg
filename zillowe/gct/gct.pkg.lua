@@ -55,7 +55,11 @@ end
 
 function package()
 	if BUILD_TYPE == "source" then
-		cmd("cd source && " .. get_go_env() .. " ./build/build-release.sh")
+		if SYSTEM.OS == "windows" then
+			cmd("cd source && " .. get_go_env() .. " ./build/build-release.ps1")
+		else
+			cmd("cd source && " .. get_go_env() .. " ./build/build-release.sh")
+		end
 		local bin_name = "gct"
 		if SYSTEM.OS == "windows" then
 			bin_name = "gct.exe"
