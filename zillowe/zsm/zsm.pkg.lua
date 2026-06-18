@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.0.0"
+local version = ZOI.VERSION or "1.1.0"
 
 local function get_zig_target()
 	local os = SYSTEM.OS
@@ -15,7 +15,7 @@ metadata({
 	name = "zsm",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "Modern, security-first replacement for shell-based installation scripts",
 	website = "https://zillowe.qzz.io/docs/zds/zsm",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zsm",
