@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.1.0"
+local version = ZOI.VERSION or "1.1.1"
 
 local function get_zig_target()
 	local os = SYSTEM.OS
@@ -47,7 +47,7 @@ dependencies({
 
 function prepare()
 	if BUILD_TYPE == "source" then
-		cmd("git clone " .. PKG.git .. " source")
+		cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
 		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=" .. get_zig_target())
 	end
 end
