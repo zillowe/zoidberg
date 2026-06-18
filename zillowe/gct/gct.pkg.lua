@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.4.0"
+local version = ZOI.VERSION or "1.4.1"
 
 local function get_go_env()
 	local os = SYSTEM.OS
@@ -10,7 +10,7 @@ metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
@@ -49,7 +49,7 @@ end
 
 function prepare()
 	if BUILD_TYPE == "source" then
-		cmd("git clone " .. PKG.git .. " source")
+		cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
 	end
 end
 

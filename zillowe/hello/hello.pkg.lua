@@ -1,13 +1,10 @@
 local repo_owner = "zillowe"
 local repo_name = "hello"
-local version = ZOI.VERSION or "4.0.0"
+local version = ZOI.VERSION or "5.0.0"
 local git_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. ".git"
 
 local function get_zig_target()
 	local os = SYSTEM.OS
-	if os == "macos" then
-		os = "macos"
-	end
 	local arch = SYSTEM.ARCH
 	if arch == "amd64" then
 		arch = "x86_64"
@@ -21,7 +18,7 @@ metadata({
 	name = "hello",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "Hello World",
 	website = "https://github.com/zillowe/hello",
 	git = git_url,
@@ -54,30 +51,18 @@ dependencies({
 
 function prepare()
 	if BUILD_TYPE == "source" then
-		local bin_name = "hello"
-		if SYSTEM.OS == "windows" then
-			bin_name = "hello.exe"
-		end
-		cmd("git clone " .. PKG.git .. " " .. BUILD_DIR .. "/source")
-		cmd(
-			"cd "
-				.. BUILD_DIR
-				.. "/source && zig build-exe main.zig -O ReleaseSmall -target "
-				.. get_zig_target()
-				.. " --name "
-				.. bin_name
-		)
+		cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
+		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=" .. get_zig_target())
 	end
 end
 
 function package()
-	local bin_name = "hello"
-	if SYSTEM.OS == "windows" then
-		bin_name = "hello.exe"
-	end
-
 	if BUILD_TYPE == "source" then
-		zcp("source/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
+		local bin_name = "hello"
+		if SYSTEM.OS == "windows" then
+			bin_name = "hello.exe"
+		end
+		zcp("source/zig-out/bin/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
 end
 

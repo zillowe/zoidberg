@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.1.0"
+local version = ZOI.VERSION or "1.1.1"
 
 local function get_go_env()
 	local os = SYSTEM.OS
@@ -10,7 +10,7 @@ metadata({
 	name = "lct",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "Command-line tool for easily adding open-source licenses to your projects",
 	website = "https://zillowe.qzz.io/docs/zds/lct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
@@ -46,7 +46,7 @@ end
 
 function prepare()
 	if BUILD_TYPE == "source" then
-		cmd("git clone " .. PKG.git .. " source")
+		cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
 	end
 end
 
