@@ -1,0 +1,4 @@
+[zoko]
+source = "gitlab"
+gitlab = "zillowe/zillowex/akuolwa/zoko"
+use_max_tag = true

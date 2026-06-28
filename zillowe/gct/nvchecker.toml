@@ -1,0 +1,4 @@
+[gct]
+source = "gitlab"
+gitlab = "zillowe/zillwen/zusty/gct"
+use_max_tag = true
