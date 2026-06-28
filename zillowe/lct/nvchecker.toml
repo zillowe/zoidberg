@@ -1,0 +1,4 @@
+[lct]
+source = "gitlab"
+gitlab = "zillowe/zillwen/zusty/lct"
+use_max_tag = true

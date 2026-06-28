@@ -1,0 +1,4 @@
+[zeno]
+source = "gitlab"
+gitlab = "zillowe/zillwen/zowdy/zeno"
+use_max_tag = true

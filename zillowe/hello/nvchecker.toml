@@ -1,0 +1,4 @@
+[hello]
+source = "github"
+github = "zillowe/hello"
+use_max_tag = true

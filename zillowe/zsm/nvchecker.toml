@@ -1,0 +1,4 @@
+[zsm]
+source = "gitlab"
+gitlab = "zillowe/zillwen/zusty/zsm"
+use_max_tag = true
