@@ -22,6 +22,7 @@ metadata({
 	bins = { "zoko-cli" },
 	types = { "source" },
 	tags = { "zillowe", "language", "cli" },
+	platforms = { "linux" },
 })
 
 dependencies({

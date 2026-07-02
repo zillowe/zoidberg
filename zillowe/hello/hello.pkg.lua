@@ -43,7 +43,14 @@ dependencies({
 	build = {
 		types = {
 			source = {
-				required = { "pacman:zig", "pacman:git" },
+				required = {
+					"pacman:zig",
+					"pacman:git",
+					"brew:zig",
+					"brew:git",
+					"choco:zig",
+					"choco:git",
+				},
 			},
 		},
 	},

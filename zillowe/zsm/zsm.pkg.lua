@@ -33,13 +33,22 @@ metadata({
 	bins = { "zsm" },
 	types = { "source" },
 	tags = { "zillowe", "cli", "script-manager" },
+	platforms = {
+		"linux",
+		"macos",
+	},
 })
 
 dependencies({
 	build = {
 		types = {
 			source = {
-				required = { "pacman:zig", "pacman:git" },
+				required = {
+					"pacman:zig",
+					"pacman:git",
+					"brew:zig",
+					"brew:git",
+				},
 			},
 		},
 	},
@@ -55,9 +64,6 @@ end
 function package()
 	if BUILD_TYPE == "source" then
 		local bin_name = "zsm"
-		if SYSTEM.OS == "windows" then
-			bin_name = "zsm.exe"
-		end
 		zcp("source/zig-out/bin/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
 end

@@ -64,6 +64,24 @@ zoi install @zillowe/hello
 
 Now run the `hello` app from your terminal and it should print: `Hello, World!`.
 
+If you want to install a package from the active repos run:
+
+```sh
+zoi install <package>
+```
+
+If a repo is not active to have to specify the repo:
+
+```sh
+zoi install @<repo>/<package>
+```
+
+To list the active repos run:
+
+```sh
+zoi repo list
+```
+
 Learn how to use Zoi by visiting the [docs](https://zillowe.qzz.io/docs/zds/zoi).
 
 ## Repos
@@ -81,6 +99,14 @@ Generic repos:
 
 Note: Packages from `community`, `test`, and `archive` may carry higher risk. Zoi prints warnings where appropriate, [learn more](https://zillowe.qzz.io/docs/zds/zoi/repositories).
 
+Packages from `extra` repo requires using the `@extra/<package>` format because its not active by default, to activate it:
+
+```sh
+zoi repo add extra
+```
+
+And now you can install packages from the `extra` repo like you would from `core` or `main`.
+
 Other non-generic repos:
 
 - Zillowe: Official packages from Zillowe Foundation.
@@ -92,6 +118,10 @@ We welcome contributions to Zoidberg! To maintain high quality and consistency, 
 Create a [Merge Request](https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/merge_requests) to add a new package or an [Issue](https://gitlab.com/zillwen/zusty/zoidberg/-/issues) to request a new package (MRs/PRs are only acceptable on [GitLab](https://gitlab.com/zillwen/zusty/zoidberg), creating issues are acceptable on all Zoidberg [mirrors](#mirrors)).
 
 Use [`@zillowe/hello`](https://github.com/zillowe/hello) as an example package, [learn more about packaging existing software](https://zillowe.qzz.io/docs/zds/zoi/creating-packages).
+
+For automatic version detection, place an `nvchecker.toml` file next to your `.pkg.lua`. See [`@zoidberg/core/zoi/nvchecker.toml`](./core/zoi/nvchecker.toml) for a GitLab example or [`@zoidberg/main/ripgrep/nvchecker.toml`](./main/ripgrep/nvchecker.toml) for a GitHub example.
+
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for a full step-by-step guide on adding packages and reporting vulnerabilities.
 
 ## Reporting Security Issues
 

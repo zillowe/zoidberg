@@ -1,6 +1,7 @@
 stages:
   - lint
   - metagen
+  - generate
   - build
   - publish
 
@@ -8,14 +9,41 @@ variables:
   PUBLISH_VERSION: "latest"
   GIT_DEPTH: "0"
 
+.gpg_setup: &gpg_setup
+  - |
+    if [ -n "$GPG_PRIVATE_KEY" ]; then
+      mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg
+      echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --import --batch
+      GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
+      echo "Imported GPG Key: $GPG_KEY_ID"
+      echo "$GPG_KEY_ID" > gpg_key_id.txt
+    fi
+  - |
+    if [ -n "$GPG_PASSWORD" ]; then
+      export GPG_PASSWORD=$(echo "$GPG_PASSWORD" | base32 -d)
+    fi
+
+.common_before_script: &common_before_script
+  - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
+  - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+  - zoi sync
+  - *gpg_setup
+
+.detect_changes: &detect_changes
+  - |
+    if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+      CHANGED_FILES=$(find . -name "*.pkg.lua" -not -path "*/.*")
+    else
+      CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep "\.pkg\.lua$" || true)
+    fi
+    echo "Changed packages: $CHANGED_FILES"
+
 registry-audit:
   stage: lint
   image: archlinux:latest
   before_script:
     - pacman -Syu --noconfirm curl git bash gnupg coreutils
-    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
-    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
-    - zoi sync
+    - *common_before_script
   script:
     - zoi reg check
 
@@ -26,9 +54,7 @@ metadata-generation:
     - if: "$CI_COMMIT_MESSAGE !~ /security: update metadata index/"
   before_script:
     - pacman -Syu --noconfirm curl git bash gnupg coreutils
-    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
-    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
-    - zoi sync
+    - *common_before_script
   script:
     - |
       if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
@@ -36,22 +62,15 @@ metadata-generation:
       else
         TARGET_BRANCH=$CI_COMMIT_BRANCH
       fi
-
       git config --global user.email "contact@zillowe.qzz.io"
       git config --global user.name "ZSA Registrar Bot"
-
       if [ -n "$GPG_PRIVATE_KEY" ]; then
-        mkdir -p ~/.gnupg
-        chmod 700 ~/.gnupg
+        mkdir -p ~/.gnupg; chmod 700 ~/.gnupg
         echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
         echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --import
         gpgconf --kill gpg-agent
-
         GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
-        if [ -n "$GPG_KEY_ID" ]; then
-          git config --global user.signingkey "$GPG_KEY_ID"
-        fi
-
+        if [ -n "$GPG_KEY_ID" ]; then git config --global user.signingkey "$GPG_KEY_ID"; fi
         if [ -n "$GPG_PASSWORD" ]; then
           GPG_PASS=$(echo "$GPG_PASSWORD" | base32 -d); export GPG_PASS
           printf '#!/bin/sh\nexec gpg --batch --passphrase "$GPG_PASS" --pinentry-mode loopback "$@"\n' > /tmp/git-gpg-wrapper
@@ -59,20 +78,19 @@ metadata-generation:
           git config --global gpg.program /tmp/git-gpg-wrapper
         fi
       fi
-
       git remote set-url origin "https://oauth2:${PROJECT_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git fetch origin refs/heads/$TARGET_BRANCH
       git checkout -B $TARGET_BRANCH origin/$TARGET_BRANCH
-
       zoi reg gen-meta
-
       if [ -n "$(git status --porcelain)" ]; then
         git add .
         git commit -S -m "security: update metadata index [skip ci]"
         git push origin HEAD:$TARGET_BRANCH
       fi
 
-build-packages:
+# ── Linux: single job, Docker-isolated per-package builds ──
+
+build-linux:
   stage: build
   image: archlinux:latest
   services:
@@ -82,76 +100,195 @@ build-packages:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
-  parallel:
-    matrix:
-      - PLATFORM:
-          [
-            "linux-amd64",
-            "linux-arm64",
-            "windows-amd64",
-            "macos-amd64",
-            "macos-arm64",
-          ]
+    RUNNER_OS: "linux"
+    DEFAULT_TARGETS: "linux-amd64 linux-arm64"
+    BUILD_METHOD: "--method docker"
+    BUILD_ARGS: "--image archlinux --install-deps --fakeroot"
+  tags:
+    - saas-linux-small-amd64
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   before_script:
     - pacman -Syu --noconfirm docker curl git bash gnupg zstd coreutils awk jq
-    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
-    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
-    - zoi sync
-    - |
-      if [ -n "$GPG_PRIVATE_KEY" ]; then
-        mkdir -p .gnupg
-        export GNUPGHOME="$(pwd)/.gnupg"
-        chmod 700 .gnupg
-
-        echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --import --batch
-        GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
-        echo "Imported GPG Key: $GPG_KEY_ID"
-        echo "$GPG_KEY_ID" > gpg_key_id.txt
-      fi
-    - |
-      if [ -n "$GPG_PASSWORD" ]; then
-        export GPG_PASSWORD=$(echo "$GPG_PASSWORD" | base32 -d)
-      fi
+    - *common_before_script
   script:
+    - *detect_changes
     - |
-      echo "Detecting changed packages..."
-      if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-        CHANGED_FILES=$(find . -name "*.pkg.lua" -not -path "*/.*")
-      else
-        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep "\.pkg\.lua$" || true)
-      fi
-
-      if [ -z "$CHANGED_FILES" ]; then
-        echo "No packages changed. Skipping build."
-        exit 0
-      fi
-
+      if [ -z "$CHANGED_FILES" ]; then exit 0; fi
       mkdir -p built_packages
       export GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
       for PKG_FILE in $CHANGED_FILES; do
-        if [ ! -f "$PKG_FILE" ]; then
-          continue
+        if [ ! -f "$PKG_FILE" ]; then continue; fi
+        PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)
+        PLATFORMS=$(echo "$PKG_JSON" | jq -r '.platforms // [] | .[]')
+        TARGETS=""
+        if [ -z "$PLATFORMS" ]; then
+          TARGETS="$DEFAULT_TARGETS"
+        else
+          for PLATFORM in $PLATFORMS; do
+            case "$PLATFORM" in
+              ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
+                    if [ "$R" = "linux" ]; then TARGETS="$TARGETS $T"; fi ;;
+              linux|linux-*) TARGETS="$TARGETS $PLATFORM" ;;
+            esac
+          done
         fi
-
-        echo "Building $PKG_FILE for $PLATFORM..."
-        SIGN_ARG=""
-        if [ -n "$GPG_KEY_ID" ]; then
-          SIGN_ARG="--sign $GPG_KEY_ID"
-        fi
-        zoi package build "$PKG_FILE" --platform "$PLATFORM" $SIGN_ARG -o built_packages --method docker --image archlinux --install-deps --fakeroot
+        for TARGET in $TARGETS; do
+          SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"
+          echo "Building $PKG_FILE for $TARGET..."
+          zoi package build "$PKG_FILE" --platform "$TARGET" $SIGN_ARG -o built_packages $BUILD_METHOD $BUILD_ARGS
+        done
       done
   artifacts:
     paths:
       - built_packages/
     expire_in: 1 day
 
+# ── macOS & Windows: generate child pipeline (one job per package) ──
+
+generate-native-child:
+  stage: generate
+  image: archlinux:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  before_script:
+    - pacman -Syu --noconfirm curl git bash coreutils awk jq
+    - *common_before_script
+  script:
+    - *detect_changes
+    - |
+      if [ -z "$CHANGED_FILES" ]; then
+        echo "No packages changed."
+        mkdir -p generated
+        echo "stages: []" > generated/child.yml
+        exit 0
+      fi
+
+      mkdir -p generated built_packages
+
+      # Write child pipeline header
+      cat > generated/child.yml << 'YAML'
+      stages:
+        - build
+
+      variables:
+        PUBLISH_VERSION: "latest"
+        GIT_DEPTH: "0"
+      YAML
+
+      for PKG_FILE in $CHANGED_FILES; do
+        if [ ! -f "$PKG_FILE" ]; then continue; fi
+
+        PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)
+        PLATFORMS=$(echo "$PKG_JSON" | jq -r '.platforms // [] | .[]')
+        PKG_BASENAME=$(basename "$PKG_FILE" .pkg.lua)
+        PKG_ID=$(echo "$PKG_FILE" | tr '/' '-' | sed 's/\.pkg\.lua$//')
+        ESCAPED_FILE=$(echo "$PKG_FILE" | sed 's/\./\\./g; s/\//\\\//g')
+
+        # macOS target
+        if [ -z "$PLATFORMS" ] || echo "$PLATFORMS" | grep -q "macos\|ci:.*:macos"; then
+          MACOS_TARGETS="macos-amd64 macos-arm64"
+          if [ -n "$PLATFORMS" ]; then
+            MACOS_TARGETS=""
+            for PLATFORM in $PLATFORMS; do
+              case "$PLATFORM" in
+                ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
+                      if [ "$R" = "macos" ]; then MACOS_TARGETS="$MACOS_TARGETS $T"; fi ;;
+                macos|macos-*) MACOS_TARGETS="$MACOS_TARGETS $PLATFORM" ;;
+              esac
+            done
+          fi
+          if [ -n "$MACOS_TARGETS" ]; then
+            printf '%s\n' \
+              "build-macos-$PKG_ID:" \
+              "  stage: build" \
+              "  image: macos-26-xcode-26" \
+              "  tags:" \
+              "    - saas-macos-medium-m1" \
+              "  variables:" \
+              "    PKG_FILE: \"$PKG_FILE\"" \
+              "    TARGETS: \"$MACOS_TARGETS\"" \
+              "  before_script:" \
+              "    - brew install jq" \
+              "    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
+              '    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
+              "    - zoi sync" \
+              "  script:" \
+              "    - |" \
+              '      mkdir -p built_packages' \
+              '      for TARGET in $TARGETS; do' \
+              '        echo "Building $PKG_FILE for $TARGET..."' \
+              '        zoi package build "$PKG_FILE" --platform "$TARGET" --method native -o built_packages' \
+              "      done" \
+              "  artifacts:" \
+              "    paths:" \
+              "      - built_packages/" \
+              "    expire_in: 1 day" \
+              "" >> generated/child.yml
+          fi
+        fi
+
+        # Windows target
+        if [ -z "$PLATFORMS" ] || echo "$PLATFORMS" | grep -q "windows\|ci:.*:windows"; then
+          WIN_TARGETS="windows-amd64"
+          if [ -n "$PLATFORMS" ]; then
+            WIN_TARGETS=""
+            for PLATFORM in $PLATFORMS; do
+              case "$PLATFORM" in
+                ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
+                      if [ "$R" = "windows" ]; then WIN_TARGETS="$WIN_TARGETS $T"; fi ;;
+                windows|windows-*) WIN_TARGETS="$WIN_TARGETS $PLATFORM" ;;
+              esac
+            done
+          fi
+          if [ -n "$WIN_TARGETS" ]; then
+            printf '%s\n' \
+              "build-windows-$PKG_ID:" \
+              "  stage: build" \
+              "  tags:" \
+              "    - saas-windows-medium-amd64" \
+              "  variables:" \
+              "    PKG_FILE: \"$PKG_FILE\"" \
+              "  before_script:" \
+              '    - choco install jq -y' \
+              '    - powershell -c "irm zillowe.pages.dev/scripts/zoi/install.ps1|iex"' \
+              "    - zoi sync" \
+              "  script:" \
+              "    - |" \
+              '      mkdir -p built_packages' \
+              '      echo "Building $PKG_FILE for windows-amd64..."' \
+              '      zoi package build "$PKG_FILE" --platform windows-amd64 --method native -o built_packages' \
+              "  artifacts:" \
+              "    paths:" \
+              "      - built_packages/" \
+              "    expire_in: 1 day" \
+              "" >> generated/child.yml
+          fi
+        fi
+      done
+  artifacts:
+    paths:
+      - generated/
+      - built_packages/
+
+trigger-macos-windows:
+  stage: build
+  needs:
+    - generate-native-child
+  trigger:
+    include:
+      - artifact: generated/child.yml
+        job: generate-native-child
+    strategy: depend
+
+# ── Upload ──
+
 upload-packages:
   stage: publish
   image: archlinux:latest
-  variables:
-    PUBLISH_VERSION: "latest"
+  needs:
+    - build-linux
+    - trigger-macos-windows
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   before_script:
@@ -160,20 +297,21 @@ upload-packages:
     - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
   script:
     - |
-      if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-        CHANGED_FILES=$(find . -name "*.pkg.lua" -not -path "*/.*")
-      else
-        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep "\.pkg\.lua$" || true)
-      fi
-
-      if [ -z "$CHANGED_FILES" ]; then
-        echo "No packages changed. Skipping upload."
+      ALL_BUILT=$(find built_packages -name "*.pkg.tar.zst" 2>/dev/null || true)
+      if [ -z "$ALL_BUILT" ]; then
+        echo "No built packages found. Checking for changed packages..."
+        if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+          CHANGED_FILES=$(find . -name "*.pkg.lua" -not -path "*/.*")
+        else
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep "\.pkg\.lua$" || true)
+        fi
+        if [ -z "$CHANGED_FILES" ]; then echo "No packages changed."; exit 0; fi
+        # No artifacts — nothing to upload
         exit 0
       fi
 
       for PKG_FILE in $CHANGED_FILES; do
         if [ ! -f "$PKG_FILE" ]; then
-          echo "Package file deleted: $PKG_FILE. Proceeding to remove from registry."
           PKG_NAME=$(basename "$PKG_FILE" .pkg.lua)
           PKG_REPO=$(echo "$PKG_FILE" | sed -E 's|^\./||' | rev | cut -d'/' -f3- | rev)
         else
@@ -198,7 +336,7 @@ upload-packages:
                "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID}/latest-tmp/${FILENAME}"
         done
 
-        echo "Cleaning old versions of $PKG_NAME from GitLab Generic Package Registry (ID: $PKG_ID)..."
+        echo "Cleaning old versions..."
         PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID}&package_type=generic" | jq -r '.[].id')
         for ID in $PACKAGE_IDS; do
           if [ -n "$ID" ] && [ "$ID" != "null" ]; then
@@ -219,7 +357,7 @@ upload-packages:
                  "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID}/${PUBLISH_VERSION}/${FILENAME}"
           done
         fi
-        
+
         echo "Cleaning up latest-tmp..."
         TMP_PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID}&package_version=latest-tmp&package_type=generic" | jq -r '.[].id')
         for ID in $TMP_PACKAGE_IDS; do

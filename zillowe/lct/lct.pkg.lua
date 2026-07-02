@@ -33,8 +33,13 @@ metadata({
 dependencies({
 	build = {
 		types = {
-			source = {
-				required = { "pacman:go", "pacman:git" },
+			required = {
+				"pacman:go",
+				"pacman:git",
+				"brew:go",
+				"brew:git",
+				"choco:golang",
+				"choco:git",
 			},
 		},
 	},

@@ -28,7 +28,7 @@ repos:
     active: true
   - name: extra
     type: official
-    active: true
+    active: false
   - name: community
     type: community
     active: false
