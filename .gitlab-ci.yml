@@ -18,10 +18,6 @@ variables:
       echo "Imported GPG Key: $GPG_KEY_ID"
       echo "$GPG_KEY_ID" > gpg_key_id.txt
     fi
-  - |
-    if [ -n "$GPG_PASSWORD" ]; then
-      export GPG_PASSWORD=$(echo "$GPG_PASSWORD" | base32 -d)
-    fi
 
 .common_before_script: &common_before_script
   - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
