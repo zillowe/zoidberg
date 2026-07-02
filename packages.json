@@ -1,65 +1,142 @@
 {
-  "version": "1",
+  "version": "2",
   "packages": {
-    "zoko": {
-      "repo": "zillowe",
-      "repo_type": "official",
-      "version": "0.2.0",
-      "revision": "1",
-      "description": "A JSON-like format for data storing",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
-    },
-    "hello": {
-      "repo": "zillowe",
-      "repo_type": "official",
-      "version": "5.0.0",
-      "revision": "1",
-      "description": "Hello World",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
-    },
-    "lct": {
-      "repo": "zillowe",
-      "repo_type": "official",
-      "version": "1.1.1",
-      "revision": "1",
-      "description": "Command-line tool for easily adding open-source licenses to your projects",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
-    },
-    "zeno": {
-      "repo": "zillowe",
-      "repo_type": "official",
-      "version": "1.4.0",
-      "revision": "2",
-      "description": "The typography system for the Zillowe Foundation",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
-    },
-    "gct": {
+    "@zillowe/gct": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.4.1",
       "revision": "1",
       "description": "An intelligent, AI-powered Git assistant",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "native:git"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:go",
+              "pacman:git",
+              "brew:go",
+              "brew:git",
+              "choco:golang",
+              "choco:git"
+            ]
+          }
+        ]
+      }
     },
-    "zsm": {
+    "@zillowe/hello": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "5.0.0",
+      "revision": "1",
+      "description": "Hello World",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:zig",
+              "pacman:git",
+              "brew:zig",
+              "brew:git",
+              "choco:zig",
+              "choco:git"
+            ]
+          }
+        ]
+      }
+    },
+    "@zillowe/lct": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "1.1.1",
+      "revision": "1",
+      "description": "Command-line tool for easily adding open-source licenses to your projects",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "required",
+            "packages": [
+              "pacman:go",
+              "pacman:git",
+              "brew:go",
+              "brew:git",
+              "choco:golang",
+              "choco:git"
+            ]
+          }
+        ]
+      }
+    },
+    "@zillowe/zeno": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "1.4.0",
+      "revision": "2",
+      "description": "The typography system for the Zillowe Foundation",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": null
+    },
+    "@zillowe/zoko": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "0.2.0",
+      "revision": "1",
+      "description": "A JSON-like format for data storing",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:rust",
+              "pacman:git"
+            ]
+          }
+        ]
+      }
+    },
+    "@zillowe/zsm": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.1.1",
       "revision": "1",
       "description": "Modern, security-first replacement for shell-based installation scripts",
-      "dependencies": null,
-      "sub_packages": null,
-      "vuln": null
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:zig",
+              "pacman:git",
+              "brew:zig",
+              "brew:git"
+            ]
+          }
+        ]
+      }
     }
   }
 }
