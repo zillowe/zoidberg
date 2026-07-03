@@ -110,7 +110,10 @@ build-linux:
   script:
     - *detect_changes
     - |
-      if [ -z "$CHANGED_FILES" ]; then exit 0; fi
+      if [ -z "$CHANGED_FILES" ]; then
+        mkdir -p built_packages
+        exit 0
+      fi
       mkdir -p built_packages
       export GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
       for PKG_FILE in $CHANGED_FILES; do
@@ -155,7 +158,7 @@ generate-native-child:
     - |
       if [ -z "$CHANGED_FILES" ]; then
         echo "No packages changed."
-        mkdir -p generated
+        mkdir -p generated built_packages
         echo "stages: []" > generated/child.yml
         exit 0
       fi
