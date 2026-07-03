@@ -159,7 +159,15 @@ generate-native-child:
       if [ -z "$CHANGED_FILES" ]; then
         echo "No packages changed."
         mkdir -p generated built_packages
-        echo "stages: []" > generated/child.yml
+        cat > generated/child.yml << 'YAML'
+        stages:
+          - build
+
+        noop:
+          stage: build
+          script:
+            - echo "No packages changed, nothing to build"
+        YAML
         exit 0
       fi
 
@@ -265,6 +273,13 @@ generate-native-child:
           fi
         fi
       done
+      if [ "$(wc -l < generated/child.yml)" -le 8 ]; then
+        printf '%s\n' \
+          "noop:" \
+          "  stage: build" \
+          '  script: echo "No packages changed, nothing to build"' \
+          "" >> generated/child.yml
+      fi
   artifacts:
     paths:
       - generated/
