@@ -159,29 +159,28 @@ generate-native-child:
       if [ -z "$CHANGED_FILES" ]; then
         echo "No packages changed."
         mkdir -p generated built_packages
-        cat > generated/child.yml << 'YAML'
-        stages:
-          - build
-
-        noop:
-          stage: build
-          script:
-            - echo "No packages changed, nothing to build"
-        YAML
+        printf '%s\n' \
+          "stages:" \
+          "  - build" \
+          "" \
+          "noop:" \
+          "  stage: build" \
+          '  script: echo "No packages changed, nothing to build"' \
+          "" > generated/child.yml
         exit 0
       fi
 
       mkdir -p generated built_packages
 
       # Write child pipeline header
-      cat > generated/child.yml << 'YAML'
-      stages:
-        - build
-
-      variables:
-        PUBLISH_VERSION: "latest"
-        GIT_DEPTH: "0"
-      YAML
+      printf '%s\n' \
+        "stages:" \
+        "  - build" \
+        "" \
+        "variables:" \
+        '  PUBLISH_VERSION: "latest"' \
+        "  GIT_DEPTH: \"0\"" \
+        "" > generated/child.yml
 
       for PKG_FILE in $CHANGED_FILES; do
         if [ ! -f "$PKG_FILE" ]; then continue; fi
