@@ -135,7 +135,7 @@ build-linux:
         for TARGET in $TARGETS; do
           SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"
           echo "Building $PKG_FILE for $TARGET..."
-          zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" $SIGN_ARG -o built_packages $BUILD_METHOD $BUILD_ARGS
+          zoi package build "$PKG_FILE" --platform "$TARGET" $SIGN_ARG -o built_packages $BUILD_METHOD $BUILD_ARGS
         done
       done
   artifacts:
