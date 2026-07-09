@@ -1,6 +1,34 @@
 {
   "version": "2",
   "packages": {
+    "@extra/bacon": {
+      "repo": "extra",
+      "repo_type": "official",
+      "version": "3.23.0",
+      "revision": "1",
+      "description": "A background rust code checker",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "native:cargo: for use with Rust",
+          "native:clang: for use with C++ via clang",
+          "native:gcc: for use with C++ via gcc",
+          "native:eslint: for use with JavaScript",
+          "native:python: for use with Python via unittest"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:rust",
+              "pacman:git"
+            ]
+          }
+        ]
+      }
+    },
     "@zillowe/gct": {
       "repo": "zillowe",
       "repo_type": "official",
