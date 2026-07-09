@@ -1,0 +1,4 @@
+[hello]
+source = "github"
+github = "Canop/bacon"
+use_max_tag = true
