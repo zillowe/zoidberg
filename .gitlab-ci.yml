@@ -135,7 +135,7 @@ build-linux:
         for TARGET in $TARGETS; do
           SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"
           echo "Building $PKG_FILE for $TARGET..."
-          zoi package build "$PKG_FILE" --platform "$TARGET" $SIGN_ARG -o built_packages $BUILD_METHOD $BUILD_ARGS
+          zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" $SIGN_ARG -o built_packages $BUILD_METHOD $BUILD_ARGS
         done
       done
   artifacts:
@@ -224,7 +224,7 @@ generate-native-child:
               '      mkdir -p built_packages' \
               '      for TARGET in $TARGETS; do' \
               '        echo "Building $PKG_FILE for $TARGET..."' \
-              '        zoi package build "$PKG_FILE" --platform "$TARGET" --method native -o built_packages' \
+              '        zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages' \
               "      done" \
               "  artifacts:" \
               "    paths:" \
@@ -263,7 +263,7 @@ generate-native-child:
               "    - |" \
               '      mkdir -p built_packages' \
               '      echo "Building $PKG_FILE for windows-amd64..."' \
-              '      zoi package build "$PKG_FILE" --platform windows-amd64 --method native -o built_packages' \
+              '      zoi package build "$PKG_FILE" --install-deps --platform windows-amd64 --method native -o built_packages' \
               "  artifacts:" \
               "    paths:" \
               "      - built_packages/" \
