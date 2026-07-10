@@ -4,7 +4,7 @@ metadata({
 	name = "bacon",
 	repo = "extra",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "A background rust code checker",
 	website = "https://dystroy.org/bacon",
 	git = "https://github.com/Canop/bacon.git",
@@ -21,6 +21,7 @@ metadata({
 	bins = { "bacon" },
 	types = { "source" },
 	platforms = { "linux" },
+	tags = { "rust", "code-checker", "cli" },
 })
 
 dependencies({
