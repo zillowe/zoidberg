@@ -5,7 +5,7 @@
       "repo": "extra",
       "repo_type": "official",
       "version": "3.23.0",
-      "revision": "2",
+      "revision": "3",
       "description": "A background rust code checker",
       "sub_packages": [],
       "main_sub_packages": [],
