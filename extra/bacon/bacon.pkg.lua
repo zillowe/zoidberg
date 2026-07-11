@@ -4,7 +4,7 @@ metadata({
 	name = "bacon",
 	repo = "extra",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "A background rust code checker",
 	website = "https://dystroy.org/bacon",
 	git = "https://github.com/Canop/bacon.git",
@@ -44,7 +44,7 @@ dependencies({
 })
 
 function prepare()
-	cmd("git clone --depth 1 --branch v" .. PKG.version .. " " .. PKG.git .. " source")
+	cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
 	cmd("cd source && cargo fetch --locked")
 end
 
