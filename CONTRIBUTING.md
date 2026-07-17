@@ -2,8 +2,6 @@
 
 Thank you for your interest in contributing to the Zoidberg package registry! This guide covers how to add new packages, report vulnerabilities, and understand our licensing.
 
-For a broader overview, see the [README](./README.md).
-
 ## Adding a Package
 
 All package submissions must follow the official [Zoidberg Packaging Guidelines](https://zillowe.qzz.io/docs/zds/zoi/zoidberg-guidelines).
@@ -28,11 +26,11 @@ zoidberg/
 
 Choose the repo based on the package's maturity:
 
-- **`core/`** — Essential packages and libraries; very common and well-maintained.
-- **`main/`** — Important packages that don't fit in `core` but are essential for most users.
-- **`extra/`** — New or niche packages; less common and may be less actively maintained.
-- **`community/`** — User-submitted packages. New entries start here and may graduate to higher tiers.
-- **`zillowe/`** — Official packages from Zillowe Foundation.
+- `core/`: Essential packages and libraries; very common and well-maintained.
+- `main/`: Important packages that don't fit in `core` but are essential for most users.
+- `extra/`: New or niche packages; less common and may be less actively maintained.
+- `community/`: User-submitted packages. New entries start here and may graduate to higher tiers.
+- `zillowe/`: Official packages from Zillowe Foundation.
 
 ### 2. Package Definition (`.pkg.lua`)
 
@@ -70,8 +68,8 @@ use_max_tag = true
 
 See existing examples:
 
-- [`@zoidberg/core/zoi/nvchecker.toml`](./core/zoi/nvchecker.toml) (GitLab)
-- [`@zoidberg/main/ripgrep/nvchecker.toml`](./main/ripgrep/nvchecker.toml) (GitHub)
+- [`@zillowe/zoko`](./zillowe/zoko/nvchecker.toml) (GitLab)
+- [`@main/ripgrep`](./main/ripgrep/nvchecker.toml) (GitHub)
 
 ### 4. Submitting
 
@@ -96,6 +94,6 @@ In short:
 
 ## License
 
-All package definitions (`.pkg.lua`, `nvchecker.toml`, and related metadata files) in this registry are licensed under **Apache-2.0** unless explicitly stated otherwise in a `LICENSE` file in the package directory.
+All package definitions (`.pkg.lua`, `nvchecker.toml`, and related metadata files) in this registry are licensed under Apache 2.0 unless explicitly stated otherwise in a `LICENSE` file in the package directory.
 
 The upstream software distributed by these packages is governed by its own respective licenses.

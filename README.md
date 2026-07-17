@@ -1,6 +1,6 @@
 <div align="center">
     <img width="320" hspace="10" alt="Zoidberg Banner" src="https://gitlab.com/zillowe/zillwen/zusty/zoi/-/raw/main/app/images/zoidberg-banner.svg"/>
-    <p><strong>The official Zoi packages repository</strong></p>
+    <p><strong>The official Zoi Packages Registry</strong></p>
 </div>
 <hr/>
 <br/>
@@ -27,6 +27,7 @@ Zoidberg is the default package registry that comes with Zoi, could be different
 If you installed Zoi from an unofficial source you'll need to add PGP keys of the maintainers of Zoidberg to be able to sync packages safely, if you installed Zoi from an official source you won't need to do that because it's backed into Zoi:
 
 ```sh
+zoi pgp add https://zillowe.pages.dev/keys/zillowe-main.asc
 zoi pgp add https://zillowe.pages.dev/keys/zillowez.asc
 ```
 
@@ -41,7 +42,7 @@ zoi sync list
 If you want to use any of Zoidberg's mirrors run this:
 
 ```sh
-zoi sync set {mirror}
+zoi sync set gitlab
 # default (the packagers default one), gitlab, github, codeberg (Zoidberg mirrors)
 ```
 
@@ -109,7 +110,7 @@ And now you can install packages from the `extra` repo like you would from `core
 
 Other non-generic repos:
 
-- Zillowe: Official packages from Zillowe Foundation.
+- Zillowe: Official packages from the Zillowe Foundation.
 
 ## Adding a package
 
@@ -119,7 +120,7 @@ Create a [Merge Request](https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/mer
 
 Use [`@zillowe/hello`](https://github.com/zillowe/hello) as an example package, [learn more about packaging existing software](https://zillowe.qzz.io/docs/zds/zoi/creating-packages).
 
-For automatic version detection, place an `nvchecker.toml` file next to your `.pkg.lua`. See [`@zoidberg/core/zoi/nvchecker.toml`](./core/zoi/nvchecker.toml) for a GitLab example or [`@zoidberg/main/ripgrep/nvchecker.toml`](./main/ripgrep/nvchecker.toml) for a GitHub example.
+For automatic version detection, place an `nvchecker.toml` file next to your `.pkg.lua`. See [`@zillowe/zoko`](./zillowe/zoko/nvchecker.toml) for a GitLab example or [`main/ripgrep`](./main/ripgrep/nvchecker.toml) for a GitHub example.
 
 See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for a full step-by-step guide on adding packages and reporting vulnerabilities.
 
