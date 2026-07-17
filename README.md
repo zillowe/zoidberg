@@ -20,9 +20,9 @@
 
 ## Installing a package
 
-To use Zoidberg packages with Zoi you'll need [Zoi](https://github.com/zillowe/zoi) installed first.
+To use Zoidberg packages with Zoi you'll need [Zoi](https://gitlab.com/zillowe/zillwen/zusty/zoi) installed first.
 
-Zoidberg is the default package registry that comes with Zoi, could be different if you didn't use Zoi's [official binaries](https://github.com/zillowe/zoi/blob/main/SECURITY.md) or compiled your own with a different registry, [learn more](https://github.com/zillowe/zoi/blob/main/PACKAGING.md).
+Zoidberg is the default package registry that comes with Zoi, could be different if you didn't use Zoi's [official binaries](https://gitlab.com/zillowe/zillwen/zusty/zoi/-/blob/main/SECURITY.md) or compiled your own with a different registry, [learn more](https://gitlab.com/zillowe/zillwen/zusty/zoi/-/blob/main/PACKAGING.md).
 
 If you installed Zoi from an unofficial source you'll need to add PGP keys of the maintainers of Zoidberg to be able to sync packages safely, if you installed Zoi from an official source you won't need to do that because it's backed into Zoi:
 
