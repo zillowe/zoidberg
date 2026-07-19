@@ -5,7 +5,7 @@
       "repo": "extra",
       "repo_type": "official",
       "version": "3.23.0",
-      "revision": "9",
+      "revision": "10",
       "description": "A background rust code checker",
       "scope": "user",
       "sub_packages": [],
@@ -34,7 +34,7 @@
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.4.1",
-      "revision": "6",
+      "revision": "10",
       "description": "An intelligent, AI-powered Git assistant",
       "scope": "user",
       "sub_packages": [],
@@ -49,11 +49,7 @@
             "type": "source",
             "packages": [
               "pacman:go",
-              "pacman:git",
-              "brew:go",
-              "brew:git",
-              "choco:golang",
-              "choco:git"
+              "pacman:git"
             ]
           }
         ]
@@ -63,7 +59,7 @@
       "repo": "zillowe",
       "repo_type": "official",
       "version": "5.0.0",
-      "revision": "6",
+      "revision": "10",
       "description": "Hello World",
       "scope": "user",
       "sub_packages": [],
@@ -76,11 +72,7 @@
             "type": "source",
             "packages": [
               "pacman:zig",
-              "pacman:git",
-              "brew:zig",
-              "brew:git",
-              "choco:zig",
-              "choco:git"
+              "pacman:git"
             ]
           }
         ]
@@ -90,7 +82,7 @@
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.1.1",
-      "revision": "6",
+      "revision": "10",
       "description": "Command-line tool for easily adding open-source licenses to your projects",
       "scope": "user",
       "sub_packages": [],
@@ -103,11 +95,7 @@
             "type": "source",
             "packages": [
               "pacman:go",
-              "pacman:git",
-              "brew:go",
-              "brew:git",
-              "choco:golang",
-              "choco:git"
+              "pacman:git"
             ]
           }
         ]
@@ -117,7 +105,7 @@
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.4.0",
-      "revision": "7",
+      "revision": "10",
       "description": "The typography system for the Zillowe Foundation",
       "scope": "system",
       "sub_packages": [],
@@ -129,7 +117,7 @@
       "repo": "zillowe",
       "repo_type": "official",
       "version": "0.2.0",
-      "revision": "6",
+      "revision": "10",
       "description": "A JSON-like format for data storing",
       "scope": "user",
       "sub_packages": [],
@@ -152,7 +140,7 @@
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.1.1",
-      "revision": "6",
+      "revision": "10",
       "description": "Modern, security-first replacement for shell-based installation scripts",
       "scope": "user",
       "sub_packages": [],
@@ -165,9 +153,7 @@
             "type": "source",
             "packages": [
               "pacman:zig",
-              "pacman:git",
-              "brew:zig",
-              "brew:git"
+              "pacman:git"
             ]
           }
         ]
