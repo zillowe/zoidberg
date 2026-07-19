@@ -3,22 +3,22 @@ local repo_name = "hello"
 local version = ZOI.VERSION or "5.0.0"
 local git_url = "https://github.com/" .. repo_owner .. "/" .. repo_name .. ".git"
 
-local function get_zig_target()
-	local os = SYSTEM.OS
-	local arch = SYSTEM.ARCH
-	if arch == "amd64" then
-		arch = "x86_64"
-	elseif arch == "arm64" then
-		arch = "aarch64"
-	end
-	return arch .. "-" .. os
-end
+-- local function get_zig_target()
+-- 	local os = SYSTEM.OS
+-- 	local arch = SYSTEM.ARCH
+-- 	if arch == "amd64" then
+-- 		arch = "x86_64"
+-- 	elseif arch == "arm64" then
+-- 		arch = "aarch64"
+-- 	end
+-- 	return arch .. "-" .. os
+-- end
 
 metadata({
 	name = "hello",
 	repo = "zillowe",
 	version = version,
-	revision = "4",
+	revision = "5",
 	description = "Hello World",
 	website = "https://github.com/zillowe/hello",
 	git = git_url,
@@ -60,7 +60,8 @@ dependencies({
 function prepare()
 	if BUILD_TYPE == "source" then
 		cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
-		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=" .. get_zig_target())
+		-- cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=" .. get_zig_target())
+		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=x86_64-linux")
 	end
 end
 
