@@ -13,13 +13,13 @@ pkg:
   - type: main
     url: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest
     hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.hash
-    pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.sig
+    # pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.sig
     size: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.size
     files: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.files
   - type: source-main
     url: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest
     hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.hash
-    pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.sig
+    # pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.sig
     size: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.size
     files: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.files
 pgp:
