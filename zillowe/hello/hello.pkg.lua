@@ -18,7 +18,7 @@ metadata({
 	name = "hello",
 	repo = "zillowe",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "Hello World",
 	website = "https://github.com/zillowe/hello",
 	git = git_url,
