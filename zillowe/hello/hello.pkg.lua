@@ -18,7 +18,7 @@ metadata({
 	name = "hello",
 	repo = "zillowe",
 	version = version,
-	revision = "6",
+	revision = "10",
 	description = "Hello World",
 	website = "https://github.com/zillowe/hello",
 	git = git_url,
@@ -47,10 +47,6 @@ dependencies({
 				required = {
 					"pacman:zig",
 					"pacman:git",
-					"brew:zig",
-					"brew:git",
-					"choco:zig",
-					"choco:git",
 				},
 			},
 		},
@@ -61,6 +57,11 @@ function prepare()
 	if BUILD_TYPE == "source" then
 		cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
 		-- cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=" .. get_zig_target())
+	end
+end
+
+function build()
+	if BUILD_TYPE == "source" then
 		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=x86_64-linux")
 	end
 end
@@ -68,9 +69,6 @@ end
 function package()
 	if BUILD_TYPE == "source" then
 		local bin_name = "hello"
-		if SYSTEM.OS == "windows" then
-			bin_name = "hello.exe"
-		end
 		zcp("source/zig-out/bin/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
 end

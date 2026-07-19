@@ -29,7 +29,7 @@ metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
-	revision = "7",
+	revision = "10",
 	description = "The typography system for the Zillowe Foundation",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",

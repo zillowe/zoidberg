@@ -4,7 +4,7 @@ metadata({
 	name = "zoko",
 	repo = "zillowe",
 	version = version,
-	revision = "6",
+	revision = "10",
 	description = "A JSON-like format for data storing",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zoko",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zoko",
@@ -45,9 +45,14 @@ function prepare()
 	end
 end
 
-function package()
+function build()
 	if BUILD_TYPE == "source" then
 		cmd("cd source && cargo build --release -p zoko-cli")
+	end
+end
+
+function package()
+	if BUILD_TYPE == "source" then
 		zcp("source/target/release/zoko-cli", "${pkgstore}/bin/zoko-cli")
 	end
 end

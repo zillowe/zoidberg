@@ -10,7 +10,7 @@ metadata({
 	name = "lct",
 	repo = "zillowe",
 	version = version,
-	revision = "6",
+	revision = "10",
 	description = "Command-line tool for easily adding open-source licenses to your projects",
 	website = "https://zillowe.qzz.io/docs/zds/lct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
@@ -38,10 +38,6 @@ dependencies({
 				required = {
 					"pacman:go",
 					"pacman:git",
-					"brew:go",
-					"brew:git",
-					"choco:golang",
-					"choco:git",
 				},
 			},
 		},
@@ -58,18 +54,15 @@ function prepare()
 	end
 end
 
+function build()
+	if BUILD_TYPE == "source" then
+		cmd("cd source && " .. get_go_env() .. " ./build/build-release.sh")
+	end
+end
+
 function package()
 	if BUILD_TYPE == "source" then
-		if SYSTEM.OS == "windows" then
-			cmd("cd source && " .. get_go_env() .. " ./build/build-release.ps1")
-		else
-			cmd("cd source && " .. get_go_env() .. " ./build/build-release.sh")
-		end
-		local bin_name = "lct"
-		if SYSTEM.OS == "windows" then
-			bin_name = "lct.exe"
-		end
-		zcp("source/build/compiled/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
+		zcp("source/build/compiled/lct", "${pkgstore}/bin/lct")
 	end
 end
 
