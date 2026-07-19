@@ -9,21 +9,21 @@ variables:
   PUBLISH_VERSION: "latest"
   GIT_DEPTH: "0"
 
-# .gpg_setup: &gpg_setup
-#   - |
-#     if [ -n "$GPG_PRIVATE_KEY" ]; then
-#       mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg
-#       echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --import --batch
-#       GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
-#       echo "Imported GPG Key: $GPG_KEY_ID"
-#       echo "$GPG_KEY_ID" > gpg_key_id.txt
-#     fi
+.gpg_setup: &gpg_setup
+  - |
+    if [ -n "$GPG_PRIVATE_KEY" ]; then
+      mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg
+      echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --import --batch
+      GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
+      echo "Imported GPG Key: $GPG_KEY_ID"
+      echo "$GPG_KEY_ID" > gpg_key_id.txt
+    fi
 
 .common_before_script: &common_before_script
   - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
   - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
   - zoi sync
-  # - *gpg_setup
+  - *gpg_setup
 
 .detect_changes: &detect_changes
   - |
@@ -60,20 +60,20 @@ metadata-generation:
       fi
       git config --global user.email "contact@zillowe.qzz.io"
       git config --global user.name "ZSA Registrar Bot"
-      # if [ -n "$GPG_PRIVATE_KEY" ]; then
-      #   mkdir -p ~/.gnupg; chmod 700 ~/.gnupg
-      #   echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
-      #   echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --import
-      #   gpgconf --kill gpg-agent
-      #   GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
-      #   if [ -n "$GPG_KEY_ID" ]; then git config --global user.signingkey "$GPG_KEY_ID"; fi
-      #   if [ -n "$GPG_PASSWORD" ]; then
-      #     GPG_PASS=$(echo "$GPG_PASSWORD" | base32 -d); export GPG_PASS
-      #     printf '#!/bin/sh\nexec gpg --batch --passphrase "$GPG_PASS" --pinentry-mode loopback "$@"\n' > /tmp/git-gpg-wrapper
-      #     chmod +x /tmp/git-gpg-wrapper
-      #     git config --global gpg.program /tmp/git-gpg-wrapper
-      #   fi
-      # fi
+      if [ -n "$GPG_PRIVATE_KEY" ]; then
+        mkdir -p ~/.gnupg; chmod 700 ~/.gnupg
+        echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
+        echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --import
+        gpgconf --kill gpg-agent
+        GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
+        if [ -n "$GPG_KEY_ID" ]; then git config --global user.signingkey "$GPG_KEY_ID"; fi
+        if [ -n "$GPG_PASSWORD" ]; then
+          GPG_PASS=$(echo "$GPG_PASSWORD" | base32 -d); export GPG_PASS
+          printf '#!/bin/sh\nexec gpg --batch --passphrase "$GPG_PASS" --pinentry-mode loopback "$@"\n' > /tmp/git-gpg-wrapper
+          chmod +x /tmp/git-gpg-wrapper
+          git config --global gpg.program /tmp/git-gpg-wrapper
+        fi
+      fi
       git remote set-url origin "https://oauth2:${PROJECT_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git fetch origin refs/heads/$TARGET_BRANCH
       git checkout -B $TARGET_BRANCH origin/$TARGET_BRANCH
@@ -113,7 +113,7 @@ build-linux:
         exit 0
       fi
       mkdir -p built_packages
-      # export GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
+      export GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
       for PKG_FILE in $CHANGED_FILES; do
         if [ ! -f "$PKG_FILE" ]; then continue; fi
         PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)
@@ -329,7 +329,7 @@ upload-packages:
           PKG_NAME=$(echo "$PKG_JSON" | jq -r '.name')
           PKG_REPO=$(echo "$PKG_JSON" | jq -r '.repo')
           # Bundle and sign .zsa for this package
-          # GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
+          GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
           SIGN_BUNDLE_ARG=""
           # [ -n "$GPG_KEY_ID" ] && SIGN_BUNDLE_ARG="--sign $GPG_KEY_ID"
           echo "Bundling .zsa for $PKG_FILE..."
