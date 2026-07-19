@@ -308,7 +308,7 @@ upload-packages:
     - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
   script:
     - |
-      ALL_BUILT=$(find built_packages -name "*.pkg.tar.zst" 2>/dev/null || true)
+      ALL_BUILT=$(find built_packages -name "*.zpa" -o -name "*.zsa" 2>/dev/null || true)
       if [ -z "$ALL_BUILT" ]; then
         echo "No built packages found. Checking for changed packages..."
         if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
@@ -317,8 +317,6 @@ upload-packages:
           CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep "\.pkg\.lua$" || true)
         fi
         if [ -z "$CHANGED_FILES" ]; then echo "No packages changed."; exit 0; fi
-        # No artifacts — nothing to upload
-        exit 0
       fi
 
       for PKG_FILE in $CHANGED_FILES; do
@@ -330,6 +328,12 @@ upload-packages:
           PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)
           PKG_NAME=$(echo "$PKG_JSON" | jq -r '.name')
           PKG_REPO=$(echo "$PKG_JSON" | jq -r '.repo')
+          # Bundle and sign .zsa for this package
+          GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
+          SIGN_BUNDLE_ARG=""
+          [ -n "$GPG_KEY_ID" ] && SIGN_BUNDLE_ARG="--sign $GPG_KEY_ID"
+          echo "Bundling .zsa for $PKG_FILE..."
+          zoi package bundle "$PKG_FILE" -o built_packages $SIGN_BUNDLE_ARG
         fi
 
         if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then
