@@ -15,7 +15,7 @@ metadata({
 	name = "zsm",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Modern, security-first replacement for shell-based installation scripts",
 	website = "https://zillowe.qzz.io/docs/zds/zsm",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zsm",
@@ -33,10 +33,7 @@ metadata({
 	bins = { "zsm" },
 	types = { "source" },
 	tags = { "zillowe", "cli", "script-manager" },
-	platforms = {
-		"linux",
-		"macos",
-	},
+	platforms = { "linux" },
 })
 
 dependencies({

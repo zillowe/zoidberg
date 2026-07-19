@@ -4,7 +4,7 @@ metadata({
 	name = "bacon",
 	repo = "extra",
 	version = version,
-	revision = "5",
+	revision = "6",
 	description = "A background rust code checker",
 	website = "https://dystroy.org/bacon",
 	git = "https://github.com/Canop/bacon.git",

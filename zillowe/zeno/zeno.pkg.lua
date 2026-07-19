@@ -29,7 +29,7 @@ metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "The typography system for the Zillowe Foundation",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",
@@ -47,6 +47,7 @@ metadata({
 	types = { "pre-compiled" },
 	scope = "system",
 	tags = { "zillowe", "zeno", "font", "ttf" },
+	platforms = { "linux", "macos" },
 })
 
 function prepare()

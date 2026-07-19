@@ -18,7 +18,7 @@ metadata({
 	name = "hello",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Hello World",
 	website = "https://github.com/zillowe/hello",
 	git = git_url,
@@ -36,6 +36,7 @@ metadata({
 	license = "Apache-2.0",
 	bins = { "hello" },
 	types = { "source" },
+	platforms = { "linux" },
 	tags = { "zillowe", "example", "hello", "cli" },
 })
 
