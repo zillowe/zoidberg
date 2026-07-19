@@ -10,7 +10,7 @@ metadata({
 	name = "lct",
 	repo = "zillowe",
 	version = version,
-	revision = "5",
+	revision = "6",
 	description = "Command-line tool for easily adding open-source licenses to your projects",
 	website = "https://zillowe.qzz.io/docs/zds/lct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
@@ -34,13 +34,15 @@ metadata({
 dependencies({
 	build = {
 		types = {
-			required = {
-				"pacman:go",
-				"pacman:git",
-				"brew:go",
-				"brew:git",
-				"choco:golang",
-				"choco:git",
+			source = {
+				required = {
+					"pacman:go",
+					"pacman:git",
+					"brew:go",
+					"brew:git",
+					"choco:golang",
+					"choco:git",
+				},
 			},
 		},
 	},
