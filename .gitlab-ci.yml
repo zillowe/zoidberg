@@ -13,10 +13,20 @@ variables:
   - |
     if [ -n "$GPG_PRIVATE_KEY" ]; then
       mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg
-      echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --import --batch
+      echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf
+      echo "pinentry-mode loopback" > .gnupg/gpg.conf
+      echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import
+      gpgconf --kill gpg-agent
       GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 | head -n 1)
       echo "Imported GPG Key: $GPG_KEY_ID"
       echo "$GPG_KEY_ID" > gpg_key_id.txt
+      if [ -n "$GPG_PASSWORD" ]; then
+        GPG_PASS=$(echo "$GPG_PASSWORD" | base32 -d)
+        KEYGRIP=$(gpg --list-secret-keys --with-keygrip --with-colons "$GPG_KEY_ID" | grep '^grp' | cut -d: -f10 | head -n 1)
+        if [ -n "$KEYGRIP" ]; then
+          echo "PRESET_PASSPHRASE $KEYGRIP -1 $(echo -n "$GPG_PASS" | xxd -p)" | gpg-connect-agent --no-tty /bye 2>/dev/null || true
+        fi
+      fi
     fi
 
 .common_before_script: &common_before_script
@@ -84,66 +94,9 @@ metadata-generation:
         git push origin HEAD:$TARGET_BRANCH
       fi
 
-# ── Linux: single job, Docker-isolated per-package builds ──
+# ── Generate child pipeline (one job per package, all platforms) ──
 
-build-linux:
-  stage: build
-  image: archlinux:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
-    RUNNER_OS: "linux"
-    DEFAULT_TARGETS: "linux-amd64 linux-arm64"
-  tags:
-    - saas-linux-small-amd64
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  before_script:
-    - pacman -Syu --noconfirm docker curl git bash gnupg zstd coreutils awk jq
-    - *common_before_script
-  script:
-    - *detect_changes
-    - |
-      if [ -z "$CHANGED_FILES" ]; then
-        mkdir -p built_packages
-        exit 0
-      fi
-      mkdir -p built_packages
-      export GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
-      for PKG_FILE in $CHANGED_FILES; do
-        if [ ! -f "$PKG_FILE" ]; then continue; fi
-        PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)
-        PLATFORMS=$(echo "$PKG_JSON" | jq -r '.platforms // [] | .[]')
-        TARGETS=""
-        if [ -z "$PLATFORMS" ]; then
-          TARGETS="$DEFAULT_TARGETS"
-        else
-          for PLATFORM in $PLATFORMS; do
-            case "$PLATFORM" in
-              ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
-                    if [ "$R" = "linux" ]; then TARGETS="$TARGETS $T"; fi ;;
-              linux|linux-*) TARGETS="$TARGETS $PLATFORM" ;;
-            esac
-          done
-        fi
-        for TARGET in $TARGETS; do
-          # SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"
-          echo "Building $PKG_FILE for $TARGET..."
-          zoi package build "$PKG_FILE" --platform "$TARGET" $SIGN_ARG -o built_packages --method docker --image archlinux --install-deps --fakeroot
-        done
-      done
-  artifacts:
-    paths:
-      - built_packages/
-    expire_in: 1 day
-
-# ── macOS & Windows: generate child pipeline (one job per package) ──
-
-generate-native-child:
+generate-child:
   stage: generate
   image: archlinux:latest
   rules:
@@ -156,7 +109,7 @@ generate-native-child:
     - |
       if [ -z "$CHANGED_FILES" ]; then
         echo "No packages changed."
-        mkdir -p generated built_packages
+        mkdir -p generated
         printf '%s\n' \
           "stages:" \
           "  - build" \
@@ -168,7 +121,7 @@ generate-native-child:
         exit 0
       fi
 
-      mkdir -p generated built_packages
+      mkdir -p generated
 
       # Write child pipeline header
       printf '%s\n' \
@@ -189,7 +142,64 @@ generate-native-child:
         PKG_ID=$(echo "$PKG_FILE" | tr '/' '-' | sed 's/\.pkg\.lua$//')
         ESCAPED_FILE=$(echo "$PKG_FILE" | sed 's/\./\\./g; s/\//\\\//g')
 
-        # macOS target
+        # ── Linux target ──
+        LINUX_TARGETS=""
+        if [ -z "$PLATFORMS" ]; then
+          LINUX_TARGETS="linux-amd64 linux-arm64"
+        else
+          for PLATFORM in $PLATFORMS; do
+            case "$PLATFORM" in
+              ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
+                    if [ "$R" = "linux" ]; then LINUX_TARGETS="$LINUX_TARGETS $T"; fi ;;
+              linux|linux-*) LINUX_TARGETS="$LINUX_TARGETS $PLATFORM" ;;
+            esac
+          done
+        fi
+        if [ -n "$LINUX_TARGETS" ]; then
+          printf '%s\n' \
+            "build-linux-$PKG_ID:" \
+            "  stage: build" \
+            "  image: archlinux:latest" \
+            "  tags:" \
+            "    - saas-linux-small-amd64" \
+            "  variables:" \
+            "    PKG_FILE: \"$PKG_FILE\"" \
+            "    TARGETS: \"$LINUX_TARGETS\"" \
+            "  before_script:" \
+            "    - pacman -Syu --noconfirm curl git bash gnupg zstd coreutils jq" \
+            "    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
+            '    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
+            "    - zoi sync" \
+            '    - if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "Imported GPG Key: $GPG_KEY_ID"; echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
+            "  script:" \
+            "    - |" \
+            '      mkdir -p built_packages' \
+            '      GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")' \
+            '      SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"' \
+            '      for TARGET in $TARGETS; do' \
+            '        echo "Building $PKG_FILE for $TARGET..."' \
+            '        zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages $SIGN_ARG' \
+            '      done' \
+            '      echo "Bundling .zsa for $PKG_FILE..."' \
+            '      zoi package bundle "$PKG_FILE" -o built_packages' \
+            '      PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)' \
+            '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
+            '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
+            '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
+            '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Uploading $FILENAME to latest-tmp..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/latest-tmp/${FILENAME}"; done' \
+            '      PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic" | jq -r ".[].id")' \
+            '      for ID in $PACKAGE_IDS; do if [ -n "$ID" ] && [ "$ID" != "null" ]; then VERSION=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}" | jq -r ".version"); if [ "$VERSION" != "latest-tmp" ]; then echo "Deleting old package ID: $ID (version: $VERSION)"; curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"; fi; fi; done' \
+            '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Publishing $FILENAME to $PUBLISH_VERSION..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PUBLISH_VERSION}/${FILENAME}"; done' \
+            '      TMP_PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_version=latest-tmp&package_type=generic" | jq -r ".[].id")' \
+            '      for ID in $TMP_PACKAGE_IDS; do if [ -n "$ID" ] && [ "$ID" != "null" ]; then curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"; fi; done' \
+            "  artifacts:" \
+            "    paths:" \
+            "      - built_packages/" \
+            "    expire_in: 1 day" \
+            "" >> generated/child.yml
+        fi
+
+        # ── macOS target ──
         if [ -z "$PLATFORMS" ] || echo "$PLATFORMS" | grep -q "macos\|ci:.*:macos"; then
           MACOS_TARGETS="macos-amd64 macos-arm64"
           if [ -n "$PLATFORMS" ]; then
@@ -213,17 +223,32 @@ generate-native-child:
               "    PKG_FILE: \"$PKG_FILE\"" \
               "    TARGETS: \"$MACOS_TARGETS\"" \
               "  before_script:" \
-              "    - brew install jq" \
+              "    - brew install jq gnupg" \
               "    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
               '    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
               "    - zoi sync" \
+              '    - if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "Imported GPG Key: $GPG_KEY_ID"; echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
               "  script:" \
               "    - |" \
               '      mkdir -p built_packages' \
+              '      GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")' \
+              '      SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"' \
               '      for TARGET in $TARGETS; do' \
               '        echo "Building $PKG_FILE for $TARGET..."' \
-              '        zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages' \
-              "      done" \
+              '        zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages $SIGN_ARG' \
+              '      done' \
+              '      echo "Bundling .zsa for $PKG_FILE..."' \
+              '      zoi package bundle "$PKG_FILE" -o built_packages' \
+              '      PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)' \
+              '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
+              '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
+              '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
+              '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Uploading $FILENAME to latest-tmp..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/latest-tmp/${FILENAME}"; done' \
+              '      PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic" | jq -r ".[].id")' \
+              '      for ID in $PACKAGE_IDS; do if [ -n "$ID" ] && [ "$ID" != "null" ]; then VERSION=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}" | jq -r ".version"); if [ "$VERSION" != "latest-tmp" ]; then echo "Deleting old package ID: $ID (version: $VERSION)"; curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"; fi; fi; done' \
+              '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Publishing $FILENAME to $PUBLISH_VERSION..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PUBLISH_VERSION}/${FILENAME}"; done' \
+              '      TMP_PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_version=latest-tmp&package_type=generic" | jq -r ".[].id")' \
+              '      for ID in $TMP_PACKAGE_IDS; do if [ -n "$ID" ] && [ "$ID" != "null" ]; then curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"; fi; done' \
               "  artifacts:" \
               "    paths:" \
               "      - built_packages/" \
@@ -232,7 +257,7 @@ generate-native-child:
           fi
         fi
 
-        # Windows target
+        # ── Windows target ──
         if [ -z "$PLATFORMS" ] || echo "$PLATFORMS" | grep -q "windows\|ci:.*:windows"; then
           WIN_TARGETS="windows-amd64"
           if [ -n "$PLATFORMS" ]; then
@@ -262,6 +287,18 @@ generate-native-child:
               '      mkdir -p built_packages' \
               '      echo "Building $PKG_FILE for windows-amd64..."' \
               '      zoi package build "$PKG_FILE" --install-deps --platform windows-amd64 --method native -o built_packages' \
+              '      echo "Bundling .zsa for $PKG_FILE..."' \
+              '      zoi package bundle "$PKG_FILE" -o built_packages' \
+              '      PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)' \
+              '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
+              '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
+              '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
+              '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Uploading $FILENAME to latest-tmp..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/latest-tmp/${FILENAME}"; done' \
+              '      PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic" | jq -r ".[].id")' \
+              '      for ID in $PACKAGE_IDS; do if [ -n "$ID" ] && [ "$ID" != "null" ]; then VERSION=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}" | jq -r ".version"); if [ "$VERSION" != "latest-tmp" ]; then echo "Deleting old package ID: $ID (version: $VERSION)"; curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"; fi; fi; done' \
+              '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Publishing $FILENAME to $PUBLISH_VERSION..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PUBLISH_VERSION}/${FILENAME}"; done' \
+              '      TMP_PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_version=latest-tmp&package_type=generic" | jq -r ".[].id")' \
+              '      for ID in $TMP_PACKAGE_IDS; do if [ -n "$ID" ] && [ "$ID" != "null" ]; then curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"; fi; done' \
               "  artifacts:" \
               "    paths:" \
               "      - built_packages/" \
@@ -280,104 +317,13 @@ generate-native-child:
   artifacts:
     paths:
       - generated/
-      - built_packages/
 
-trigger-macos-windows:
+trigger-child:
   stage: build
   needs:
-    - generate-native-child
+    - generate-child
   trigger:
     include:
       - artifact: generated/child.yml
-        job: generate-native-child
+        job: generate-child
     strategy: depend
-
-# ── Upload ──
-
-upload-packages:
-  stage: publish
-  image: archlinux:latest
-  needs:
-    - build-linux
-    - trigger-macos-windows
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  before_script:
-    - pacman -Syu --noconfirm curl git bash coreutils jq
-    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash
-    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
-  script:
-    - |
-      ALL_BUILT=$(find built_packages -name "*.zpa" -o -name "*.zsa" 2>/dev/null || true)
-      if [ -z "$ALL_BUILT" ]; then
-        echo "No built packages found. Checking for changed packages..."
-        if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-          CHANGED_FILES=$(find . -name "*.pkg.lua" -not -path "*/.*")
-        else
-          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep "\.pkg\.lua$" || true)
-        fi
-        if [ -z "$CHANGED_FILES" ]; then echo "No packages changed."; exit 0; fi
-      fi
-
-      for PKG_FILE in $CHANGED_FILES; do
-        if [ ! -f "$PKG_FILE" ]; then
-          PKG_NAME=$(basename "$PKG_FILE" .pkg.lua)
-          PKG_REPO=$(echo "$PKG_FILE" | sed -E 's|^\./||' | rev | cut -d'/' -f3- | rev)
-        else
-          echo "Processing package: $PKG_FILE"
-          PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)
-          PKG_NAME=$(echo "$PKG_JSON" | jq -r '.name')
-          PKG_REPO=$(echo "$PKG_JSON" | jq -r '.repo')
-          # Bundle and sign .zsa for this package
-          GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")
-          SIGN_BUNDLE_ARG=""
-          # [ -n "$GPG_KEY_ID" ] && SIGN_BUNDLE_ARG="--sign $GPG_KEY_ID"
-          echo "Bundling .zsa for $PKG_FILE..."
-          zoi package bundle "$PKG_FILE" -o built_packages $SIGN_BUNDLE_ARG
-        fi
-
-        if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then
-          PKG_ID="$PKG_NAME"
-        else
-          PKG_ID="$(echo "$PKG_REPO" | tr '/' '.').$PKG_NAME"
-        fi
-
-        echo "Uploading to temporary version (latest-tmp) for atomic replacement..."
-        find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do
-          FILENAME=$(basename "$FILE")
-          echo "Uploading $FILENAME to latest-tmp..."
-          curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-               --upload-file "$FILE" \
-               "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID}/latest-tmp/${FILENAME}"
-        done
-
-        echo "Cleaning old versions..."
-        PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID}&package_type=generic" | jq -r '.[].id')
-        for ID in $PACKAGE_IDS; do
-          if [ -n "$ID" ] && [ "$ID" != "null" ]; then
-            VERSION=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}" | jq -r '.version')
-            if [ "$VERSION" != "latest-tmp" ]; then
-              echo "Deleting old package ID: $ID (version: $VERSION)"
-              curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"
-            fi
-          fi
-        done
-
-        if [ -f "$PKG_FILE" ]; then
-          find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do
-            FILENAME=$(basename "$FILE")
-            echo "Publishing $FILENAME to $PUBLISH_VERSION..."
-            curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-                 --upload-file "$FILE" \
-                 "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID}/${PUBLISH_VERSION}/${FILENAME}"
-          done
-        fi
-
-        echo "Cleaning up latest-tmp..."
-        TMP_PACKAGE_IDS=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID}&package_version=latest-tmp&package_type=generic" | jq -r '.[].id')
-        for ID in $TMP_PACKAGE_IDS; do
-          if [ -n "$ID" ] && [ "$ID" != "null" ]; then
-            curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${ID}"
-          fi
-        done
-      done
