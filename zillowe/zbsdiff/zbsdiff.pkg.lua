@@ -1,10 +1,10 @@
-local version = ZOI.VERSION or "1.6.0"
+local version = ZOI.VERSION or "1.6.2"
 
 metadata({
 	name = "zbsdiff",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zbsdiff",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zbsdiff",
