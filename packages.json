@@ -112,7 +112,7 @@
     "@zillowe/zbsdiff": {
       "repo": "zillowe",
       "repo_type": "official",
-      "version": "1.6.2",
+      "version": "1.6.3",
       "epoch": 0,
       "revision": "1",
       "description": "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
