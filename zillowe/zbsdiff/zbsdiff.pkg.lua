@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.6.2"
+local version = ZOI.VERSION or "1.6.3"
 
 metadata({
 	name = "zbsdiff",
@@ -18,7 +18,7 @@ metadata({
 		website = "https://zillowe.qzz.io",
 		email = "contact@zillowe.qzz.io",
 	},
-	license = "Apache-2.0",
+	license = "MIT OR Apache-2.0",
 	bins = { "zbsdiff", "zbspatch" },
 	types = { "source" },
 	tags = { "zillowe", "bsdiff", "cli" },
