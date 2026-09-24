@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.6.3"
+local version = ZOI.VERSION or "1.6.4"
 
 metadata({
 	name = "zbsdiff",
