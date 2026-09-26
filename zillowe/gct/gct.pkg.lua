@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.4.1"
+local version = ZOI.VERSION or "1.5.0"
 
 local function get_go_env()
 	local os = SYSTEM.OS
@@ -10,7 +10,7 @@ metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
-	revision = "22",
+	revision = "1",
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
