@@ -1,8 +1,11 @@
+local version = ZOI.VERSION or "1.0.0"
+
 metadata({
 	name = "rust",
 	repo = "zillowe",
 	type = "app",
-	version = "1.0.0",
+	version = version,
+	revision = "2",
 	description = "A Rust project template with the Zillowe conventions: rustfmt, .editorconfig, workspace lints, Justfile and CI.",
 	website = "https://zillowe.qzz.io",
 	maintainer = {
@@ -15,6 +18,7 @@ metadata({
 		website = "https://zillowe.qzz.io",
 		email = "contact@zillowe.qzz.io",
 	},
+	types = { "source" },
 	license = "Apache-2.0",
 	platforms = { "linux", "macos", "windows" },
 })
