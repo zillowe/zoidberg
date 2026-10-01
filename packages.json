@@ -179,7 +179,7 @@
       "repo_type": "official",
       "version": "0.1.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A Rust implementation of the ZF Versioning Method (ZFVM).",
       "scope": "user",
       "sub_packages": [],
