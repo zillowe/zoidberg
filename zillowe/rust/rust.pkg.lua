@@ -5,7 +5,7 @@ metadata({
 	repo = "zillowe",
 	type = "app",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "A Rust project template with the Zillowe conventions: rustfmt, .editorconfig, workspace lints, Justfile and CI.",
 	website = "https://zillowe.qzz.io",
 	maintainer = {
@@ -20,7 +20,7 @@ metadata({
 	},
 	types = { "source" },
 	license = "Apache-2.0",
-	platforms = { "linux", "macos", "windows" },
+	platforms = { "linux-amd64", "macos" },
 })
 
 dependencies({
