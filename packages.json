@@ -114,7 +114,7 @@
       "repo_type": "official",
       "version": "1.0.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "A Rust project template with the Zillowe conventions: rustfmt, .editorconfig, workspace lints, Justfile and CI.",
       "scope": "user",
       "sub_packages": [],
@@ -169,6 +169,32 @@
           {
             "type": "source",
             "packages": []
+          }
+        ],
+        "test": []
+      }
+    },
+    "@zillowe/zfvm": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "0.1.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A Rust implementation of the ZF Versioning Method (ZFVM).",
+      "scope": "user",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:rust",
+              "pacman:git",
+              "pacman:asciidoctor"
+            ]
           }
         ],
         "test": []
