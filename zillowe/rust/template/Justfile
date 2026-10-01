@@ -1,0 +1,66 @@
+#!/usr/bin/env -S just --working-directory . --justfile
+
+set shell := ["bash", "-c"]
+
+DEBUGDIR := env("DEBUGDIR", "dist")
+DEV_MANDIR := DEBUGDIR + "/man"
+
+export RUSTFLAGS := "-Dwarnings"
+export RUST_BACKTRACE := "1"
+
+# Alias to `just help`
+default: help
+
+# Generate man pages from the asciidoc sources in man/
+man:
+    @if ! command -v asciidoctor >/dev/null 2>&1; then echo "Error: 'asciidoctor' is not installed. It is required to render man pages."; exit 1; fi
+    @mkdir -p "{{ DEV_MANDIR }}"
+    @asciidoctor -b manpage -D "{{ DEV_MANDIR }}" man/*.adoc
+    @echo "Man pages rendered to {{ DEV_MANDIR }}."
+
+# Clean project artifacts
+clean:
+    @echo "Cleaning project artifacts..."
+    @cargo clean
+    @rm -rf dist/
+    @echo "Cleaned."
+
+# Check for unused dependencies
+deps:
+    @cargo machete --with-metadata
+
+# Format Rust code
+fmt:
+    @cargo +nightly fmt --all
+
+# Check for formating issues in Rust code
+fmt-check:
+    @cargo +nightly fmt --all --check
+
+# Check Rust code for error
+check:
+    @cargo check --workspace --all-targets --tests
+
+# Run lints on Rust code
+lint:
+    @cargo clippy --workspace --all-targets --all-features
+
+# Run lints on Rust code and apply fixes where possible
+lint-fix:
+    @cargo clippy --workspace --all-targets --all-features --fix --allow-dirty --allow-staged
+
+# Run zfvm test suite
+test:
+    @cargo test --workspace --all-targets --all-features
+
+# Run the zfvm documentation tests
+doctest:
+    @cargo test --workspace --doc
+
+# Build the release binary
+build:
+    @cargo build --release -p zfvm-cli
+
+# Print this help message
+help:
+    @just --list

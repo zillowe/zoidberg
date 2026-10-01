@@ -1,0 +1,62 @@
+variables:
+  DS_ENFORCE_NEW_ANALYZER: "true"
+  CARGO_INCREMENTAL: "0"
+
+stages:
+  - test
+
+.rust_setup:
+  image: rust:latest
+
+format:
+  stage: test
+  extends:
+    - .rust_setup
+  before_script:
+    - rustup toolchain install nightly --component rustfmt
+  script:
+    - cargo +nightly fmt --all -- --check
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes: &code_changes
+        - "Cargo.toml"
+        - "Cargo.lock"
+        - "crates/**/*"
+    - if: $CI_COMMIT_BRANCH
+      changes: *code_changes
+
+lint:
+  stage: test
+  extends:
+    - .rust_setup
+  variables:
+    RUSTFLAGS: "-Dwarnings"
+  before_script:
+    - rustup component add clippy
+  script:
+    - cargo clippy --workspace --all-targets --all-features
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes: *code_changes
+    - if: $CI_COMMIT_BRANCH
+      changes: *code_changes
+
+test:
+  stage: test
+  extends:
+    - .rust_setup
+  variables:
+    RUSTFLAGS: "-Dwarnings"
+  script:
+    - cargo test --workspace --all-targets --all-features
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes: *code_changes
+    - if: $CI_COMMIT_BRANCH
+      changes: *code_changes
