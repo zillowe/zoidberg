@@ -225,31 +225,6 @@
         "test": []
       }
     },
-    "@zillowe/zoko": {
-      "repo": "zillowe",
-      "repo_type": "official",
-      "version": "0.2.0",
-      "epoch": 0,
-      "revision": "21",
-      "description": "A JSON-like format for data storing",
-      "scope": "user",
-      "sub_packages": [],
-      "main_sub_packages": [],
-      "vuln": [],
-      "dependencies": {
-        "runtime": [],
-        "build": [
-          {
-            "type": "source",
-            "packages": [
-              "pacman:rust",
-              "pacman:git"
-            ]
-          }
-        ],
-        "test": []
-      }
-    },
     "@zillowe/zsm": {
       "repo": "zillowe",
       "repo_type": "official",
