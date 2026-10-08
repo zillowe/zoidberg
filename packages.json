@@ -155,9 +155,9 @@
     "@zillowe/zeno": {
       "repo": "zillowe",
       "repo_type": "official",
-      "version": "1.4.3",
+      "version": "1.5.0",
       "epoch": 0,
-      "revision": "6",
+      "revision": "1",
       "description": "The typography system for the Zillowe Foundation",
       "scope": "system",
       "sub_packages": [],
