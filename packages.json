@@ -277,6 +277,32 @@
         ],
         "test": []
       }
+    },
+    "@zillowe/zync": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "0.1.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "rsync over HTTP, with bsdiff residue reduction",
+      "scope": "user",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:rust",
+              "pacman:git",
+              "pacman:asciidoctor"
+            ]
+          }
+        ],
+        "test": []
+      }
     }
   }
 }
