@@ -70,8 +70,8 @@ use_max_tag = true
 
 See existing examples:
 
-- [`@zillowe/zoko`](./zillowe/zoko/nvchecker.toml) (GitLab)
-- [`@main/ripgrep`](./main/ripgrep/nvchecker.toml) (GitHub)
+- [`@zillowe/zbsdiff`](./zillowe/zbsdiff/nvchecker.toml) (GitLab)
+- [`@zillowe/hello`](./zillowe/hello/nvchecker.toml) (GitHub)
 
 ### 4. Submitting
 

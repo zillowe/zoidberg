@@ -1,4 +1,4 @@
-[zoko]
+[zbsdiff]
 source = "gitlab"
 gitlab = "zillowe/zillowex/akuolwa/zbsdiff"
 use_max_tag = true

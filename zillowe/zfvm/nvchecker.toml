@@ -1,4 +1,4 @@
-[zoko]
+[zfvm]
 source = "gitlab"
 gitlab = "zillowe/zillowex/akuolwa/zfvm"
 use_max_tag = true

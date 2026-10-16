@@ -122,7 +122,7 @@ Create a [Merge Request](https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/mer
 
 Use [`@zillowe/hello`](https://github.com/zillowe/hello) as an example package, [learn more about packaging existing software](https://zillowe.qzz.io/docs/zds/zoi/creating-packages).
 
-For automatic version detection, place an `nvchecker.toml` file next to your `.pkg.lua`. See [`@zillowe/zoko`](./zillowe/zoko/nvchecker.toml) for a GitLab example or [`@main/ripgrep`](./main/ripgrep/nvchecker.toml) for a GitHub example.
+For automatic version detection, place an `nvchecker.toml` file next to your `.pkg.lua`. See [`@zillowe/zbsdiff`](./zillowe/zbsdiff/nvchecker.toml) for a GitLab example or [`@zillowe/hello`](./zillowe/hello/nvchecker.toml) for a GitHub example.
 
 See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for a full step-by-step guide on adding packages and reporting vulnerabilities.
 
