@@ -1,13 +1,13 @@
-local version = ZOI.VERSION or "3.25.0"
+local version = ZOI.VERSION or "3.26.0"
 
 metadata({
 	name = "bacon",
 	repo = "extra",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "A background rust code checker",
 	website = "https://dystroy.org/bacon",
-	git = "https://github.com/Canop/bacon.git",
+	git = "https://github.com/Canop/bacon",
 	license = "AGPL-3.0-only",
 	maintainer = {
 		name = "Zillowe Foundation",
@@ -60,9 +60,6 @@ function package()
 
 	zdoc("source/README.md")
 	zdoc("source/CHANGELOG.md")
-	if UTILS.FS.exists("source/doc") then
-		zdoc("source/doc")
-	end
 
 	zlicense("source/LICENSE")
 end
