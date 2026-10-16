@@ -4,9 +4,9 @@
     "@extra/bacon": {
       "repo": "extra",
       "repo_type": "official",
-      "version": "3.25.0",
+      "version": "3.26.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "1",
       "description": "A background rust code checker",
       "scope": "user",
       "sub_packages": [],
@@ -25,6 +25,34 @@
             "type": "source",
             "packages": [
               "pacman:rust",
+              "pacman:git"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@extra/git-cliff": {
+      "repo": "extra",
+      "repo_type": "official",
+      "version": "2.14.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A highly customizable changelog generator",
+      "scope": "user",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:rust",
+              "pacman:pkgconf",
+              "pacman:libgit2",
+              "pacman:zlib",
               "pacman:git"
             ]
           }
@@ -129,7 +157,7 @@
     "@zillowe/zbsdiff": {
       "repo": "zillowe",
       "repo_type": "official",
-      "version": "1.6.4",
+      "version": "1.6.6",
       "epoch": 0,
       "revision": "1",
       "description": "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
