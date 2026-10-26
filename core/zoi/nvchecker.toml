@@ -1,0 +1,4 @@
+[zoi]
+source = "gitlab"
+gitlab = "zillowe/zillwen/zusty/zoi"
+use_max_tag = true

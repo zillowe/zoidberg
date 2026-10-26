@@ -1,0 +1,12 @@
+NAME="Parlex Linux"
+PRETTY_NAME="Parlex Linux (ZoiOS)"
+ID=parlex
+ID_LIKE=zoios
+BUILD_ID=rolling
+ANSI_COLOR="38;2;23;147;209"
+HOME_URL="https://zillowe.qzz.io/parlex/linux"
+DOCUMENTATION_URL="https://zillowe.qzz.io/docs/parlex/linux"
+SUPPORT_URL="https://zillowe.qzz.io/docs"
+BUG_REPORT_URL="https://gitlab.com/groups/zillowe/zillowex/parlex/linux/-/work_items"
+PRIVACY_POLICY_URL="https://zillowe.qzz.io/legal/privacy"
+LOGO=parlex-logo

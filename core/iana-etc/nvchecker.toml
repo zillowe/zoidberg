@@ -1,0 +1,4 @@
+[iana-etc]
+source = "gitlab"
+gitlab = "zillowe/zillowex/parlex/linux/iana-etc"
+use_max_tag = true
