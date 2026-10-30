@@ -24,6 +24,11 @@
       "uninstall",
       "cmd",
       "zcp",
+      "zlicense",
+      "zdoc",
+      "zman",
+      "zsed",
+      "zpatch",
       "zln",
       "zchmod",
       "zchown",
@@ -43,7 +48,7 @@
   "workspace": {
     "checkThirdParty": false,
     "library": [
-      "~/.zoi/lsp"
+      "/home/zaid/.local/share/zoi/lsp"
     ]
   }
 }

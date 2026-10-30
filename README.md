@@ -6,10 +6,10 @@
 <br/>
 
 <div align="center">
-  <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/issues/new?issuable_template=New%20Package%20Request"><strong>New Package Request</strong></a> •
-  <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/issues/new?issuable_template=Package%20Update%20or%20Removal"><strong>Package Update or Removal</strong></a>
+  <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/work_items/new?issuable_template=New%20Package%20Request"><strong>New Package Request</strong></a> •
+  <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/work_items/new?issuable_template=Package%20Update%20or%20Removal"><strong>Package Update or Removal</strong></a>
   <br/>
-  <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/issues/new?issuable_template=Security%20Vulnerability%20Report"><strong>Security Vulnerability Report</strong></a> •
+  <a href="https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/work_items/new?issuable_template=Security%20Vulnerability%20Report"><strong>Security Vulnerability Report</strong></a> •
   <a href="https://zillowe.qzz.io/docs/zds/zoi/zoidberg-guidelines"><strong>Zoidberg Guidelines</strong></a>
   <br/>
 </div>
