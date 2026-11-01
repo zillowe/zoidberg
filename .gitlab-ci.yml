@@ -57,7 +57,7 @@ metadata-generation:
   stage: metagen
   image: archlinux:latest
   rules:
-    - if: "$CI_COMMIT_MESSAGE !~ /security: update metadata index/"
+    - if: "$CI_COMMIT_MESSAGE !~ /Security: Update metadata index/"
   before_script:
     - pacman -Syu --noconfirm curl git bash gnupg coreutils
     - *common_before_script
@@ -90,7 +90,7 @@ metadata-generation:
       zoi reg gen-meta
       if [ -n "$(git status --porcelain)" ]; then
         git add .
-        git commit -S -m "security: update metadata index [skip ci]"
+        git commit -S -m "Security: Update metadata index [skip ci]"
         git push origin HEAD:$TARGET_BRANCH
       fi
 
