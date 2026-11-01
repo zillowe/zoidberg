@@ -1,4 +1,4 @@
-local version = "1.30.0"
+local version = "1.29.3"
 local tag = "Prod-Release-" .. version
 local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/" .. tag .. "/downloads"
 local public_key = "https://zillowe.pages.dev/keys/zillowe-main.asc"

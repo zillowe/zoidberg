@@ -1,0 +1,15 @@
+name: systemd-tmpfiles
+description: Creating temporary files...
+platforms: ["linux"]
+trigger:
+  paths:
+    - "${usrroot}/usr/lib/tmpfiles.d/*.conf"
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook tmpfiles
+    elif [ -x /usr/bin/systemd-tmpfiles ]; then
+      /usr/bin/systemd-tmpfiles --create
+    fi

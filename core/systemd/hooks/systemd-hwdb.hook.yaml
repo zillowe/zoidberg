@@ -1,0 +1,15 @@
+name: systemd-hwdb
+description: Updating udev hardware database...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr/lib/udev/hwdb.d"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook hwdb
+    elif [ -x /usr/bin/systemd-hwdb ]; then
+      /usr/bin/systemd-hwdb --usr update
+    fi

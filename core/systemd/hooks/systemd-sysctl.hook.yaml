@@ -1,0 +1,13 @@
+name: systemd-sysctl
+description: Applying kernel sysctl settings...
+platforms: ["linux"]
+trigger:
+  paths:
+    - "${usrroot}/usr/lib/sysctl.d/*.conf"
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook sysctl
+    fi

@@ -1,0 +1,28 @@
+name: dracut-install
+description: Updating initramfs with dracut...
+platforms: ["linux"]
+trigger:
+  packages: ["dracut"]
+  dirs:
+    - "${usrroot}/usr/lib/dracut"
+  paths:
+    - "${usrroot}/usr/lib/modules/*/vmlinuz"
+    - "${usrroot}/usr/lib/modules/*/pkgbase"
+    - "${usrroot}/usr/lib/firmware/**"
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if command -v dracut >/dev/null 2>&1; then
+      for mod_pkg in /usr/lib/modules/*/pkgbase; do
+        [ -f "$mod_pkg" ] || continue
+        pkgbase=$(cat "$mod_pkg")
+        kver=$(basename "$(dirname "$mod_pkg")")
+        echo "--> Building initramfs for ${pkgbase} (${kver})"
+        mkdir -p /boot
+        if [ -f "/usr/lib/modules/${kver}/vmlinuz" ]; then
+          install -Dm0644 "/usr/lib/modules/${kver}/vmlinuz" "/boot/vmlinuz-${pkgbase}"
+        fi
+        dracut --force -L 3 "/boot/initramfs-${pkgbase}.img" --kver "$kver" || true
+      done
+    fi

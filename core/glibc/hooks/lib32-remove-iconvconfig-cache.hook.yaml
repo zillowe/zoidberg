@@ -1,0 +1,9 @@
+name: lib32-glibc-remove-iconvconfig-cache
+description: Removing 32bit iconv module configuration cache...
+platforms: ["linux"]
+trigger:
+  packages: ["lib32-glibc"]
+  operation: ["remove"]
+action:
+  when: PreTransaction
+  exec: "/usr/bin/rm --force /usr/lib32/gconv/gconv-modules.cache"

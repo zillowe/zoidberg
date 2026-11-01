@@ -1,0 +1,12 @@
+name: glibc-locale-gen
+description: Generating the configured locale...
+platforms: ["linux"]
+trigger:
+  packages: ["glibc"]
+  paths:
+    - "${usrroot}/etc/locale.gen"
+    - "${usrroot}/etc/locale.gen.d/*"
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: "/usr/bin/locale-gen"

@@ -1,0 +1,3 @@
+[shadow]
+source = "git"
+git = "https://github.com/shadow-maint/shadow.git"

@@ -1,0 +1,15 @@
+name: systemd-update
+description: Arming ConditionNeedsUpdate...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook update
+    else
+      touch -c /usr
+    fi

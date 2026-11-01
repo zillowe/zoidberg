@@ -1,0 +1,7 @@
+[linux]
+source = "git"
+git = "https://gitlab.com/zillowe/zillowex/parlex/linux/kernel.git"
+include_regex = 'v\d+(\.\d+)*-parlex\.\d+'
+prefix = "v"
+from_pattern = '-([a-z])'
+to_pattern = '.\1'

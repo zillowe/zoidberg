@@ -1,0 +1,9 @@
+name: glibc-remove-locale-archive
+description: Removing the locale archive...
+platforms: ["linux"]
+trigger:
+  packages: ["glibc"]
+  operation: ["remove"]
+action:
+  when: PreTransaction
+  exec: "/usr/bin/rm --force /usr/lib/locale/locale-archive"

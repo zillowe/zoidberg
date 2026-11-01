@@ -1,0 +1,5 @@
+[procps-ng]
+source = "git"
+git = "https://gitlab.com/procps-ng/procps.git"
+prefix = "v"
+exclude_regex = ".*rc.*"

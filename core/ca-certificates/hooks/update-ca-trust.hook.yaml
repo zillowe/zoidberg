@@ -1,0 +1,13 @@
+name: update-ca-trust
+description: Rebuilding certificate stores...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr/share/ca-certificates/trust-source"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/bin/update-ca-trust ]; then
+      /usr/bin/update-ca-trust
+    fi

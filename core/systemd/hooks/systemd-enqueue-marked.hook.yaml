@@ -1,0 +1,13 @@
+name: systemd-enqueue-marked
+description: Enqueuing marked services...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr/lib/systemd/system"
+  operation: ["upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook enqueue-marked
+    fi

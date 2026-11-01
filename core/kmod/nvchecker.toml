@@ -1,0 +1,4 @@
+[kmod]
+source = "git"
+git = "https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git"
+prefix = "v"

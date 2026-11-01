@@ -1,0 +1,14 @@
+name: systemd-modules-load
+description: Loading new kernel modules...
+platforms: ["linux"]
+trigger:
+  paths:
+    - "${usrroot}/etc/modules-load.d/*.conf"
+    - "${usrroot}/usr/lib/modules-load.d/*.conf"
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -d /run/systemd/system ]; then
+      /usr/bin/systemctl --system restart systemd-modules-load.service || true
+    fi

@@ -1,0 +1,15 @@
+name: systemd-sysusers
+description: Creating system user accounts...
+platforms: ["linux"]
+trigger:
+  paths:
+    - "${usrroot}/usr/lib/sysusers.d/*.conf"
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook sysusers
+    elif [ -x /usr/bin/systemd-sysusers ]; then
+      /usr/bin/systemd-sysusers
+    fi

@@ -1,0 +1,20 @@
+name: kmod-depmod
+description: Updating module dependencies...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr/lib/modules"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    for mod_dir in /usr/lib/modules/*; do
+      if [ -e "$mod_dir/modules.order" ]; then
+        /usr/bin/depmod "$(basename "$mod_dir")"
+      elif [ -d "$mod_dir" ] && [ ! -e "$mod_dir/modules.dep" ]; then
+        rm -f "$mod_dir"/modules.{alias,alias.bin,builtin.alias.bin,builtin.bin} \
+              "$mod_dir"/modules.{dep,dep.bin,devname,softdep,symbols,symbols.bin} \
+              "$mod_dir"/modules.weakdep 2>/dev/null || true
+        rmdir --ignore-fail-on-non-empty "$mod_dir" 2>/dev/null || true
+      fi
+    done

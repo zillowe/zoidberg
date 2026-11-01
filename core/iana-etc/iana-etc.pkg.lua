@@ -1,6 +1,6 @@
-local version = ZOI.VERSION or "2026.08.06"
-local ports_xml = "service-names-port-numbers-2026.08.05.xml"
-local protocols_xml = "protocol-numbers-2026.03.10.xml"
+local version = ZOI.VERSION or "2026.10.30"
+local ports_xml = "service-names-port-numbers-2026.10.28.xml"
+local protocols_xml = "protocol-numbers-2026.10.13.xml"
 
 metadata({
 	name = "iana-etc",
@@ -9,6 +9,7 @@ metadata({
 	revision = "1",
 	description = "/etc/protocols and /etc/services provided by IANA",
 	website = "https://www.iana.org/protocols",
+	git = "https://gitlab.com/zillowe/zillowex/parlex/linux/iana-etc.git",
 	license = "None",
 	maintainer = {
 		name = "Zillowe Foundation",
@@ -30,7 +31,7 @@ dependencies({
 	build = {
 		types = {
 			source = {
-				required = { "zoi:@core/gawk" },
+				required = { "pacman:gawk" },
 			},
 		},
 	},
@@ -42,13 +43,13 @@ function prepare()
 	UTILS.DOWNLOAD(
 		base_url .. ports_xml,
 		ports_xml,
-		"db00355924e23ce5786fc3b6564132eeaeb13a00f9128bc92249da7b9130b9e93d2e09140ba7980a61e6950b4b725faa9a453ecf79ae4dda820f9fb13fc8790f"
+		"00a3e9b9d7aa7fe392891f1af7377ad525e8975e6e1fc57b654303669c974ce204de1a690071b2346a11f8ebebdeef752ba850a9e80c04b5393016ec6849e740"
 	)
 
 	UTILS.DOWNLOAD(
 		base_url .. protocols_xml,
 		protocols_xml,
-		"66f962a575d1bdffb230081f2b3e409355fdd8a1d6966d1665f51e6ebe718b92c66c6373947625e7de7c6050b640210a472d7150773f320b9289b5cf5b2a7ec2"
+		"54c52c71aceed248e0e1b3a4da4853e32654a4f91f2f2fac938b91a282a2bdb9ffac82d15e88349e26c3ebf175e04b80af8ba3fcc1e20d65fbb2186811244c6a"
 	)
 end
 
@@ -79,4 +80,10 @@ BEGIN { print "# Full data: /usr/share/iana-etc/port-numbers.iana\n" }
 	zcp("services", "${usrroot}/etc/services")
 
 	zlicense("${pkgluadir}/license-from-upstream")
+end
+
+function test()
+	cmd([[
+		test -f /etc/protocols && test -f /etc/services || true
+	]])
 end

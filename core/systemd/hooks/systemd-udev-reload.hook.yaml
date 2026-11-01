@@ -1,0 +1,13 @@
+name: systemd-udev-reload
+description: Reloading device manager configuration...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr/lib/udev/rules.d"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook udev-reload
+    fi

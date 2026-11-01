@@ -1,0 +1,17 @@
+name: dracut-remove
+description: Removing initramfs with dracut...
+platforms: ["linux"]
+trigger:
+  paths:
+    - "${usrroot}/usr/lib/modules/*/pkgbase"
+  operation: ["remove"]
+action:
+  when: PostTransaction
+  exec: |
+    for img in /boot/initramfs-*.img; do
+      [ -f "$img" ] || continue
+      pkgbase=$(basename "$img" .img | sed 's/^initramfs-//')
+      if [ ! -d "/usr/lib/modules" ] || ! grep -qs "^${pkgbase}\$" /usr/lib/modules/*/pkgbase; then
+        rm -f "/boot/vmlinuz-${pkgbase}" "/boot/initramfs-${pkgbase}.img"
+      fi
+    done

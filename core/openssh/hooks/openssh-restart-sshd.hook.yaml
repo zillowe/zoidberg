@@ -1,0 +1,12 @@
+name: openssh-restart-sshd
+description: Restarting running sshd.service...
+platforms: ["linux"]
+trigger:
+  packages: ["openssh"]
+  operation: ["upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -d /run/systemd/system ]; then
+      /usr/bin/systemctl try-restart sshd.service 2>/dev/null || true
+    fi

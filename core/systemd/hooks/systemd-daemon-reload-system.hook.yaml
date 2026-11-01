@@ -1,0 +1,13 @@
+name: systemd-daemon-reload-system
+description: Reloading system manager configuration...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr/lib/systemd/system"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook daemon-reload-system
+    fi

@@ -1,0 +1,12 @@
+name: lib32-glibc-iconvconfig
+description: Creating 32bit iconv module configuration cache...
+platforms: ["linux"]
+trigger:
+  packages: ["lib32-glibc"]
+  paths:
+    - "${usrroot}/usr/lib32/gconv/gconv-modules"
+    - "${usrroot}/usr/lib32/gconv/gconv-modules.d/*"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: "/usr/bin/iconvconfig --nostdlib --output=/usr/lib32/gconv/gconv-modules.cache /usr/lib32/gconv"

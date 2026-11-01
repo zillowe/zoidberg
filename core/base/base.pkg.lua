@@ -1,6 +1,4 @@
-local version = ZOI.VERSION or "2026.8"
-
--- thank you arch <3
+local version = ZOI.VERSION or "2026.11"
 
 metadata({
 	name = "base",
@@ -8,7 +6,7 @@ metadata({
 	version = version,
 	revision = "1",
 	description = "Minimal package set to define a basic Parlex Linux installation",
-	website = "https://zillowe.qzz.io/docs/zds/zoios",
+	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
 	maintainer = {
 		name = "Zillowe Foundation",
@@ -24,6 +22,7 @@ metadata({
 	scopes = { "system" },
 	platforms = { "linux" },
 	type = "collection",
+	types = { "source" },
 	zoios = true,
 	sub_packages = { "main", "dev" },
 	main_subs = { "main" },
@@ -33,54 +32,18 @@ dependencies({
 	runtime = {
 		sub_packages = {
 			main = {
-				options = {
-					{
-						name = "init system",
-						desc = "init provider for your system",
-						all = false,
-						depends = {
-							"zoi:@core/systemd",
-							"zoi:@core/openrc",
-						},
-					},
-					{
-						name = "kernel",
-						desc = "linux kernel for your system",
-						all = false,
-						depends = {
-							"zoi:@core/linux",
-							"zoi:@core/linux-hardened",
-						},
-					},
-					{
-						name = "bootloader",
-						desc = "bootloader for your system",
-						all = false,
-						depends = {
-							"zoi:@core/grub",
-							"zoi:@core/systemd-boot",
-							"zoi:@core/limine",
-						},
-					},
-					{
-						name = "privilege escalator",
-						desc = "sudo or doas for your system",
-						all = false,
-						depends = {
-							"zoi:@core/sudo",
-							"zoi:@core/doas",
-						},
-					},
-				},
 				required = {
 					-- Foundational
 					"zoi:@core/filesystem",
 					"zoi:@core/gcc:libgcc",
 					"zoi:@core/glibc",
 					"zoi:@core/bash",
+					"zoi:@core/linux",
 					-- Booting
 					"zoi:@core/dracut",
 					"zoi:@core/linux-firmware",
+					"zoi:@core/systemd",
+					"zoi:@core/grub",
 					-- POSIX tools
 					"zoi:@core/coreutils",
 					"zoi:@core/file",
@@ -99,6 +62,7 @@ dependencies({
 					"zoi:@core/bzip2",
 					"zoi:@core/gzip",
 					"zoi:@core/xz",
+					"zoi:@core/sudo",
 					-- Zoi Core
 					"zoi:@core/zoi",
 					"zoi:@core/zoid",
@@ -131,3 +95,15 @@ dependencies({
 		},
 	},
 })
+
+function prepare()
+	-- Meta-package / collection definition
+end
+
+function package(args)
+	-- Meta-package installs no distinct files directly
+end
+
+function test()
+	-- Meta-package verified via dependency satisfaction
+end

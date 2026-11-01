@@ -1,0 +1,13 @@
+name: systemd-binfmt
+description: Registering binary formats...
+platforms: ["linux"]
+trigger:
+  paths:
+    - "${usrroot}/usr/lib/binfmt.d/*.conf"
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook binfmt
+    fi

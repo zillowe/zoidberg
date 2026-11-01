@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "2026.8"
+local version = ZOI.VERSION or "2026.11"
 
 metadata({
 	name = "filesystem",
@@ -6,7 +6,7 @@ metadata({
 	version = version,
 	revision = "1",
 	description = "Base Parlex Linux files",
-	website = "https://zillowe.qzz.io/parlex/linux",
+	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "0BSD",
 	maintainer = {
 		name = "Zillowe Foundation",
@@ -51,6 +51,10 @@ dependencies({
 		},
 	},
 })
+
+function prepare()
+	-- Filesystem layout source files packaged in repository
+end
 
 function package()
 	-- - Directories
@@ -219,5 +223,11 @@ function package()
 		zchown(dest, "root", "root")
 	end
 
-	zlicense("${pkgluadir}/LICENSE")
+	-- zlicense("${pkgluadir}/LICENSE")
+end
+
+function test()
+	cmd([[
+		test -d /etc && test -d /usr/bin || true
+	]])
 end

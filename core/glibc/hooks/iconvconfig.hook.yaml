@@ -1,0 +1,12 @@
+name: glibc-iconvconfig
+description: Creating iconv module configuration cache...
+platforms: ["linux"]
+trigger:
+  packages: ["glibc"]
+  paths:
+    - "${usrroot}/usr/lib/gconv/gconv-modules"
+    - "${usrroot}/usr/lib/gconv/gconv-modules.d/*"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: "/usr/bin/iconvconfig"

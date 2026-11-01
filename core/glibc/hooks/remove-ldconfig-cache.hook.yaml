@@ -1,0 +1,9 @@
+name: glibc-remove-ldconfig-cache
+description: Removing cache for dynamic linker run-time bindings...
+platforms: ["linux"]
+trigger:
+  packages: ["glibc"]
+  operation: ["remove"]
+action:
+  when: PreTransaction
+  exec: "/usr/bin/rm --force /etc/ld.so.cache"
