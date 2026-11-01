@@ -2,9 +2,9 @@ local version = ZOI.VERSION or "7.2.14.parlex.1"
 local upstream_ver = string.match(version, "^(%d+%.%d+%.%d+)") or "7.2.14"
 local patch_rev = string.match(version, "parlex%.(%d+)$") or "1"
 local patch_tag = "v" .. upstream_ver .. "-parlex." .. patch_rev
-local patch_name = "linux-" .. upstream_ver .. "-parlex." .. patch_rev .. ".patch"
+local patch_name = "linux-" .. patch_tag .. ".patch"
 local patch_url = string.format(
-	"https://gitlab.com/zillowe/zillowex/parlex/linux/kernel/-/releases/%s/downloads/%s.zst",
+	"https://gitlab.com/api/v4/projects/84792945/packages/generic/kernel-patches/%s/%s.zst",
 	patch_tag,
 	patch_name
 )
