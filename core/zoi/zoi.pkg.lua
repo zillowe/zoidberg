@@ -92,7 +92,7 @@ metadata({
 	scope = "system",
 	scopes = { "system" },
 	zoios = true,
-	platforms = { "linux-amd64", "linux-arm64" },
+	platforms = { "linux-amd64" },
 	tags = { "zillowe", "package-manager", "cli" },
 })
 

@@ -20,7 +20,7 @@ metadata({
 	},
 	scope = "system",
 	scopes = { "system" },
-	platforms = { "linux" },
+	platforms = { "linux-amd64" },
 	type = "collection",
 	types = { "source" },
 	zoios = true,

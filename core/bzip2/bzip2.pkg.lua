@@ -21,7 +21,7 @@ metadata({
 	bins = { "bzip2", "bunzip2", "bzcat", "bzip2recover", "bzdiff", "bzgrep", "bzmore" },
 	scope = "system",
 	scopes = { "system" },
-	platforms = { "linux" },
+	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
 })

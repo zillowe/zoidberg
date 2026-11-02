@@ -124,7 +124,7 @@ metadata({
 	},
 	scope = "system",
 	scopes = { "system" },
-	platforms = { "linux" },
+	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
 })
