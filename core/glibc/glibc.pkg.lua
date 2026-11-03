@@ -36,6 +36,7 @@ metadata({
 	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
+	zsa = false,
 	sub_packages = { "main", "lib32", "locales" },
 	main_subs = { "main" },
 	backup = {

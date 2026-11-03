@@ -43,13 +43,13 @@ function prepare()
 	UTILS.DOWNLOAD(
 		base_url .. ports_xml,
 		ports_xml,
-		"00a3e9b9d7aa7fe392891f1af7377ad525e8975e6e1fc57b654303669c974ce204de1a690071b2346a11f8ebebdeef752ba850a9e80c04b5393016ec6849e740"
+		"9153024bf21f93f8cdbc84f0dbe45d2671f21997a9ed82876da8ecb26ac8374ab1c317af9eca89f8b09a6a57a892a4954bd48a62e2e0b232161a6e3b7780fa55"
 	)
 
 	UTILS.DOWNLOAD(
 		base_url .. protocols_xml,
 		protocols_xml,
-		"54c52c71aceed248e0e1b3a4da4853e32654a4f91f2f2fac938b91a282a2bdb9ffac82d15e88349e26c3ebf175e04b80af8ba3fcc1e20d65fbb2186811244c6a"
+		"e8fcdbe8eda9ea338d5ca558f97d6b739e18b9e47e38805126adbbfab7609e02bc5f5371f3888fbd425a3d189cc34f139be80ab85934ed6d70c10a98a8fbde3e"
 	)
 end
 

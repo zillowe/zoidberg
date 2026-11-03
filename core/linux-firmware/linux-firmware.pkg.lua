@@ -26,6 +26,7 @@ metadata({
 	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
+	zsa = false,
 })
 
 dependencies({
