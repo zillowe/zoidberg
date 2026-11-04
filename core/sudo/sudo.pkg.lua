@@ -6,7 +6,7 @@ metadata({
 	name = "sudo",
 	repo = "core",
 	version = version,
-	revision = "8",
+	revision = "9",
 	description = "Give certain users the ability to run some commands as root",
 	website = "https://www.sudo.ws/sudo/",
 	license = "ISC",

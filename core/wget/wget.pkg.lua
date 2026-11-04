@@ -6,7 +6,7 @@ metadata({
 	name = "wget",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Network utility to retrieve files from the web",
 	website = "https://www.gnu.org/software/wget/",
 	license = "GPL-3.0-or-later",

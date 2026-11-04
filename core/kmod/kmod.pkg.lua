@@ -6,7 +6,7 @@ metadata({
 	name = "kmod",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Linux kernel module management tools and library (modprobe, lsmod, depmod)",
 	website = "https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git",
 	license = "LGPL-2.1-or-later AND GPL-2.0-or-later",

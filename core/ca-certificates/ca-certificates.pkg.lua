@@ -4,7 +4,7 @@ metadata({
 	name = "ca-certificates",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Common CA certificates and trust management utilities",
 	website = "https://src.fedoraproject.org/rpms/ca-certificates",
 	license = "GPL-2.0-or-later",
@@ -84,9 +84,9 @@ function package()
 			install -m644 update-ca-trust.8 "$ROOT"/usr/share/man/man8/
 		fi
 
-		local etcdir="$ROOT/etc/ca-certificates"
-		local ssldir="$ROOT/etc/ssl"
-		local usrdir="$ROOT/usr/share/ca-certificates"
+		etcdir="$ROOT/etc/ca-certificates"
+		ssldir="$ROOT/etc/ssl"
+		usrdir="$ROOT/usr/share/ca-certificates"
 
 		mkdir -p "$etcdir"/trust-source/{anchors,blocklist} \
 			"$usrdir"/trust-source/{anchors,blocklist} \

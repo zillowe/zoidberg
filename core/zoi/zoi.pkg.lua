@@ -1,4 +1,4 @@
-local version = "1.29.3"
+local version = "1.29.8"
 local tag = "Prod-Release-" .. version
 local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/" .. tag .. "/downloads"
 local public_key = "https://zillowe.pages.dev/keys/zillowe-main.asc"
@@ -70,7 +70,7 @@ metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zoi.git",

@@ -5,7 +5,7 @@ metadata({
 	name = "sed",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "GNU stream editor",
 	website = "https://www.gnu.org/software/sed/",
 	license = "GPL-3.0-or-later",

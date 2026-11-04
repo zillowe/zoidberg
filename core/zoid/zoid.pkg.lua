@@ -1,4 +1,4 @@
-local version = "1.29.3"
+local version = "1.29.8"
 local tag = "Prod-Release-" .. version
 local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/" .. tag .. "/downloads"
 local public_key = "https://zillowe.pages.dev/keys/zillowe-main.asc"
@@ -62,7 +62,7 @@ metadata({
 	name = "zoid",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "ZoiOS privileged system daemon",
 	website = "https://zillowe.qzz.io/zds/zoi",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zoi.git",
@@ -103,7 +103,7 @@ end
 
 function package()
 	zcp("source/zoid", "${usrroot}/usr/bin/zoid")
-	zcp("{pkgluadir}/zoid.service", "${usrroot}/usr/lib/systemd/system/zoid.service")
+	zcp("${pkgluadir}/zoid.service", "${usrroot}/usr/lib/systemd/system/zoid.service")
 	zman("zoid.8")
 	zlicense("LICENSE")
 end

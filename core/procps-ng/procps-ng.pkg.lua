@@ -6,7 +6,7 @@ metadata({
 	name = "procps-ng",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Utilities for monitoring your system and its processes (ps, top, free, etc.)",
 	website = "https://gitlab.com/procps-ng/procps",
 	license = "GPL-2.0-or-later AND LGPL-2.1-or-later",

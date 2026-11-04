@@ -6,7 +6,7 @@ metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "GNU C Library for Parlex Linux",
 	website = "https://www.gnu.org/software/libc",
 	license = "GPL-2.0-or-later AND LGPL-2.1-or-later",
@@ -193,8 +193,8 @@ function package(args)
 			install -m644 glibc/posix/gai.conf "$ROOT/etc/gai.conf"
 
 			# locale-gen utility and locale.gen definition
-			install -m755 locale-gen "$ROOT/usr/bin/locale-gen"
-			install -m644 locale.gen.txt "$ROOT/etc/locale.gen"
+			install -m755 "${PKGLUADIR}/locale-gen" "$ROOT/usr/bin/locale-gen"
+			install -m644 "${PKGLUADIR}/locale.gen.txt" "$ROOT/etc/locale.gen"
 			sed -e '1,3d' -e 's|/| |g' -e 's|\\| |g' -e 's|^|#|g' \
 				glibc/localedata/SUPPORTED >> "$ROOT/etc/locale.gen"
 
@@ -206,12 +206,12 @@ function package(args)
 			sed -i '/#C\.UTF-8 /d' "$ROOT/etc/locale.gen"
 
 			# SDT tracing headers
-			install -m644 sdt.h "$ROOT/usr/include/sys/sdt.h"
-			install -m644 sdt-config.h "$ROOT/usr/include/sys/sdt-config.h"
+			install -m644 "${PKGLUADIR}/sdt.h" "$ROOT/usr/include/sys/sdt.h"
+			install -m644 "${PKGLUADIR}/sdt-config.h" "$ROOT/usr/include/sys/sdt-config.h"
 
 			# Tunables
-			install -m644 tunables.conf "$ROOT/etc/tunables.conf"
-			install -m644 shstk.conf "$ROOT/etc/tunables.conf.d/shstk.conf"
+			install -m644 "${PKGLUADIR}/tunables.conf" "$ROOT/etc/tunables.conf"
+			install -m644 "${PKGLUADIR}/shstk.conf" "$ROOT/etc/tunables.conf.d/shstk.conf"
 
 			# Ensure standard /lib64 interpreter symlink for x86_64
 			if [ "$(uname -m)" = "x86_64" ]; then
@@ -257,7 +257,7 @@ function package(args)
 				# 32-bit dynamic linker symlink
 				mkdir -p "$ROOT/usr/lib" "$ROOT/etc/ld.so.conf.d"
 				ln -sf ../lib32/ld-linux.so.2 "$ROOT/usr/lib/ld-linux.so.2"
-				install -m644 lib32-glibc.conf "$ROOT/etc/ld.so.conf.d/lib32-glibc.conf"
+				install -m644 "${PKGLUADIR}/lib32-glibc.conf" "$ROOT/etc/ld.so.conf.d/lib32-glibc.conf"
 
 				# Locale symlink to /usr/lib/locale
 				mkdir -p "$ROOT/usr/lib32"

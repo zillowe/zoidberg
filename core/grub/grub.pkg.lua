@@ -6,7 +6,7 @@ metadata({
 	name = "grub",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "GNU GRand Unified Bootloader (2)",
 	website = "https://www.gnu.org/software/grub/",
 	license = "GPL-3.0-or-later",

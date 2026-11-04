@@ -5,7 +5,7 @@ metadata({
 	name = "coreutils",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	description = "The basic file, shell and text manipulation utilities of the GNU operating system",
 	website = "https://www.gnu.org/software/coreutils/",
 	license = "GPL-3.0-or-later AND GFDL-1.3-or-later",

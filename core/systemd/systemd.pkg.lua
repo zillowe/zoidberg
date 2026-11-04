@@ -6,7 +6,7 @@ metadata({
 	name = "systemd",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "System and service manager for Linux",
 	website = "https://systemd.io",
 	license = "LGPL-2.1-or-later AND GPL-2.0-or-later",

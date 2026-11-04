@@ -5,7 +5,7 @@ metadata({
 	name = "gawk",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "GNU version of awk",
 	website = "https://www.gnu.org/software/gawk/",
 	license = "GPL-3.0-or-later",
