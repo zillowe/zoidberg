@@ -31,7 +31,7 @@
       "repo_type": "official",
       "version": "5.3.20",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The GNU Bourne Again shell",
       "scope": "system",
       "scopes": [
@@ -69,7 +69,7 @@
       "repo_type": "official",
       "version": "1.0.8",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "A high-quality data compression program",
       "scope": "system",
       "scopes": [
@@ -102,7 +102,7 @@
       "repo_type": "official",
       "version": "20240618",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Common CA certificates and trust management utilities",
       "scope": "system",
       "scopes": [
@@ -135,7 +135,7 @@
       "repo_type": "official",
       "version": "9.12",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "The basic file, shell and text manipulation utilities of the GNU operating system",
       "scope": "system",
       "scopes": [
@@ -176,7 +176,7 @@
       "repo_type": "official",
       "version": "8.23.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Command line tool and library for transferring data with URLs",
       "scope": "system",
       "scopes": [
@@ -265,7 +265,7 @@
       "repo_type": "official",
       "version": "18",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Linux user-space application to modify the EFI Boot Manager",
       "scope": "system",
       "scopes": [
@@ -364,7 +364,7 @@
       "repo_type": "official",
       "version": "4.11.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU utilities to locate files (find, xargs)",
       "scope": "system",
       "scopes": [
@@ -399,7 +399,7 @@
       "repo_type": "official",
       "version": "5.4.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU version of awk",
       "scope": "system",
       "scopes": [
@@ -434,7 +434,7 @@
       "repo_type": "official",
       "version": "16.2.1+r23+gd564253eb6c8",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The GNU Compiler Collection - C and C++ frontends and runtimes",
       "scope": "system",
       "scopes": [
@@ -515,7 +515,7 @@
       "repo_type": "official",
       "version": "1.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU internationalization and localization system",
       "scope": "system",
       "scopes": [
@@ -553,7 +553,7 @@
       "repo_type": "official",
       "version": "2.44+r50+g1848099f063e",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU C Library for Parlex Linux",
       "scope": "system",
       "scopes": [
@@ -601,7 +601,7 @@
       "repo_type": "official",
       "version": "3.12",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "A string search utility",
       "scope": "system",
       "scopes": [
@@ -636,7 +636,7 @@
       "repo_type": "official",
       "version": "2.16",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU GRand Unified Bootloader (2)",
       "scope": "system",
       "scopes": [
@@ -684,7 +684,7 @@
       "repo_type": "official",
       "version": "1.15",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU compression utility",
       "scope": "system",
       "scopes": [
@@ -746,7 +746,7 @@
       "repo_type": "official",
       "version": "2026.10.30",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "/etc/protocols and /etc/services provided by IANA",
       "scope": "system",
       "scopes": [
@@ -846,7 +846,7 @@
       "repo_type": "official",
       "version": "34.3",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Linux kernel module management tools and library (modprobe, lsmod, depmod)",
       "scope": "system",
       "scopes": [
@@ -887,7 +887,7 @@
       "repo_type": "official",
       "version": "7.2.14.parlex.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The Linux kernel and modules (Parlex Linux)",
       "scope": "system",
       "scopes": [
@@ -939,7 +939,7 @@
       "repo_type": "official",
       "version": "20261019",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Firmware files for Linux",
       "scope": "system",
       "scopes": [
@@ -1013,7 +1013,7 @@
       "repo_type": "official",
       "version": "10.6p1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "SSH protocol implementation for remote login, command execution and file transfer",
       "scope": "system",
       "scopes": [
@@ -1125,7 +1125,7 @@
       "repo_type": "official",
       "version": "4.0.7",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Utilities for monitoring your system and its processes (ps, top, free, etc.)",
       "scope": "system",
       "scopes": [
@@ -1204,7 +1204,7 @@
       "repo_type": "official",
       "version": "8.3.6",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU readline library",
       "scope": "system",
       "scopes": [
@@ -1240,7 +1240,7 @@
       "repo_type": "official",
       "version": "4.10",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "GNU stream editor",
       "scope": "system",
       "scopes": [
@@ -1277,7 +1277,7 @@
       "repo_type": "official",
       "version": "4.20.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
@@ -1323,7 +1323,7 @@
       "repo_type": "official",
       "version": "1.9.17.p2",
       "epoch": 0,
-      "revision": "7",
+      "revision": "8",
       "description": "Give certain users the ability to run some commands as root",
       "scope": "system",
       "scopes": [
@@ -1362,7 +1362,7 @@
       "repo_type": "official",
       "version": "262.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "System and service manager for Linux",
       "scope": "system",
       "scopes": [
@@ -1457,7 +1457,7 @@
       "repo_type": "official",
       "version": "1.35",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Utility used to store, backup, and transport files",
       "scope": "system",
       "scopes": [
@@ -1499,7 +1499,7 @@
       "repo_type": "official",
       "version": "2.42.4",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Miscellaneous system utilities for Linux",
       "scope": "system",
       "scopes": [
@@ -1550,7 +1550,7 @@
       "repo_type": "official",
       "version": "1.25.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Network utility to retrieve files from the web",
       "scope": "system",
       "scopes": [
@@ -1673,7 +1673,7 @@
       "repo_type": "official",
       "version": "1.29.3",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Advanced Package Manager & Environment Orchestrator",
       "scope": "system",
       "scopes": [
@@ -1698,7 +1698,7 @@
       "repo_type": "official",
       "version": "1.29.3",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "ZoiOS privileged system daemon",
       "scope": "system",
       "scopes": [
