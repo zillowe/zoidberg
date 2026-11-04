@@ -6,7 +6,7 @@ metadata({
 	name = "gettext",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "GNU internationalization and localization system",
 	website = "https://www.gnu.org/software/gettext/",
 	license = "GPL-3.0-or-later AND LGPL-2.1-or-later",

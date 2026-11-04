@@ -6,7 +6,7 @@ metadata({
 	name = "util-linux",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Miscellaneous system utilities for Linux",
 	website = "https://github.com/util-linux/util-linux",
 	license = "GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause AND BSD-3-Clause",

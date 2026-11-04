@@ -14,7 +14,7 @@ metadata({
 	name = "linux",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "The Linux kernel and modules (Parlex Linux)",
 	website = "https://kernel.org",
 	license = "GPL-2.0-only",

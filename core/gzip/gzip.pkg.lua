@@ -5,7 +5,7 @@ metadata({
 	name = "gzip",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "GNU compression utility",
 	website = "https://www.gnu.org/software/gzip/",
 	license = "GPL-3.0-or-later",

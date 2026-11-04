@@ -5,7 +5,7 @@ metadata({
 	name = "openssh",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "SSH protocol implementation for remote login, command execution and file transfer",
 	website = "https://www.openssh.com/portable.html",
 	license = "SSH",

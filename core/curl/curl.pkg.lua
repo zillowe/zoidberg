@@ -6,7 +6,7 @@ metadata({
 	name = "curl",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Command line tool and library for transferring data with URLs",
 	website = "https://curl.se",
 	license = "curl",

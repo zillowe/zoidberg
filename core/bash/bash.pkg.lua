@@ -12,7 +12,7 @@ metadata({
 	name = "bash",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "The GNU Bourne Again shell",
 	website = "https://www.gnu.org/software/bash/bash.html",
 	license = "GPL-3.0-or-later",

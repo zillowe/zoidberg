@@ -22,20 +22,18 @@ local function binary_name()
 end
 
 local function published_sha512(name)
-	local manifest = io.open("checksums.txt", "r")
-	if not manifest then
+	local out, _, _ = cmd("cat checksums.txt")
+	if not out or out == "" then
 		return nil
 	end
 
-	for line in manifest:lines() do
+	for line in out:gmatch("[^\r\n]+") do
 		local hash, entry = line:match("^(%x+)%s+%.?/(.+)$")
 		if hash and entry == name then
-			manifest:close()
 			return hash
 		end
 	end
 
-	manifest:close()
 	return nil
 end
 
@@ -72,7 +70,7 @@ metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zoi.git",

@@ -6,7 +6,7 @@ metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "GNU C Library for Parlex Linux",
 	website = "https://www.gnu.org/software/libc",
 	license = "GPL-2.0-or-later AND LGPL-2.1-or-later",

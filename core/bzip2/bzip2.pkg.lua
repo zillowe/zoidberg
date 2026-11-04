@@ -5,7 +5,7 @@ metadata({
 	name = "bzip2",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	description = "A high-quality data compression program",
 	website = "https://sourceware.org/bzip2/",
 	license = "bzip2-1.0.6",

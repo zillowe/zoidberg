@@ -6,7 +6,7 @@ metadata({
 	name = "efibootmgr",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Linux user-space application to modify the EFI Boot Manager",
 	website = "https://github.com/rhboot/efibootmgr",
 	license = "GPL-2.0-or-later",
