@@ -6,7 +6,7 @@ metadata({
 	name = "procps-ng",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "Utilities for monitoring your system and its processes (ps, top, free, etc.)",
 	website = "https://gitlab.com/procps-ng/procps",
 	license = "GPL-2.0-or-later AND LGPL-2.1-or-later",
@@ -75,9 +75,6 @@ function prepare()
 		if [ ! -d procps ]; then
 			git clone --depth 1 --branch "%s" "%s" procps
 		fi
-
-		cd procps
-		./autogen.sh
 	]],
 		tag,
 		git_url
@@ -88,6 +85,10 @@ function build()
 	cmd([[
 		set -e
 		cd procps
+
+		if [ ! -f ./configure ]; then
+			./autogen.sh
+		fi
 
 		./configure \
 			--prefix=/usr \

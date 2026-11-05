@@ -14,7 +14,7 @@ metadata({
 	name = "linux",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "The Linux kernel and modules (Parlex Linux)",
 	website = "https://kernel.org",
 	license = "GPL-2.0-only",
@@ -85,8 +85,11 @@ dependencies({
 })
 
 function prepare()
+	local pkgdir = LOCATION.PKGLUADIR or "."
+
 	cmd(string.format(
 		[[
+		PKGLUADIR="%s"
 		if [ ! -d linux ]; then
 			git clone --depth 1 --branch "v%s" "%s" linux
 		fi
@@ -107,6 +110,7 @@ function prepare()
 			make olddefconfig
 		fi
 	]],
+		pkgdir,
 		upstream_ver,
 		git_url,
 		patch_url,

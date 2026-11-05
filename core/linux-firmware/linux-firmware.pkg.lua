@@ -6,7 +6,7 @@ metadata({
 	name = "linux-firmware",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "Firmware files for Linux",
 	website = "https://gitlab.com/kernel-firmware/linux-firmware",
 	license = "Custom",

@@ -6,7 +6,7 @@ metadata({
 	name = "wget",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "Network utility to retrieve files from the web",
 	website = "https://www.gnu.org/software/wget/",
 	license = "GPL-3.0-or-later",
@@ -78,6 +78,8 @@ function build()
 		[[
 		set -e
 		cd "wget-%s"
+
+		touch -c aclocal.m4 configure Makefile.in
 
 		./configure \
 			--prefix=/usr \

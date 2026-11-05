@@ -6,7 +6,7 @@ metadata({
 	name = "psmisc",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "Miscellaneous procfs tools (fuser, killall, pstree)",
 	website = "https://gitlab.com/psmisc/psmisc",
 	license = "GPL-2.0-or-later",

@@ -6,7 +6,7 @@ metadata({
 	name = "curl",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "Command line tool and library for transferring data with URLs",
 	website = "https://curl.se",
 	license = "curl",
@@ -66,22 +66,23 @@ dependencies({
 function prepare()
 	cmd(string.format(
 		[[
-		if [ ! -d curl ]; then
-			git clone --depth 1 --branch "%s" "%s" curl
+		if [ ! -d "curl-%s" ]; then
+			curl -sSfL "https://curl.se/download/curl-%s.tar.xz" -o "curl-%s.tar.xz"
+			tar -xf "curl-%s.tar.xz"
 		fi
-
-		cd curl
-		autoreconf -fi 2>/dev/null || ./buildconf 2>/dev/null || true
 	]],
-		tag,
-		git_url
+		version,
+		version,
+		version,
+		version
 	))
 end
 
 function build()
-	cmd([[
+	cmd(string.format(
+		[[
 		set -e
-		cd curl
+		cd "curl-%s"
 
 		./configure \
 			--prefix=/usr \
@@ -96,7 +97,9 @@ function build()
 			--with-ca-bundle=/etc/ssl/certs/ca-certificates.crt
 
 		make -j"$(nproc)"
-	]])
+	]],
+		version
+	))
 end
 
 function package()
@@ -106,9 +109,10 @@ function package()
 		[[
 		set -e
 		ROOT="%s"
-		make -C curl DESTDIR="$ROOT" install
+		make -C "curl-%s" DESTDIR="$ROOT" install
 	]],
-		root
+		root,
+		version
 	))
 
 	-- zlicense("LICENSE")

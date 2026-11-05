@@ -5,7 +5,7 @@ metadata({
 	name = "sed",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "1",
 	description = "GNU stream editor",
 	website = "https://www.gnu.org/software/sed/",
 	license = "GPL-3.0-or-later",
@@ -83,6 +83,8 @@ function build()
 		[[
 		set -e
 		cd "sed-%s"
+
+		touch -c aclocal.m4 configure Makefile.in
 
 		./configure \
 			--prefix=/usr

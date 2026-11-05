@@ -4,7 +4,7 @@ metadata({
 	name = "ca-certificates",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "Common CA certificates and trust management utilities",
 	website = "https://src.fedoraproject.org/rpms/ca-certificates",
 	license = "GPL-2.0-or-later",
@@ -72,11 +72,13 @@ end
 
 function package()
 	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	local pkgdir = LOCATION.PKGLUADIR or "."
 
 	cmd(string.format(
 		[[
 		set -e
 		ROOT="%s"
+		PKGLUADIR="%s"
 		mkdir -p "$ROOT"/usr/bin "$ROOT"/usr/share/man/man8
 
 		install -m755 "${PKGLUADIR}/update-ca-trust" "$ROOT"/usr/bin/update-ca-trust
@@ -114,7 +116,8 @@ function package()
 		ln -sf /etc/ca-certificates/extracted/tls-ca-bundle.pem "$ssldir/certs/ca-certificates.crt"
 		ln -sf /etc/ca-certificates/extracted/tls-ca-bundle.pem "$ssldir/certs/ca-bundle.crt"
 	]],
-		root
+		root,
+		pkgdir
 	))
 
 	zcp("${pkgluadir}/hooks/update-ca-trust.hook.yaml", "${pkgstore}/hooks/update-ca-trust.hook.yaml")

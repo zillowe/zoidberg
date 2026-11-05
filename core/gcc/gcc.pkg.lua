@@ -6,7 +6,7 @@ metadata({
 	name = "gcc",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "The GNU Compiler Collection - C and C++ frontends and runtimes",
 	website = "https://gcc.gnu.org",
 	license = "GPL-3.0-or-later WITH GCC-exception-3.1 AND GFDL-1.3-or-later",
@@ -81,8 +81,10 @@ dependencies({
 			source = {
 				required = {
 					"pacman:binutils",
+					"pacman:bison",
 					"pacman:diffutils",
 					"pacman:doxygen",
+					"pacman:flex",
 					"pacman:gawk",
 					"pacman:gcc-ada",
 					"pacman:gcc-d",

@@ -5,7 +5,7 @@ metadata({
 	name = "bzip2",
 	repo = "core",
 	version = version,
-	revision = "8",
+	revision = "1",
 	description = "A high-quality data compression program",
 	website = "https://sourceware.org/bzip2/",
 	license = "bzip2-1.0.6",
@@ -83,11 +83,13 @@ end
 
 function package()
 	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	local pkgdir = LOCATION.PKGLUADIR or "."
 
 	cmd(string.format(
 		[[
 		set -e
 		ROOT="%s"
+		PKGLUADIR="%s"
 		mkdir -p "$ROOT"/usr/{bin,lib,include,share/man/man1,lib/pkgconfig}
 
 		cd "bzip2-%s"
@@ -108,9 +110,10 @@ function package()
 		ln -sf bzip2.1 "$ROOT"/usr/share/man/man1/bzcat.1
 		ln -sf bzip2.1 "$ROOT"/usr/share/man/man1/bzip2recover.1
 
-		sed "s|@VERSION@|%s|" "${PKGLUADIR}/bzip2.pc" > "$ROOT"/usr/lib/pkgconfig/bzip2.pc
+		sed "s|@VERSION@|%s|" "$PKGLUADIR/bzip2.pc" > "$ROOT"/usr/lib/pkgconfig/bzip2.pc
 	]],
 		root,
+		pkgdir,
 		version,
 		version,
 		version,

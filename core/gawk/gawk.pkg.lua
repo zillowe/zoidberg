@@ -5,7 +5,7 @@ metadata({
 	name = "gawk",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "GNU version of awk",
 	website = "https://www.gnu.org/software/gawk/",
 	license = "GPL-3.0-or-later",
@@ -75,6 +75,8 @@ function build()
 		[[
 		set -e
 		cd "gawk-%s"
+
+		touch -c aclocal.m4 configure Makefile.in
 
 		./configure \
 			--prefix=/usr \

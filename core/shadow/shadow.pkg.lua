@@ -5,7 +5,7 @@ metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
 	license = "0BSD AND BSD-3-Clause",
@@ -93,6 +93,8 @@ dependencies({
 })
 
 function prepare()
+	local pkgdir = LOCATION.PKGLUADIR or "."
+
 	cmd(string.format(
 		[[
 		if [ ! -d shadow ]; then
@@ -100,13 +102,14 @@ function prepare()
 		fi
 
 		cd shadow
+		PKGLUADIR="%s"
 		if [ -f "${PKGLUADIR}/shadow.patch" ]; then
 			patch -Np1 -i "${PKGLUADIR}/shadow.patch" || true
 		fi
-		autoreconf -fiv
 	]],
 		version,
-		git_url
+		git_url,
+		pkgdir
 	))
 end
 
@@ -114,6 +117,10 @@ function build()
 	cmd([[
 		set -e
 		cd shadow
+
+		if [ ! -f ./configure ]; then
+			autoreconf -fiv
+		fi
 
 		export CFLAGS="${CFLAGS} -DEXTRA_CHECK_HOME_DIR"
 

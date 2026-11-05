@@ -12,7 +12,7 @@ metadata({
 	name = "readline",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "GNU readline library",
 	website = "https://tiswww.case.edu/php/chet/readline/rltop.html",
 	license = "GPL-3.0-or-later",
@@ -112,17 +112,20 @@ end
 
 function package()
 	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	local pkgdir = LOCATION.PKGLUADIR or "."
 
 	cmd(string.format(
 		[[
 		set -e
 		ROOT="%s"
+		PKGLUADIR="%s"
 		mkdir -p "$ROOT/etc"
 
 		make -C "readline-%s" DESTDIR="$ROOT" install
 		install -m644 "${PKGLUADIR}/inputrc" "$ROOT/etc/inputrc"
 	]],
 		root,
+		pkgdir,
 		basever
 	))
 

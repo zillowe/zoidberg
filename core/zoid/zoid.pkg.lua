@@ -1,4 +1,4 @@
-local version = "1.29.8"
+local version = "1.29.9"
 local tag = "Prod-Release-" .. version
 local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/" .. tag .. "/downloads"
 local public_key = "https://zillowe.pages.dev/keys/zillowe-main.asc"
@@ -96,7 +96,8 @@ dependencies({
 
 function prepare()
 	local archive = fetch_verified()
-	UTILS.EXTRACT(archive, "source")
+	local build_dir = BUILD_DIR or (LOCATION and LOCATION.BUILDDIR) or "."
+	UTILS.EXTRACT(build_dir .. "/" .. archive, "source")
 	UTILS.DOWNLOAD(release .. "/zoid.8", "zoid.8")
 	UTILS.DOWNLOAD(release .. "/LICENSE", "LICENSE")
 end

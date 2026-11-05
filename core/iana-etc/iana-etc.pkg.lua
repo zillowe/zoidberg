@@ -6,7 +6,7 @@ metadata({
 	name = "iana-etc",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "/etc/protocols and /etc/services provided by IANA",
 	website = "https://www.iana.org/protocols",
 	git = "https://gitlab.com/zillowe/zillowex/parlex/linux/iana-etc.git",

@@ -6,7 +6,7 @@ metadata({
 	name = "sudo",
 	repo = "core",
 	version = version,
-	revision = "9",
+	revision = "1",
 	description = "Give certain users the ability to run some commands as root",
 	website = "https://www.sudo.ws/sudo/",
 	license = "ISC",
@@ -119,11 +119,13 @@ end
 
 function package()
 	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	local pkgdir = LOCATION.PKGLUADIR or "."
 
 	cmd(string.format(
 		[[
 		set -e
 		ROOT="%s"
+		PKGLUADIR="%s"
 		mkdir -p "$ROOT"/etc/pam.d "$ROOT"/usr/lib/systemd/system "$ROOT"/usr/share/licenses/sudo
 
 		make -C "sudo-%s" DESTDIR="$ROOT" install
@@ -135,6 +137,7 @@ function package()
 		rm -rf "$ROOT/run"
 	]],
 		root,
+		pkgdir,
 		raw_version
 	))
 

@@ -5,7 +5,7 @@ metadata({
 	name = "openssh",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "SSH protocol implementation for remote login, command execution and file transfer",
 	website = "https://www.openssh.com/portable.html",
 	license = "SSH",
@@ -95,6 +95,8 @@ function build()
 		[[
 		set -e
 		cd "openssh-%s"
+
+		touch -c aclocal.m4 configure Makefile.in
 
 		./configure \
 			--prefix=/usr \

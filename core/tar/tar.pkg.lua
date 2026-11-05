@@ -5,7 +5,7 @@ metadata({
 	name = "tar",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "1",
 	description = "Utility used to store, backup, and transport files",
 	website = "https://www.gnu.org/software/tar/",
 	license = "GPL-3.0-or-later",
@@ -106,6 +106,9 @@ function build()
 		[[
 		set -e
 		cd "tar-%s"
+
+		export FORCE_UNSAFE_CONFIGURE=1
+		touch -c aclocal.m4 configure Makefile.in
 
 		./configure \
 			--prefix=/usr \

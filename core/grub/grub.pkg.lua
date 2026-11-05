@@ -6,7 +6,7 @@ metadata({
 	name = "grub",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "GNU GRand Unified Bootloader (2)",
 	website = "https://www.gnu.org/software/grub/",
 	license = "GPL-3.0-or-later",
@@ -102,6 +102,8 @@ hooks({
 })
 
 function prepare()
+	local pkgdir = LOCATION.PKGLUADIR or "."
+
 	cmd(string.format(
 		[[
 		if [ ! -d grub ]; then
@@ -109,6 +111,9 @@ function prepare()
 		fi
 
 		cd grub
+		./bootstrap
+
+		PKGLUADIR="%s"
 		if [ -f "${PKGLUADIR}/0001-00_header-add-GRUB_COLOR_-variables.patch" ]; then
 			patch -Np1 -i "${PKGLUADIR}/0001-00_header-add-GRUB_COLOR_-variables.patch" || true
 		fi
@@ -122,7 +127,8 @@ function prepare()
 		sed -i 's|GNU/Linux|Linux|' util/grub.d/10_linux.in 2>/dev/null || true
 	]],
 		tag,
-		git_url
+		git_url,
+		pkgdir
 	))
 end
 

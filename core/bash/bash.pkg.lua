@@ -12,7 +12,7 @@ metadata({
 	name = "bash",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "The GNU Bourne Again shell",
 	website = "https://www.gnu.org/software/bash/bash.html",
 	license = "GPL-3.0-or-later",
@@ -130,6 +130,8 @@ function build()
 			-std=gnu17
 		)
 		export CFLAGS="${CFLAGS} ${_bashconfig[*]}"
+
+		touch -c aclocal.m4 configure Makefile.in y.tab.c y.tab.h
 
 		./configure \
 			--prefix=/usr \

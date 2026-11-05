@@ -5,7 +5,7 @@ metadata({
 	name = "grep",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "1",
 	description = "A string search utility",
 	website = "https://www.gnu.org/software/grep/",
 	license = "GPL-3.0-or-later",
@@ -81,6 +81,8 @@ function build()
 		[[
 		set -e
 		cd "grep-%s"
+
+		touch -c aclocal.m4 configure Makefile.in
 
 		./configure \
 			--prefix=/usr \

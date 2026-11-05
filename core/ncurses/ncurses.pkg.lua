@@ -6,7 +6,7 @@ metadata({
 	name = "ncurses",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "1",
 	description = "System V Release 4.0 curses emulation library",
 	website = "https://invisible-island.net/ncurses/ncurses.html",
 	license = "MIT-open-group",

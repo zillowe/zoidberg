@@ -6,7 +6,7 @@ metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "GNU C Library for Parlex Linux",
 	website = "https://www.gnu.org/software/libc",
 	license = "GPL-2.0-or-later AND LGPL-2.1-or-later",
@@ -175,12 +175,14 @@ end
 function package(args)
 	local sub = (args and args.sub) or "main"
 	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	local pkgdir = LOCATION.PKGLUADIR or "."
 
 	if sub == "main" or sub == "" then
 		cmd(string.format(
 			[[
 			set -e
 			ROOT="%s"
+			PKGLUADIR="%s"
 			mkdir -p "$ROOT"
 
 			make -C glibc-build DESTDIR="$ROOT" install
@@ -219,7 +221,8 @@ function package(args)
 				ln -sf ../usr/lib/ld-linux-x86-64.so.2 "$ROOT/lib64/ld-linux-x86-64.so.2"
 			fi
 		]],
-			root
+			root,
+			pkgdir
 		))
 
 		zcp("${pkgluadir}/hooks/locale-gen.hook.yaml", "${pkgstore}/hooks/glibc-locale-gen.hook.yaml")
@@ -244,6 +247,7 @@ function package(args)
 			[[
 			set -e
 			ROOT="%s"
+			PKGLUADIR="%s"
 			mkdir -p "$ROOT"
 
 			if [ -d lib32-glibc-build ]; then
@@ -264,7 +268,8 @@ function package(args)
 				ln -sf ../lib/locale "$ROOT/usr/lib32/locale"
 			fi
 		]],
-			root
+			root,
+			pkgdir
 		))
 
 		zcp("${pkgluadir}/hooks/lib32-iconvconfig.hook.yaml", "${pkgstore}/hooks/lib32-glibc-iconvconfig.hook.yaml")
@@ -284,7 +289,8 @@ function package(args)
 				rm -rf "$ROOT/usr/lib/locale/C.utf8"
 			fi
 		]],
-			root
+			root,
+			pkgdir
 		))
 	end
 end

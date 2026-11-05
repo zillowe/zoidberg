@@ -6,7 +6,7 @@ metadata({
 	name = "gettext",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "GNU internationalization and localization system",
 	website = "https://www.gnu.org/software/gettext/",
 	license = "GPL-3.0-or-later AND LGPL-2.1-or-later",
@@ -57,6 +57,7 @@ dependencies({
 				required = {
 					"pacman:acl",
 					"pacman:attr",
+					"pacman:diffutils",
 					"pacman:gcc",
 					"pacman:libunistring",
 					"pacman:libxml2",
@@ -93,6 +94,8 @@ function build()
 		[[
 		set -e
 		cd "gettext-%s"
+
+		touch -c aclocal.m4 configure Makefile.in
 
 		./configure \
 			--prefix=/usr \
