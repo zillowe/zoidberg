@@ -12,7 +12,7 @@ metadata({
 	name = "bash",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "The GNU Bourne Again shell",
 	website = "https://www.gnu.org/software/bash/bash.html",
 	license = "GPL-3.0-or-later",
@@ -45,6 +45,7 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:bison",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
@@ -122,14 +123,14 @@ function build()
 		cd "bash-%s"
 
 		_bashconfig=(
-			-DDEFAULT_PATH_VALUE='"/usr/local/sbin:/usr/local/bin:/usr/bin"'
-			-DSTANDARD_UTILS_PATH='"/usr/bin"'
-			-DSYS_BASHRC='"/etc/bash.bashrc"'
-			-DSYS_BASH_LOGOUT='"/etc/bash.bash_logout"'
+			-DDEFAULT_PATH_VALUE=\'\"/usr/local/sbin:/usr/local/bin:/usr/bin\"\'
+			-DSTANDARD_UTILS_PATH=\'\"/usr/bin\"\'
+			-DSYS_BASHRC=\'\"/etc/bash.bashrc\"\'
+			-DSYS_BASH_LOGOUT=\'\"/etc/bash.bash_logout\"\'
 			-DNON_INTERACTIVE_LOGIN_SHELLS
 			-std=gnu17
 		)
-		export CFLAGS="${CFLAGS} ${_bashconfig[*]}"
+		export CFLAGS="${CFLAGS} ${_bashconfig[@]}"
 
 		touch -c aclocal.m4 configure Makefile.in y.tab.c y.tab.h
 

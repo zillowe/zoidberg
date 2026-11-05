@@ -6,7 +6,7 @@ metadata({
 	name = "wget",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Network utility to retrieve files from the web",
 	website = "https://www.gnu.org/software/wget/",
 	license = "GPL-3.0-or-later",
@@ -37,6 +37,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:autoconf",
+					"pacman:automake",
 					"pacman:gcc",
 					"pacman:gnutls",
 					"pacman:libidn2",
@@ -79,14 +81,15 @@ function build()
 		set -e
 		cd "wget-%s"
 
-		touch -c aclocal.m4 configure Makefile.in
+		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 
 		./configure \
 			--prefix=/usr \
 			--sysconfdir=/etc \
 			--disable-rpath \
 			--enable-nls \
-			--with-ssl=openssl
+			--with-ssl=gnutls \
+			gl_cv_func_posix_spawn_file_actions_addchdir=yes
 
 		make -j"$(nproc)"
 	]],

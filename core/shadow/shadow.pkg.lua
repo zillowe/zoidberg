@@ -5,7 +5,7 @@ metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
 	license = "0BSD AND BSD-3-Clause",
@@ -118,9 +118,7 @@ function build()
 		set -e
 		cd shadow
 
-		if [ ! -f ./configure ]; then
-			autoreconf -fiv
-		fi
+		autoreconf -fiv
 
 		export CFLAGS="${CFLAGS} -DEXTRA_CHECK_HOME_DIR"
 

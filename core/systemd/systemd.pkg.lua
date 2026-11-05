@@ -6,7 +6,7 @@ metadata({
 	name = "systemd",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "System and service manager for Linux",
 	website = "https://systemd.io",
 	license = "LGPL-2.1-or-later AND GPL-2.0-or-later",
@@ -242,12 +242,15 @@ function build()
 	cmd([[
 		set -e
 
+		git config --global --add safe.directory '*' 2>/dev/null || true
+
 		meson setup systemd build \
 			--prefix=/usr \
 			--buildtype=release \
 			-Dversion-tag="]] .. version .. [[-parlex" \
 			-Dvcs-tag=false \
 			-Dmode=release \
+			-Dtests=false \
 			-Dapparmor=enabled \
 			-Dbootloader=enabled \
 			-Dxenctrl=disabled \

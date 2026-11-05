@@ -6,7 +6,7 @@ metadata({
 	name = "grub",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "GNU GRand Unified Bootloader (2)",
 	website = "https://www.gnu.org/software/grub/",
 	license = "GPL-3.0-or-later",
@@ -60,7 +60,9 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:autoconf",
 					"pacman:autogen",
+					"pacman:automake",
 					"pacman:bison",
 					"pacman:device-mapper",
 					"pacman:flex",
@@ -110,8 +112,13 @@ function prepare()
 			git clone --depth 1 --branch "%s" "%s" grub
 		fi
 
+		if [ ! -d gnulib ]; then
+			git clone https://git.savannah.gnu.org/git/gnulib.git gnulib
+			(cd gnulib && git checkout 9f48fb992a3d7e96610c4ce8be969cff2d61a01b)
+		fi
+
 		cd grub
-		./bootstrap
+		./bootstrap --gnulib-srcdir="$(pwd)/../gnulib" --no-git --skip-po
 
 		PKGLUADIR="%s"
 		if [ -f "${PKGLUADIR}/0001-00_header-add-GRUB_COLOR_-variables.patch" ]; then

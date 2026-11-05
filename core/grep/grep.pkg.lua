@@ -5,7 +5,7 @@ metadata({
 	name = "grep",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "A string search utility",
 	website = "https://www.gnu.org/software/grep/",
 	license = "GPL-3.0-or-later",
@@ -31,6 +31,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:autoconf",
+					"pacman:automake",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
@@ -82,7 +84,7 @@ function build()
 		set -e
 		cd "grep-%s"
 
-		touch -c aclocal.m4 configure Makefile.in
+		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 
 		./configure \
 			--prefix=/usr \

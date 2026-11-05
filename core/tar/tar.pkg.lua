@@ -5,7 +5,7 @@ metadata({
 	name = "tar",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Utility used to store, backup, and transport files",
 	website = "https://www.gnu.org/software/tar/",
 	license = "GPL-3.0-or-later",
@@ -35,6 +35,8 @@ dependencies({
 				required = {
 					"pacman:acl",
 					"pacman:attr",
+					"pacman:autoconf",
+					"pacman:automake",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
@@ -108,7 +110,7 @@ function build()
 		cd "tar-%s"
 
 		export FORCE_UNSAFE_CONFIGURE=1
-		touch -c aclocal.m4 configure Makefile.in
+		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 
 		./configure \
 			--prefix=/usr \

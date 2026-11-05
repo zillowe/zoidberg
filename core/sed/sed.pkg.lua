@@ -5,7 +5,7 @@ metadata({
 	name = "sed",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "GNU stream editor",
 	website = "https://www.gnu.org/software/sed/",
 	license = "GPL-3.0-or-later",
@@ -33,6 +33,8 @@ dependencies({
 				required = {
 					"pacman:acl",
 					"pacman:attr",
+					"pacman:autoconf",
+					"pacman:automake",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
@@ -84,7 +86,7 @@ function build()
 		set -e
 		cd "sed-%s"
 
-		touch -c aclocal.m4 configure Makefile.in
+		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 
 		./configure \
 			--prefix=/usr

@@ -5,7 +5,7 @@ metadata({
 	name = "findutils",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "GNU utilities to locate files (find, xargs)",
 	website = "https://www.gnu.org/software/findutils/",
 	license = "GPL-3.0-or-later",
@@ -31,6 +31,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:autoconf",
+					"pacman:automake",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
@@ -86,7 +88,7 @@ function build()
 		set -e
 		cd "findutils-%s"
 
-		touch -c aclocal.m4 configure Makefile.in
+		find . -type f \( -name "config.hin" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 		./configure --prefix=/usr
 		make -C locate dblocation.texi 2>/dev/null || true
 		make -j"$(nproc)"

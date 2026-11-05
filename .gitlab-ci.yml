@@ -163,6 +163,7 @@ generate-child:
           printf '%s\n' \
             "build-$TARGET-$PKG_ID:" \
             "  stage: build" \
+            "  timeout: 3h" \
             "  image: archlinux:latest" \
             "  tags:" \
             "    - $TAG" \
