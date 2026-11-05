@@ -31,7 +31,7 @@
       "repo_type": "official",
       "version": "5.3.20",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The GNU Bourne Again shell",
       "scope": "system",
       "scopes": [
@@ -50,6 +50,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:bison",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -135,7 +136,7 @@
       "repo_type": "official",
       "version": "9.12",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The basic file, shell and text manipulation utilities of the GNU operating system",
       "scope": "system",
       "scopes": [
@@ -154,6 +155,8 @@
             "packages": [
               "pacman:acl",
               "pacman:attr",
+              "pacman:autoconf",
+              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -365,7 +368,7 @@
       "repo_type": "official",
       "version": "4.11.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU utilities to locate files (find, xargs)",
       "scope": "system",
       "scopes": [
@@ -382,6 +385,8 @@
           {
             "type": "source",
             "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -400,7 +405,7 @@
       "repo_type": "official",
       "version": "5.4.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU version of awk",
       "scope": "system",
       "scopes": [
@@ -417,6 +422,8 @@
           {
             "type": "source",
             "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -435,7 +442,7 @@
       "repo_type": "official",
       "version": "16.2.1+r23+gd564253eb6c8",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The GNU Compiler Collection - C and C++ frontends and runtimes",
       "scope": "system",
       "scopes": [
@@ -605,7 +612,7 @@
       "repo_type": "official",
       "version": "3.12",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A string search utility",
       "scope": "system",
       "scopes": [
@@ -622,6 +629,8 @@
           {
             "type": "source",
             "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -640,7 +649,7 @@
       "repo_type": "official",
       "version": "2.16",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU GRand Unified Bootloader (2)",
       "scope": "system",
       "scopes": [
@@ -659,7 +668,9 @@
           {
             "type": "source",
             "packages": [
+              "pacman:autoconf",
               "pacman:autogen",
+              "pacman:automake",
               "pacman:bison",
               "pacman:device-mapper",
               "pacman:flex",
@@ -688,7 +699,7 @@
       "repo_type": "official",
       "version": "1.15",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU compression utility",
       "scope": "system",
       "scopes": [
@@ -705,6 +716,8 @@
           {
             "type": "source",
             "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -892,7 +905,7 @@
       "repo_type": "official",
       "version": "7.2.14.parlex.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The Linux kernel and modules (Parlex Linux)",
       "scope": "system",
       "scopes": [
@@ -918,7 +931,9 @@
             "packages": [
               "pacman:bc",
               "pacman:binutils",
+              "pacman:bison",
               "pacman:cpio",
+              "pacman:flex",
               "pacman:gcc",
               "pacman:gettext",
               "pacman:git",
@@ -1130,7 +1145,7 @@
       "repo_type": "official",
       "version": "4.0.7",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Utilities for monitoring your system and its processes (ps, top, free, etc.)",
       "scope": "system",
       "scopes": [
@@ -1157,6 +1172,7 @@
               "pacman:libtool",
               "pacman:make",
               "pacman:ncurses",
+              "pacman:pkgconf",
               "pacman:po4a",
               "pacman:systemd"
             ]
@@ -1245,7 +1261,7 @@
       "repo_type": "official",
       "version": "4.10",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU stream editor",
       "scope": "system",
       "scopes": [
@@ -1264,6 +1280,8 @@
             "packages": [
               "pacman:acl",
               "pacman:attr",
+              "pacman:autoconf",
+              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -1282,7 +1300,7 @@
       "repo_type": "official",
       "version": "4.20.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
@@ -1367,7 +1385,7 @@
       "repo_type": "official",
       "version": "262.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "System and service manager for Linux",
       "scope": "system",
       "scopes": [
@@ -1463,7 +1481,7 @@
       "repo_type": "official",
       "version": "1.35",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Utility used to store, backup, and transport files",
       "scope": "system",
       "scopes": [
@@ -1487,6 +1505,8 @@
             "packages": [
               "pacman:acl",
               "pacman:attr",
+              "pacman:autoconf",
+              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -1505,7 +1525,7 @@
       "repo_type": "official",
       "version": "2.42.4",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Miscellaneous system utilities for Linux",
       "scope": "system",
       "scopes": [
@@ -1529,6 +1549,7 @@
             "type": "source",
             "packages": [
               "pacman:asciidoctor",
+              "pacman:bison",
               "pacman:diffutils",
               "pacman:file",
               "pacman:gcc",
@@ -1557,7 +1578,7 @@
       "repo_type": "official",
       "version": "1.25.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Network utility to retrieve files from the web",
       "scope": "system",
       "scopes": [
@@ -1576,6 +1597,8 @@
           {
             "type": "source",
             "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
               "pacman:gcc",
               "pacman:gnutls",
               "pacman:libidn2",
