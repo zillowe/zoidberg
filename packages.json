@@ -443,7 +443,7 @@
       "repo_type": "official",
       "version": "16.2.1+r23+gd564253eb6c8",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "The GNU Compiler Collection - C and C++ frontends and runtimes",
       "scope": "system",
       "scopes": [
@@ -906,7 +906,7 @@
       "repo_type": "official",
       "version": "7.2.14.parlex.1",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "The Linux kernel and modules (Parlex Linux)",
       "scope": "system",
       "scopes": [
@@ -934,6 +934,7 @@
               "pacman:binutils",
               "pacman:bison",
               "pacman:cpio",
+              "pacman:diffutils",
               "pacman:flex",
               "pacman:gcc",
               "pacman:gettext",
@@ -1301,7 +1302,7 @@
       "repo_type": "official",
       "version": "4.20.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
@@ -1335,6 +1336,7 @@
               "pacman:make",
               "pacman:pam",
               "pacman:patch",
+              "pacman:pkgconf",
               "pacman:zstd"
             ]
           }
@@ -1386,7 +1388,7 @@
       "repo_type": "official",
       "version": "262.1",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "System and service manager for Linux",
       "scope": "system",
       "scopes": [
