@@ -6,7 +6,7 @@ metadata({
 	name = "wget",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Network utility to retrieve files from the web",
 	website = "https://www.gnu.org/software/wget/",
 	license = "GPL-3.0-or-later",
@@ -69,9 +69,13 @@ function prepare()
 		if [ ! -d "wget-%s" ]; then
 			curl -sSL "%s" | tar -xz || true
 		fi
+
+		cd "wget-%s"
+		sed -i 's/nettle_md4_digest(&MD4, MD4_DIGEST_SIZE, ntbuffer);/nettle_md4_digest(\&MD4, ntbuffer);/' src/http-ntlm.c 2>/dev/null || true
 	]],
 		version,
-		tar_url
+		tar_url,
+		version
 	))
 end
 

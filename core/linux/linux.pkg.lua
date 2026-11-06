@@ -14,7 +14,7 @@ metadata({
 	name = "linux",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "The Linux kernel and modules (Parlex Linux)",
 	website = "https://kernel.org",
 	license = "GPL-2.0-only",
@@ -32,6 +32,12 @@ metadata({
 	scope = "system",
 	scopes = { "system" },
 	platforms = { "linux-amd64" },
+	ci = {
+		tags = {
+			["linux-amd64"] = "saas-linux-large-amd64",
+			linux = "saas-linux-large-amd64",
+		},
+	},
 	types = { "source" },
 	zoios = true,
 	zsa = false,

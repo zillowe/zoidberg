@@ -159,7 +159,8 @@ generate-child:
         fi
         for TARGET in $LINUX_TARGET_LIST; do
           ARCH=${TARGET#linux-}
-          TAG="saas-linux-small-$ARCH"
+          CI_TAG=$(echo "$PKG_JSON" | jq -r ".ci.tags[\"$TARGET\"] // .ci.tags[\"linux\"] // empty")
+          TAG="${CI_TAG:-saas-linux-small-$ARCH}"
           printf '%s\n' \
             "build-$TARGET-$PKG_ID:" \
             "  stage: build" \
@@ -174,6 +175,7 @@ generate-child:
             "  before_script:" \
             "    - |" \
             "      pacman -Syu --noconfirm curl git bash gnupg zstd coreutils jq bubblewrap" \
+            "      git config --system --add safe.directory '*'" \
             "      curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
             '      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
             "      zoi sync" \
@@ -242,12 +244,14 @@ generate-child:
           done
         fi
         for TARGET in $MACOS_TARGET_LIST; do
+          CI_TAG=$(echo "$PKG_JSON" | jq -r ".ci.tags[\"$TARGET\"] // .ci.tags[\"macos\"] // empty")
+          TAG="${CI_TAG:-saas-macos-medium-m1}"
           printf '%s\n' \
             "build-$TARGET-$PKG_ID:" \
             "  stage: build" \
             "  image: macos-26-xcode-26" \
             "  tags:" \
-            "    - saas-macos-medium-m1" \
+            "    - $TAG" \
             "  variables:" \
             "    PKG_FILE: \"$PKG_FILE\"" \
             "    TARGET: \"$TARGET\"" \
@@ -324,11 +328,13 @@ generate-child:
           fi
         fi
         for TARGET in $WIN_TARGET_LIST; do
+          CI_TAG=$(echo "$PKG_JSON" | jq -r ".ci.tags[\"$TARGET\"] // .ci.tags[\"windows\"] // empty")
+          TAG="${CI_TAG:-saas-windows-medium-amd64}"
           printf '%s\n' \
             "build-$TARGET-$PKG_ID:" \
             "  stage: build" \
             "  tags:" \
-            "    - saas-windows-medium-amd64" \
+            "    - $TAG" \
             "  variables:" \
             "    PKG_FILE: \"$PKG_FILE\"" \
             "    PKG_VERSION: \"$PKG_VERSION\"" \

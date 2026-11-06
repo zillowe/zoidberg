@@ -1,12 +1,15 @@
 local version = ZOI.VERSION or "2.16"
-local tag = "grub-" .. version
-local git_url = "https://gitlab.freedesktop.org/gnu-grub/grub.git"
+local tar_url = string.format(
+	"https://gitlab.freedesktop.org/api/v4/projects/26558/packages/generic/source-assets/grub-%s/grub-%s.tar.xz",
+	version,
+	version
+)
 
 metadata({
 	name = "grub",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "GNU GRand Unified Bootloader (2)",
 	website = "https://www.gnu.org/software/grub/",
 	license = "GPL-3.0-or-later",
@@ -108,18 +111,12 @@ function prepare()
 
 	cmd(string.format(
 		[[
-		if [ ! -d grub ]; then
-			git clone --depth 1 --branch "%s" "%s" grub
+		if [ ! -d "grub-%s" ]; then
+			curl -sSfL "%s" -o "grub-%s.tar.xz"
+			tar -xf "grub-%s.tar.xz"
 		fi
 
-		if [ ! -d gnulib ]; then
-			git clone https://git.savannah.gnu.org/git/gnulib.git gnulib
-			(cd gnulib && git checkout 9f48fb992a3d7e96610c4ce8be969cff2d61a01b)
-		fi
-
-		cd grub
-		./bootstrap --gnulib-srcdir="$(pwd)/../gnulib" --no-git --skip-po
-
+		cd "grub-%s"
 		PKGLUADIR="%s"
 		if [ -f "${PKGLUADIR}/0001-00_header-add-GRUB_COLOR_-variables.patch" ]; then
 			patch -Np1 -i "${PKGLUADIR}/0001-00_header-add-GRUB_COLOR_-variables.patch" || true
@@ -133,18 +130,22 @@ function prepare()
 
 		sed -i 's|GNU/Linux|Linux|' util/grub.d/10_linux.in 2>/dev/null || true
 	]],
-		tag,
-		git_url,
+		version,
+		tar_url,
+		version,
+		version,
+		version,
 		pkgdir
 	))
 end
 
 function build()
-	cmd([[
+	cmd(string.format(
+		[[
 		set -e
-		cd grub
+		cd "grub-%s"
 
-		./autogen.sh || true
+		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 
 		# x86_64-efi build
 		./configure \
@@ -162,7 +163,9 @@ function build()
 			--enable-cache-stats
 
 		make -j"$(nproc)"
-	]])
+	]],
+		version
+	))
 end
 
 function package()
@@ -173,7 +176,7 @@ function package()
 		set -e
 		ROOT="%s"
 		mkdir -p "$ROOT"/etc/default "$ROOT"/etc/grub.d "$ROOT"/boot/grub
-		make -C grub DESTDIR="$ROOT" bashcompletiondir="/usr/share/bash-completion/completions" install
+		make -C "grub-%s" DESTDIR="$ROOT" bashcompletiondir="/usr/share/bash-completion/completions" install
 
 		if [ -f "${PKGLUADIR}/grub.default" ]; then
 			install -m644 "${PKGLUADIR}/grub.default" "$ROOT"/etc/default/grub
@@ -183,7 +186,8 @@ function package()
 			install -m644 "${PKGLUADIR}/sbat.csv" "$ROOT"/usr/share/grub/sbat.csv
 		fi
 	]],
-		root
+		root,
+		version
 	))
 
 	-- zlicense("LICENSE")

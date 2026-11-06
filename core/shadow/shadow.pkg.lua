@@ -1,11 +1,11 @@
 local version = ZOI.VERSION or "4.20.0"
-local git_url = "https://github.com/shadow-maint/shadow.git"
+local tar_url = string.format("https://github.com/shadow-maint/shadow/releases/download/%s/shadow-%s.tar.xz", version, version)
 
 metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
 	license = "0BSD AND BSD-3-Clause",
@@ -97,28 +97,33 @@ function prepare()
 
 	cmd(string.format(
 		[[
-		if [ ! -d shadow ]; then
-			git clone --depth 1 --branch "%s" "%s" shadow
+		if [ ! -d "shadow-%s" ]; then
+			curl -sSfL "%s" -o "shadow-%s.tar.xz"
+			tar -xf "shadow-%s.tar.xz"
 		fi
 
-		cd shadow
+		cd "shadow-%s"
 		PKGLUADIR="%s"
 		if [ -f "${PKGLUADIR}/shadow.patch" ]; then
 			patch -Np1 -i "${PKGLUADIR}/shadow.patch" || true
 		fi
 	]],
 		version,
-		git_url,
+		tar_url,
+		version,
+		version,
+		version,
 		pkgdir
 	))
 end
 
 function build()
-	cmd([[
+	cmd(string.format(
+		[[
 		set -e
-		cd shadow
+		cd "shadow-%s"
 
-		autoreconf -fiv
+		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 
 		export CFLAGS="${CFLAGS} -DEXTRA_CHECK_HOME_DIR"
 
@@ -144,7 +149,9 @@ function build()
 
 		sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool 2>/dev/null || true
 		make -j"$(nproc)"
-	]])
+	]],
+		version
+	))
 end
 
 function package()
@@ -156,16 +163,19 @@ function package()
 		ROOT="%s"
 		mkdir -p "$ROOT"/etc/default "$ROOT"/usr/share/licenses/shadow "$ROOT"/usr/lib/systemd/system
 
-		make -C shadow DESTDIR="$ROOT" install
-		make -C shadow/man DESTDIR="$ROOT" install 2>/dev/null || true
+		make -C "shadow-%s" DESTDIR="$ROOT" install
+		make -C "shadow-%s/man" DESTDIR="$ROOT" install 2>/dev/null || true
 
-		install -m644 shadow/COPYING "$ROOT/usr/share/licenses/shadow/COPYING" 2>/dev/null || true
+		install -m644 "shadow-%s/COPYING" "$ROOT/usr/share/licenses/shadow/COPYING" 2>/dev/null || true
 		install -m600 "${PKGLUADIR}/useradd.defaults" "$ROOT/etc/default/useradd"
 
 		install -m644 "${PKGLUADIR}/shadow.timer" "$ROOT/usr/lib/systemd/system/shadow.timer"
 		install -m644 "${PKGLUADIR}/shadow.service" "$ROOT/usr/lib/systemd/system/shadow.service"
 	]],
-		root
+		root,
+		version,
+		version,
+		version
 	))
 
 	-- zlicense("LICENSE")
