@@ -6,7 +6,7 @@ metadata({
 	name = "gcc",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "The GNU Compiler Collection - C and C++ frontends and runtimes",
 	website = "https://gcc.gnu.org",
 	license = "GPL-3.0-or-later WITH GCC-exception-3.1 AND GFDL-1.3-or-later",
@@ -39,8 +39,8 @@ metadata({
 	platforms = { "linux-amd64" },
 	ci = {
 		tags = {
-			["linux-amd64"] = "saas-linux-large-amd64",
-			linux = "saas-linux-large-amd64",
+			["linux-amd64"] = "saas-linux-xlarge-amd64",
+			linux = "saas-linux-xlarge-amd64",
 		},
 	},
 	types = { "source" },

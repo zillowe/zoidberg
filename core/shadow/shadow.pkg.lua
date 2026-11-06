@@ -5,7 +5,7 @@ metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
 	license = "0BSD AND BSD-3-Clause",
@@ -80,6 +80,7 @@ dependencies({
 					"pacman:make",
 					"pacman:pam",
 					"pacman:patch",
+					"pacman:pkgconf",
 					"pacman:zstd",
 				},
 			},
@@ -134,7 +135,6 @@ function build()
 			--mandir=/usr/share/man \
 			--prefix=/usr \
 			--sysconfdir=/etc \
-			--disable-account-tools-setuid \
 			--enable-man \
 			--with-audit \
 			--with-fcaps \

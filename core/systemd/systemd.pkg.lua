@@ -6,7 +6,7 @@ metadata({
 	name = "systemd",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "System and service manager for Linux",
 	website = "https://systemd.io",
 	license = "LGPL-2.1-or-later AND GPL-2.0-or-later",
@@ -231,6 +231,7 @@ function prepare()
 		[[
 		if [ ! -d systemd ]; then
 			git clone --depth 1 --branch "%s" "%s" systemd
+			rm -rf systemd/.git
 		fi
 	]],
 		tag,
