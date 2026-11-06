@@ -136,7 +136,7 @@
       "repo_type": "official",
       "version": "9.12",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "The basic file, shell and text manipulation utilities of the GNU operating system",
       "scope": "system",
       "scopes": [
@@ -167,6 +167,7 @@
               "pacman:openssl",
               "pacman:patch",
               "pacman:tar",
+              "pacman:texinfo",
               "pacman:xz"
             ]
           }
@@ -442,7 +443,7 @@
       "repo_type": "official",
       "version": "16.2.1+r23+gd564253eb6c8",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "The GNU Compiler Collection - C and C++ frontends and runtimes",
       "scope": "system",
       "scopes": [
@@ -649,7 +650,7 @@
       "repo_type": "official",
       "version": "2.16",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "GNU GRand Unified Bootloader (2)",
       "scope": "system",
       "scopes": [
@@ -905,7 +906,7 @@
       "repo_type": "official",
       "version": "7.2.14.parlex.1",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "The Linux kernel and modules (Parlex Linux)",
       "scope": "system",
       "scopes": [
@@ -1300,7 +1301,7 @@
       "repo_type": "official",
       "version": "4.20.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
@@ -1385,7 +1386,7 @@
       "repo_type": "official",
       "version": "262.1",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "System and service manager for Linux",
       "scope": "system",
       "scopes": [
@@ -1525,7 +1526,7 @@
       "repo_type": "official",
       "version": "2.42.4",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Miscellaneous system utilities for Linux",
       "scope": "system",
       "scopes": [
@@ -1552,6 +1553,7 @@
               "pacman:bison",
               "pacman:diffutils",
               "pacman:file",
+              "pacman:flex",
               "pacman:gcc",
               "pacman:git",
               "pacman:libcap-ng",
@@ -1578,7 +1580,7 @@
       "repo_type": "official",
       "version": "1.25.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Network utility to retrieve files from the web",
       "scope": "system",
       "scopes": [
