@@ -44,6 +44,7 @@ metadata({
 		},
 	},
 	types = { "source" },
+	quiet = { "build" },
 	zoios = true,
 	zsa = false,
 	sub_packages = {
