@@ -6,7 +6,7 @@ metadata({
 	name = "gcc",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	description = "The GNU Compiler Collection - C and C++ frontends and runtimes",
 	website = "https://gcc.gnu.org",
 	license = "GPL-3.0-or-later WITH GCC-exception-3.1 AND GFDL-1.3-or-later",
@@ -361,7 +361,6 @@ function build()
 			--mandir=/usr/share/man
 			--infodir=/usr/share/info
 			--with-bugurl=https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/issues
-			--with-build-config=bootstrap-lto
 			--with-gcc-major-version-only
 			--with-linker-hash-style=gnu
 			--with-system-zlib
@@ -373,7 +372,6 @@ function build()
 			--enable-gnu-indirect-function
 			--enable-gnu-unique-object
 			--enable-libstdcxx-backtrace
-			--enable-link-serialization=1
 			--enable-linker-build-id
 			--enable-lto
 			--enable-multilib
@@ -393,14 +391,10 @@ function build()
 
 			../gcc/configure \
 				--enable-languages=ada,c,c++,d,fortran,go,lto,m2,objc,obj-c++,rust,cobol \
-				--enable-bootstrap \
+				--disable-bootstrap \
 				"${_confflags[@]}"
 
-			make -O -j"$(nproc)" STAGE1_CFLAGS="-O2" \
-				BOOT_CFLAGS="$CFLAGS" \
-				BOOT_LDFLAGS="$LDFLAGS" \
-				LDFLAGS_FOR_TARGET="$LDFLAGS" \
-				bootstrap
+			make -O -j"$(nproc)" LDFLAGS_FOR_TARGET="$LDFLAGS"
 
 			# Documentation
 			make -O -C "$CHOST/libstdc++-v3/doc" doc-man-doxygen || true
