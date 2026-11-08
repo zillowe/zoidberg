@@ -277,6 +277,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:bison",
               "pacman:flex",
               "pacman:gcc",
@@ -317,6 +318,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:curl",
               "pacman:gcc",
               "pacman:gettext",
@@ -355,6 +357,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:bash-completion",
               "pacman:docbook-xsl",
               "pacman:gcc",
@@ -501,6 +504,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:gcc",
@@ -588,6 +592,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:curl",
@@ -628,6 +633,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:curl",
@@ -753,6 +759,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:bison",
@@ -830,6 +837,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:gcc",
@@ -1177,6 +1185,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:asciidoc",
               "pacman:curl",
               "pacman:expat",
@@ -1268,6 +1277,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:curl",
@@ -1346,6 +1356,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:bison",
@@ -1643,6 +1654,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:gcc",
               "pacman:git",
               "pacman:go",
@@ -1678,6 +1690,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:curl",
@@ -1714,6 +1727,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:curl",
               "pacman:gcc",
               "pacman:gmp",
@@ -1787,6 +1801,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:gcc",
@@ -1828,6 +1843,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:curl",
               "pacman:gcc",
               "pacman:make",
@@ -1957,6 +1973,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:curl",
@@ -2032,6 +2049,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
               "pacman:curl",
@@ -2185,6 +2203,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:audit",
               "pacman:docbook-xml",
               "pacman:docbook-xsl",
@@ -2275,6 +2294,7 @@
           {
             "type": "source",
             "packages": [
+              "pacman:base-devel",
               "pacman:attr",
               "pacman:autoconf",
               "pacman:automake",
