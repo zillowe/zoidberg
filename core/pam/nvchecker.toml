@@ -1,0 +1,5 @@
+[pam]
+source = "github"
+github = "linux-pam/linux-pam"
+use_latest_release = true
+prefix = "v"

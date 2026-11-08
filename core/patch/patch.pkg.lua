@@ -30,6 +30,7 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:attr",
 					"pacman:autoconf",
 					"pacman:automake",
 					"pacman:ed",
@@ -46,6 +47,7 @@ dependencies({
 	},
 	runtime = {
 		required = {
+			"zoi:@core/attr",
 			"zoi:@core/glibc",
 		},
 	},
@@ -75,13 +77,9 @@ function prepare()
 end
 
 function build()
-	-- Parlex ships no libattr, so build without extended attribute support
-	-- instead of linking whatever libattr the build host provides.
 	sh([[
 		cd patch
-		./configure \
-			--prefix=/usr \
-			--disable-xattr
+		./configure --prefix=/usr
 		make -j"$(nproc)"
 	]])
 end

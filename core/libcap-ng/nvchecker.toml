@@ -1,0 +1,5 @@
+[libcap-ng]
+source = "github"
+github = "stevegrubb/libcap-ng"
+use_max_tag = true
+prefix = "v"

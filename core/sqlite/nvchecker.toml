@@ -1,0 +1,6 @@
+[sqlite]
+source = "github"
+github = "sqlite/sqlite"
+use_max_tag = true
+include_regex = "^version-[\\d.]+$"
+prefix = "version-"

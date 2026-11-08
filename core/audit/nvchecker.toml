@@ -1,0 +1,5 @@
+[audit]
+source = "github"
+github = "linux-audit/audit-userspace"
+use_max_tag = true
+prefix = "v"

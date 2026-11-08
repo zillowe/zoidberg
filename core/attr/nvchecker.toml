@@ -1,0 +1,4 @@
+[attr]
+source = "git"
+git = "https://git.savannah.nongnu.org/git/attr.git"
+prefix = "v"

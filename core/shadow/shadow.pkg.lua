@@ -5,7 +5,7 @@ metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
 	license = "0BSD AND BSD-3-Clause",
@@ -88,7 +88,12 @@ dependencies({
 	},
 	runtime = {
 		required = {
+			"zoi:@core/acl",
+			"zoi:@core/attr",
+			"zoi:@core/audit",
 			"zoi:@core/glibc",
+			"zoi:@core/libxcrypt",
+			"zoi:@core/pam",
 		},
 	},
 })

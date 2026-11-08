@@ -6,7 +6,7 @@ metadata({
 	name = "util-linux",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	description = "Miscellaneous system utilities for Linux",
 	website = "https://github.com/util-linux/util-linux",
 	license = "GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause AND BSD-3-Clause",
@@ -31,7 +31,6 @@ metadata({
 		"chcpu",
 		"chfn",
 		"chmem",
-		"chroot",
 		"chsh",
 		"col",
 		"colcrt",
@@ -188,14 +187,21 @@ dependencies({
 		sub_packages = {
 			main = {
 				required = {
+					"zoi:@core/file",
 					"zoi:@core/glibc",
+					"zoi:@core/libcap-ng",
+					"zoi:@core/libxcrypt",
 					"zoi:@core/ncurses",
+					"zoi:@core/pam",
+					"zoi:@core/readline",
+					"zoi:@core/systemd:libs",
 					"zoi:@core/util-linux:libs",
 				},
 			},
 			libs = {
 				required = {
 					"zoi:@core/glibc",
+					"zoi:@core/sqlite",
 				},
 			},
 		},
