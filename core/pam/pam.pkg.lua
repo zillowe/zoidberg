@@ -56,8 +56,10 @@ dependencies({
 					"pacman:flex",
 					"pacman:fop",
 					"pacman:gcc",
+					"pacman:gettext",
 					"pacman:git",
 					"pacman:libxcrypt",
+					"pacman:libxml2",
 					"pacman:libxslt",
 					"pacman:meson",
 					"pacman:ninja",
@@ -100,7 +102,10 @@ end
 
 function build()
 	-- Parlex ships no libtirpc/libnsl, so NIS support is disabled instead of
-	-- linking the build host's copies.
+	-- linking the build host's copies. With --auto-features enabled, the
+	-- remaining auto features become hard requirements: i18n (glibc intl +
+	-- gettext), docs (xsltproc, xmllint, xmlcatalog, docbook catalogs, w3m),
+	-- audit (libaudit) and pam_unix (libxcrypt). openssl defaults to disabled.
 	sh([[
 		rm -rf build
 		meson setup \
