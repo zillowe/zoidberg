@@ -4,8 +4,8 @@ metadata({
 	name = "base",
 	repo = "core",
 	version = version,
-	revision = "1",
-	description = "Minimal package set to define a basic Parlex Linux installation",
+	revision = "2",
+	description = "Minimal userland for Parlex Linux and isolated (--pure) build roots",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
 	maintainer = {
@@ -38,12 +38,6 @@ dependencies({
 					"zoi:@core/gcc:libgcc",
 					"zoi:@core/glibc",
 					"zoi:@core/bash",
-					"zoi:@core/linux",
-					-- Booting
-					"zoi:@core/dracut",
-					"zoi:@core/linux-firmware",
-					"zoi:@core/systemd",
-					"zoi:@core/grub",
 					-- POSIX tools
 					"zoi:@core/coreutils",
 					"zoi:@core/file",
@@ -62,10 +56,8 @@ dependencies({
 					"zoi:@core/bzip2",
 					"zoi:@core/gzip",
 					"zoi:@core/xz",
-					"zoi:@core/sudo",
 					-- Zoi Core
 					"zoi:@core/zoi",
-					"zoi:@core/zoid",
 					-- Networking
 					"zoi:@core/iputils",
 					"zoi:@core/iproute2",
