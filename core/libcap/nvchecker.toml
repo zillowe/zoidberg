@@ -1,0 +1,5 @@
+[libcap]
+source = "git"
+git = "https://git.kernel.org/pub/scm/libs/libcap/libcap.git"
+include_regex = '^libcap-[\d.]+$'
+prefix = "libcap-"

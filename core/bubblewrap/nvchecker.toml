@@ -1,0 +1,5 @@
+[bubblewrap]
+source = "github"
+github = "containers/bubblewrap"
+use_latest_release = true
+prefix = "v"

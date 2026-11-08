@@ -1,0 +1,12 @@
+name: git-shell-add
+description: Registering git-shell in /etc/shells...
+platforms: ["linux"]
+trigger:
+  packages: ["git"]
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -f /etc/shells ] && ! grep -qe '^/usr/bin/git-shell$' /etc/shells; then
+      echo '/usr/bin/git-shell' >> /etc/shells
+    fi

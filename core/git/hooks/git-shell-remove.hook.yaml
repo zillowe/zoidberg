@@ -1,0 +1,12 @@
+name: git-shell-remove
+description: Removing git-shell from /etc/shells...
+platforms: ["linux"]
+trigger:
+  packages: ["git"]
+  operation: ["remove"]
+action:
+  when: PreTransaction
+  exec: |
+    if [ -f /etc/shells ]; then
+      sed -i -r '/^\/usr\/bin\/git-shell$/d' /etc/shells
+    fi

@@ -1,0 +1,6 @@
+[git]
+source = "github"
+github = "git/git"
+use_max_tag = true
+include_regex = '^v[\d.]+$'
+prefix = "v"

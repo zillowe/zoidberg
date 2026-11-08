@@ -70,7 +70,7 @@ metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zoi.git",
@@ -98,8 +98,7 @@ dependencies({
 	runtime = {
 		required = {
 			"zoi:@core/git",
-			"zoi:@core/gnupg",
-			"zoi:@core/openssl:lib",
+			"zoi:@core/openssl",
 		},
 		optional = {
 			"zoi:@core/bubblewrap:for building pure packages and running isolated apps",

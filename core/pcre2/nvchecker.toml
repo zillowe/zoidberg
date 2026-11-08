@@ -1,0 +1,5 @@
+[pcre2]
+source = "github"
+github = "PCRE2Project/pcre2"
+use_latest_release = true
+prefix = "pcre2-"
