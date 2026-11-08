@@ -1,0 +1,4 @@
+[debugedit]
+source = "regex"
+url = "https://sourceware.org/ftp/debugedit/"
+regex = '"(\d+\.\d+)/"'

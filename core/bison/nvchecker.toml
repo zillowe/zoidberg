@@ -1,0 +1,4 @@
+[bison]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/bison/"
+regex = 'bison-([\d.]+)\.tar\.xz'

@@ -1,0 +1,5 @@
+[flex]
+source = "github"
+github = "westes/flex"
+use_max_tag = true
+prefix = "v"

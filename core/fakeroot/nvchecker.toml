@@ -1,0 +1,4 @@
+[fakeroot]
+source = "regex"
+url = "https://deb.debian.org/debian/pool/main/f/fakeroot/"
+regex = 'fakeroot_([\d.]+)\.orig\.tar'

@@ -1,0 +1,4 @@
+[libtool]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/libtool/"
+regex = 'libtool-([\d.]+)\.tar\.xz'

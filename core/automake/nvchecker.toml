@@ -1,0 +1,4 @@
+[automake]
+source = "git"
+git = "https://git.savannah.gnu.org/git/automake.git"
+prefix = "v"

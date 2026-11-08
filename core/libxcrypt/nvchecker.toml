@@ -1,0 +1,5 @@
+[libxcrypt]
+source = "github"
+github = "besser82/libxcrypt"
+use_latest_release = true
+prefix = "v"

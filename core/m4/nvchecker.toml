@@ -1,0 +1,4 @@
+[m4]
+source = "git"
+git = "https://git.savannah.gnu.org/git/m4.git"
+prefix = "v"

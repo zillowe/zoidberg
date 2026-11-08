@@ -1,0 +1,20 @@
+name: texinfo-info-dir
+description: Updating the info directory file...
+platforms: ["linux"]
+trigger:
+  paths:
+    - "${usrroot}/usr/share/info/*"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    if command -v install-info >/dev/null 2>&1 && [ -d /usr/share/info ]; then
+      rm -f /usr/share/info/dir
+      for f in /usr/share/info/*; do
+        case "$f" in
+          */dir|*/dir.old) continue ;;
+        esac
+        [ -f "$f" ] || continue
+        install-info "$f" /usr/share/info/dir 2>/dev/null || true
+      done
+    fi

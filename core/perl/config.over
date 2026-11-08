@@ -1,0 +1,6 @@
+#!/bin/sh
+osvers="parlex"
+myuname="parlexlinux"
+myhostname="parlexlinux"
+mydomain='.nonet'
+cf_time="`date -u --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}"`"

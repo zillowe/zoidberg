@@ -1,0 +1,4 @@
+[texinfo]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/texinfo/"
+regex = 'texinfo-([\d.]+)\.tar\.xz'

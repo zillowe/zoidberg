@@ -1,0 +1,5 @@
+[pkgconf]
+source = "github"
+github = "pkgconf/pkgconf"
+use_max_tag = true
+prefix = "pkgconf-"

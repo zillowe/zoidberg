@@ -1,0 +1,5 @@
+[perl]
+source = "regex"
+url = "https://www.cpan.org/src/5.0/"
+# Even minor versions are stable releases
+regex = 'perl-(5\.\d*[02468]\.\d+)\.tar\.xz'

@@ -1,0 +1,5 @@
+[xxhash]
+source = "github"
+github = "Cyan4973/xxHash"
+use_latest_release = true
+prefix = "v"
