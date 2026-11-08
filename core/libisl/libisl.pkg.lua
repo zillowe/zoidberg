@@ -30,6 +30,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					-- Arch packaging assumes the base-devel group
+					"pacman:base-devel",
 					"pacman:curl",
 					"pacman:gcc",
 					"pacman:gmp",
@@ -63,7 +65,13 @@ end
 function prepare()
 	sh([[
 		if [ ! -d "isl-$VER" ]; then
-			curl -sSfL "https://libisl.sourceforge.io/isl-$VER.tar.xz" -o "isl-$VER.tar.xz"
+			# libisl.sourceforge.io rejects some CI networks; fall back to the
+			# SourceForge download mirrors
+			for url in \
+				"https://libisl.sourceforge.io/isl-$VER.tar.xz" \
+				"https://downloads.sourceforge.net/project/libisl/isl-$VER.tar.xz"; do
+				curl -sSfL --retry 3 "$url" -o "isl-$VER.tar.xz" && break
+			done
 			echo "8d14052a11bbba409b163e979652e489000e3ab9a13a70f9c6088757da47079eb79128ae59513727214e2906f82e6416d7f91444f0f80121bfbb5085a9f44647  isl-$VER.tar.xz" | b2sum -c -
 			tar -xf "isl-$VER.tar.xz"
 		fi

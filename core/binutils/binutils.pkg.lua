@@ -57,6 +57,9 @@ metadata({
 	types = { "source" },
 	quiet = { "build" },
 	zoios = true,
+	-- The binutils-gdb tree is huge; like gcc, skip the intermediate source
+	-- bundle so its file listing doesn't exhaust the CI log limit.
+	zsa = false,
 	backup = {
 		"${usrroot}/etc/gprofng.rc",
 	},
@@ -67,6 +70,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					-- Arch packaging assumes the base-devel group
+					"pacman:base-devel",
 					"pacman:bison",
 					"pacman:flex",
 					"pacman:gcc",

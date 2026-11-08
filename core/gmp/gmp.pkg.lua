@@ -29,6 +29,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					-- Arch packaging assumes the base-devel group
+					"pacman:base-devel",
 					"pacman:autoconf",
 					"pacman:automake",
 					"pacman:curl",
@@ -67,7 +69,13 @@ end
 function prepare()
 	sh([[
 		if [ ! -d "gmp-$VER" ]; then
-			curl -sSfL "https://gmplib.org/download/gmp/gmp-$VER.tar.lz" -o "gmp-$VER.tar.lz"
+			# gmplib.org is not always reachable from CI; fall back to GNU mirrors
+			for url in \
+				"https://gmplib.org/download/gmp/gmp-$VER.tar.lz" \
+				"https://ftpmirror.gnu.org/gnu/gmp/gmp-$VER.tar.lz" \
+				"https://mirrors.kernel.org/gnu/gmp/gmp-$VER.tar.lz"; do
+				curl -sSfL --retry 3 "$url" -o "gmp-$VER.tar.lz" && break
+			done
 			echo "be5c908a7a836c3a9bd9d62aa58563c5e9e7fef94c43a7f42dbc35bb6d02733c  gmp-$VER.tar.lz" | sha256sum -c -
 			tar -xf "gmp-$VER.tar.lz"
 			cd "gmp-$VER"

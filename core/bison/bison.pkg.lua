@@ -30,6 +30,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					-- Arch packaging assumes the base-devel group
+					"pacman:base-devel",
 					"pacman:curl",
 					"pacman:gcc",
 					"pacman:gettext",
@@ -76,8 +78,14 @@ function prepare()
 end
 
 function build()
+	-- bison 3.8.2's bundled gnulib predates glibc declaring
+	-- posix_spawn_file_actions_addchdir (as a redirect to the _np symbol), so
+	-- its link test fails and gnulib re-declares the function with a
+	-- conflicting type. Tell configure what glibc actually provides.
 	sh([[
 		cd "bison-$VER"
+		ac_cv_func_posix_spawn_file_actions_addchdir=yes \
+		gl_cv_func_posix_spawn_works=yes \
 		CFLAGS="${CFLAGS:-} -ffat-lto-objects" \
 		./configure \
 			--prefix=/usr \

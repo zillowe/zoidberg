@@ -39,6 +39,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					-- Arch packaging assumes the base-devel group
+					"pacman:base-devel",
 					"pacman:asciidoc",
 					"pacman:curl",
 					"pacman:expat",

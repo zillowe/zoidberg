@@ -31,6 +31,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					-- Arch packaging assumes the base-devel group
+					"pacman:base-devel",
 					"pacman:curl",
 					"pacman:gcc",
 					"pacman:make",
@@ -84,6 +86,9 @@ function prepare()
 end
 
 function build()
+	-- --disable-werror: GCC 16 with glibc's C23 strchr() flags
+	-- -Wdiscarded-qualifiers in the yescrypt sources, which upstream builds
+	-- with -Werror.
 	sh([[
 		mkdir -p build-libxcrypt build-libxcrypt-compat
 

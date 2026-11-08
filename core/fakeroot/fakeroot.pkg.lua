@@ -33,6 +33,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					-- Arch packaging assumes the base-devel group
+					"pacman:base-devel",
 					"pacman:autoconf",
 					"pacman:automake",
 					"pacman:gcc",
@@ -89,6 +91,8 @@ function build()
 			--with-ipc=sysv
 		make -j"$(nproc)"
 
+		# Perl distributions install po4a into the vendor_perl script dir
+		export PATH="$PATH:/usr/bin/vendor_perl"
 		cd doc
 		po4a -k 0 --rm-backups --variable 'srcdir=../doc/' po4a/po4a.cfg
 	]])

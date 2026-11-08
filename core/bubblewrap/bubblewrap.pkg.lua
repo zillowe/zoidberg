@@ -30,6 +30,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					-- Arch packaging assumes the base-devel group
+					"pacman:base-devel",
 					"pacman:bash-completion",
 					"pacman:docbook-xsl",
 					"pacman:gcc",
