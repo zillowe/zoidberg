@@ -1,13 +1,199 @@
 {
   "version": "2",
   "packages": {
+    "@core/acl": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.4.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Access control list utilities, libraries and headers",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:attr",
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:libtool",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/attr": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.6.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Extended attribute support library for ACL support",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:libtool",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/audit": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "4.2.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Userspace components of the audit framework",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc",
+          "zoi:@core/libcap-ng"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libcap-ng",
+              "pacman:libtool",
+              "pacman:linux-api-headers",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:systemd",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/autoconf": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.73",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A GNU tool for automatically configuring source code",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/diffutils",
+          "zoi:@core/gawk",
+          "zoi:@core/m4",
+          "zoi:@core/perl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:m4",
+              "pacman:make",
+              "pacman:perl",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/automake": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.19",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A GNU tool for automatically creating Makefiles",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/perl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:perl",
+              "pacman:texinfo"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/base": {
       "repo": "core",
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "1",
-      "description": "Minimal package set to define a basic Parlex Linux installation",
+      "revision": "2",
+      "description": "Minimal userland for Parlex Linux and isolated (--pure) build roots",
       "scope": "system",
       "scopes": [
         "system"
@@ -59,6 +245,124 @@
               "pacman:patch",
               "pacman:readline",
               "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/binutils": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.47",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A set of programs to assemble and manipulate binary and object files",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/gcc:libstdc++",
+          "zoi:@core/glibc",
+          "zoi:@core/zlib",
+          "zoi:@core/zstd"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:bison",
+              "pacman:flex",
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:texinfo",
+              "pacman:zlib",
+              "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/bison": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.8.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "The GNU general-purpose parser generator",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/gettext",
+          "zoi:@core/glibc",
+          "zoi:@core/m4"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:m4",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/bubblewrap": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "0.13.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Unprivileged sandboxing tool",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/glibc",
+          "zoi:@core/libcap"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:bash-completion",
+              "pacman:docbook-xsl",
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:libcap",
+              "pacman:libxslt",
+              "pacman:meson",
+              "pacman:ninja"
             ]
           }
         ],
@@ -175,6 +479,43 @@
         "test": []
       }
     },
+    "@core/cpio": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.15",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A tool to copy files into or out of a cpio or tar archive",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:make",
+              "pacman:rsync",
+              "pacman:texinfo",
+              "pacman:wget"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/curl": {
       "repo": "core",
       "repo_type": "official",
@@ -214,6 +555,93 @@
               "pacman:pkgconf",
               "pacman:zlib",
               "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/debugedit": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "5.4",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Tool to mangle source locations in .debug files",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/cpio",
+          "zoi:@core/elfutils",
+          "zoi:@core/elfutils:libelf",
+          "zoi:@core/glibc",
+          "zoi:@core/xxhash"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:curl",
+              "pacman:elfutils",
+              "pacman:gcc",
+              "pacman:help2man",
+              "pacman:libtool",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:tar",
+              "pacman:xxhash",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/diffutils": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.12",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Utility programs used for creating patch files",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:gperf",
+              "pacman:help2man",
+              "pacman:make",
+              "pacman:python",
+              "pacman:tar",
+              "pacman:texinfo",
+              "pacman:wget",
+              "pacman:xz"
             ]
           }
         ],
@@ -292,6 +720,124 @@
               "pacman:make",
               "pacman:pkgconf",
               "pacman:popt"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/elfutils": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "0.197",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Handle ELF object files and DWARF debugging information",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [
+        "main",
+        "libelf"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:bison",
+              "pacman:bzip2",
+              "pacman:flex",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:m4",
+              "pacman:make",
+              "pacman:xz",
+              "pacman:zlib",
+              "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/expat": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.10.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "An XML parser library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:cmake",
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/fakeroot": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.37.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Tool for simulating superuser privileges",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/filesystem",
+          "zoi:@core/glibc",
+          "zoi:@core/sed",
+          "zoi:@core/util-linux"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:libtool",
+              "pacman:make",
+              "pacman:po4a",
+              "pacman:systemd"
             ]
           }
         ],
@@ -401,6 +947,47 @@
         "test": []
       }
     },
+    "@core/flex": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.6.4",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A tool for generating text-scanning programs",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc",
+          "zoi:@core/m4"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:help2man",
+              "pacman:libtool",
+              "pacman:m4",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/gawk": {
       "repo": "core",
       "repo_type": "official",
@@ -443,7 +1030,7 @@
       "repo_type": "official",
       "version": "16.2.1+r23+gd564253eb6c8",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "The GNU Compiler Collection - C and C++ frontends and runtimes",
       "scope": "system",
       "scopes": [
@@ -560,6 +1147,55 @@
         "test": []
       }
     },
+    "@core/git": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.56.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "The fast distributed version control system",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/curl",
+          "zoi:@core/expat",
+          "zoi:@core/glibc",
+          "zoi:@core/grep",
+          "zoi:@core/openssl",
+          "zoi:@core/pcre2",
+          "zoi:@core/perl",
+          "zoi:@core/shadow",
+          "zoi:@core/zlib"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:asciidoc",
+              "pacman:curl",
+              "pacman:expat",
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:make",
+              "pacman:openssl",
+              "pacman:pcre2",
+              "pacman:perl",
+              "pacman:python",
+              "pacman:rust",
+              "pacman:xmlto",
+              "pacman:zlib"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/glibc": {
       "repo": "core",
       "repo_type": "official",
@@ -608,6 +1244,46 @@
         "test": []
       }
     },
+    "@core/gmp": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "6.3.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A free library for arbitrary precision arithmetic",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/gcc:libstdc++",
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libtool",
+              "pacman:lzip",
+              "pacman:m4",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/grep": {
       "repo": "core",
       "repo_type": "official",
@@ -639,6 +1315,49 @@
               "pacman:pcre2",
               "pacman:tar",
               "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/groff": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.24.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "GNU troff text-formatting system",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/gcc:libstdc++",
+          "zoi:@core/glibc",
+          "zoi:@core/perl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:bison",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:m4",
+              "pacman:make",
+              "pacman:netpbm",
+              "pacman:perl",
+              "pacman:psutils",
+              "pacman:texinfo"
             ]
           }
         ],
@@ -901,12 +1620,232 @@
         "test": []
       }
     },
+    "@core/libcap": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.78",
+      "epoch": 0,
+      "revision": "1",
+      "description": "POSIX 1003.1e capabilities",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/pam"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:go",
+              "pacman:linux-api-headers",
+              "pacman:make",
+              "pacman:pam",
+              "pacman:patch"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libcap-ng": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "0.9.6",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A library for Linux that makes using posix capabilities easy",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libtool",
+              "pacman:make",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libisl": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "0.28",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Library for manipulating sets and relations of integer points bounded by linear constraints",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/gmp"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gmp",
+              "pacman:make",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libmpc": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.4.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Library for the arithmetic of complex numbers with arbitrarily high precision",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/gmp",
+          "zoi:@core/mpfr"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gmp",
+              "pacman:make",
+              "pacman:mpfr",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libtool": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.6.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A generic library support script",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc",
+          "zoi:@core/tar"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:help2man",
+              "pacman:m4",
+              "pacman:make",
+              "pacman:texinfo"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libxcrypt": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "4.5.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Modern library for one-way hashing of passwords",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [
+        "main",
+        "compat"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:perl",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/linux": {
       "repo": "core",
       "repo_type": "official",
       "version": "7.2.14.parlex.1",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "The Linux kernel and modules (Parlex Linux)",
       "scope": "system",
       "scopes": [
@@ -949,7 +1888,8 @@
               "pacman:tar",
               "pacman:xz",
               "pacman:zlib",
-              "pacman:zstd"
+              "pacman:zstd",
+              "pacman:patch"
             ]
           }
         ],
@@ -989,6 +1929,118 @@
               "pacman:rdfind",
               "pacman:tar",
               "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/m4": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.4.21",
+      "epoch": 0,
+      "revision": "1",
+      "description": "The GNU macro processor",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:gperf",
+              "pacman:help2man",
+              "pacman:make",
+              "pacman:python",
+              "pacman:tar",
+              "pacman:texinfo",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/make": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "4.4.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "GNU make utility to maintain groups of programs",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:lzip",
+              "pacman:make",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/mpfr": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "4.2.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Multiple-precision floating-point library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/gmp"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gmp",
+              "pacman:libtool",
+              "pacman:make",
+              "pacman:tar",
+              "pacman:xz"
             ]
           }
         ],
@@ -1107,6 +2159,139 @@
         "test": []
       }
     },
+    "@core/pam": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.7.3",
+      "epoch": 0,
+      "revision": "1",
+      "description": "PAM (Pluggable Authentication Modules) library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/audit",
+          "zoi:@core/glibc",
+          "zoi:@core/libxcrypt",
+          "zoi:@core/pambase",
+          "zoi:@core/systemd:libs"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:audit",
+              "pacman:docbook-xml",
+              "pacman:docbook-xsl",
+              "pacman:docbook5-xml",
+              "pacman:flex",
+              "pacman:fop",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:libxcrypt",
+              "pacman:libxml2",
+              "pacman:libxslt",
+              "pacman:meson",
+              "pacman:ninja",
+              "pacman:systemd",
+              "pacman:w3m"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/pambase": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "20260616",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Base PAM configuration for services",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": null
+    },
+    "@core/parlex": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2026.11",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Package set for a bootable Parlex Linux installation",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/base",
+          "zoi:@core/linux",
+          "zoi:@core/linux-firmware",
+          "zoi:@core/dracut",
+          "zoi:@core/grub",
+          "zoi:@core/systemd",
+          "zoi:@core/sudo",
+          "zoi:@core/zoid"
+        ],
+        "build": [],
+        "test": []
+      }
+    },
+    "@core/patch": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.8.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A utility to apply patch files to original sources",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/attr",
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:attr",
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:ed",
+              "pacman:gcc",
+              "pacman:gettext",
+              "pacman:git",
+              "pacman:make",
+              "pacman:python",
+              "pacman:texinfo",
+              "pacman:wget"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/pciutils": {
       "repo": "core",
       "repo_type": "official",
@@ -1136,6 +2321,111 @@
               "pacman:git",
               "pacman:kmod",
               "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/pcre2": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "10.49",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A library that implements Perl 5-style regular expressions. 2nd version",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bzip2",
+          "zoi:@core/glibc",
+          "zoi:@core/readline",
+          "zoi:@core/zlib"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:bzip2",
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:libtool",
+              "pacman:make",
+              "pacman:readline",
+              "pacman:zlib"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/perl": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "5.44.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A highly capable, feature-rich programming language",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/libxcrypt"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:libxcrypt",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/pkgconf": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.0.10",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Package compiler and linker metadata toolkit",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:meson",
+              "pacman:ninja"
             ]
           }
         ],
@@ -1302,7 +2592,7 @@
       "repo_type": "official",
       "version": "4.20.0",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
@@ -1313,7 +2603,12 @@
       "vuln": [],
       "dependencies": {
         "runtime": [
-          "zoi:@core/glibc"
+          "zoi:@core/acl",
+          "zoi:@core/attr",
+          "zoi:@core/audit",
+          "zoi:@core/glibc",
+          "zoi:@core/libxcrypt",
+          "zoi:@core/pam"
         ],
         "build": [
           {
@@ -1338,6 +2633,43 @@
               "pacman:patch",
               "pacman:pkgconf",
               "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/sqlite": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.54.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A C library that implements an SQL database engine",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/readline",
+          "zoi:@core/zlib"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:readline",
+              "pacman:tcl",
+              "pacman:unzip",
+              "pacman:zlib"
             ]
           }
         ],
@@ -1523,12 +2855,51 @@
         "test": []
       }
     },
+    "@core/texinfo": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "7.3",
+      "epoch": 0,
+      "revision": "1",
+      "description": "GNU documentation system for on-line information and printed output",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc",
+          "zoi:@core/gzip",
+          "zoi:@core/ncurses",
+          "zoi:@core/perl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:ncurses",
+              "pacman:perl",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/util-linux": {
       "repo": "core",
       "repo_type": "official",
       "version": "2.42.4",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Miscellaneous system utilities for Linux",
       "scope": "system",
       "scopes": [
@@ -1614,6 +2985,70 @@
               "pacman:tar",
               "pacman:util-linux-libs",
               "pacman:zlib"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/which": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.25",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A utility to show the full path of commands",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/xxhash": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "0.8.4",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Extremely fast non-cryptographic hash algorithm",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:gcc",
+              "pacman:git",
+              "pacman:make"
             ]
           }
         ],
@@ -1707,7 +3142,7 @@
       "repo_type": "official",
       "version": "1.29.9",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Advanced Package Manager & Environment Orchestrator",
       "scope": "system",
       "scopes": [
@@ -1719,8 +3154,7 @@
       "dependencies": {
         "runtime": [
           "zoi:@core/git",
-          "zoi:@core/gnupg",
-          "zoi:@core/openssl:lib",
+          "zoi:@core/openssl",
           "zoi:@core/bubblewrap:for building pure packages and running isolated apps"
         ],
         "build": [],
