@@ -80,6 +80,8 @@ local function sh(script)
 	local env = "VER='" .. version .. "'\n"
 		.. "ROOT='" .. root .. "'\n"
 		.. [[
+# Perl distributions keep pod2man and friends in the core_perl script dir
+export PATH="$PATH:/usr/bin/core_perl:/usr/bin/vendor_perl"
 _make() {
 	make \
 		prefix=/usr \

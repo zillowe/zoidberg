@@ -71,10 +71,18 @@ end
 
 function prepare()
 	sh([[
+		# Savannah's git server intermittently returns HTTP 500; retry with backoff
+		retry() { i=1; while ! "$@"; do [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
+		clone() { url=$1; dir=$2; shift 2; i=1; while :; do rm -rf "$dir"; git clone "$@" "$url" "$dir" && return 0; [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
+		# gnulib's official GitHub mirror spares Savannah the largest fetch
+		gnulib_mirror() { git config submodule.gnulib.url https://github.com/coreutils/gnulib.git; }
+
 		if [ ! -d diffutils ]; then
-			git clone --branch "v$VER" https://git.savannah.gnu.org/git/diffutils.git diffutils
+			clone https://git.savannah.gnu.org/git/diffutils.git diffutils --branch "v$VER"
 			cd diffutils
-			git submodule update --init
+			git submodule init
+			gnulib_mirror
+			retry git submodule update
 			# Translations come from the release tarball below
 			./bootstrap --skip-po
 			cd ..

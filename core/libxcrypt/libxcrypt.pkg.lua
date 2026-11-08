@@ -86,11 +86,12 @@ function prepare()
 end
 
 function build()
-	-- --disable-werror: GCC 16 with glibc's C23 strchr() flags
-	-- -Wdiscarded-qualifiers in the yescrypt sources, which upstream builds
-	-- with -Werror.
+	-- GCC 16 with glibc's C23 strchr() flags -Wdiscarded-qualifiers in the
+	-- yescrypt sources, which upstream builds with -Werror (configure has no
+	-- switch for it), so demote just that warning.
 	sh([[
 		mkdir -p build-libxcrypt build-libxcrypt-compat
+		export CFLAGS="${CFLAGS:--O2 -pipe} -Wno-error=discarded-qualifiers"
 
 		cd build-libxcrypt
 		"../libxcrypt-$VER/configure" \

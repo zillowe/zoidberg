@@ -71,12 +71,29 @@ end
 function prepare()
 	-- Upstream's .gitmodules pulls gnulib and gnulib's bootstrap module.
 	sh([[
+		# Savannah's git server intermittently returns HTTP 500; retry with backoff
+		retry() { i=1; while ! "$@"; do [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
+		clone() { url=$1; dir=$2; shift 2; i=1; while :; do rm -rf "$dir"; git clone "$@" "$url" "$dir" && return 0; [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
+		# gnulib's official GitHub mirror spares Savannah the largest fetch
+		gnulib_mirror() { git config submodule.gnulib.url https://github.com/coreutils/gnulib.git; }
+
 		if [ ! -d libtool ]; then
-			git clone https://git.savannah.gnu.org/git/libtool.git libtool
+			clone https://git.savannah.gnu.org/git/libtool.git libtool
 			cd libtool
 			git checkout "$COMMIT"
-			git submodule update --init
+			git submodule init
+			gnulib_mirror
+			retry git submodule update
 			./bootstrap
+
+			# bootstrap links build-aux files with absolute paths into this
+			# temporary checkout; replace them with real files so the source
+			# bundle still works once unpacked elsewhere
+			find . -path ./.git -prune -o -type l -print | while read -r link; do
+				case "$(readlink "$link")" in
+					/*) if [ -e "$link" ]; then cp --remove-destination "$(readlink -f "$link")" "$link"; fi ;;
+				esac
+			done
 		fi
 	]])
 end

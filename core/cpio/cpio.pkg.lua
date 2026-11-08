@@ -66,12 +66,20 @@ end
 
 function prepare()
 	sh([[
+		# Savannah's git server intermittently returns HTTP 500; retry with backoff
+		retry() { i=1; while ! "$@"; do [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
+		clone() { url=$1; dir=$2; shift 2; i=1; while :; do rm -rf "$dir"; git clone "$@" "$url" "$dir" && return 0; [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
+		# gnulib's official GitHub mirror spares Savannah the largest fetch
+		gnulib_mirror() { git config submodule.gnulib.url https://github.com/coreutils/gnulib.git; }
+
 		if [ ! -d cpio ]; then
-			git clone https://git.savannah.gnu.org/git/cpio.git cpio
+			clone https://git.savannah.gnu.org/git/cpio.git cpio
 			cd cpio
 			git checkout -q "v$VER"
 			# Pulls gnulib and paxutils
-			git submodule update --init
+			git submodule init
+			gnulib_mirror
+			retry git submodule update
 
 			# Fix C23 conformity
 			# https://cgit.git.savannah.gnu.org/cgit/cpio.git/commit/?id=f42137f5ab9cf07d1e62edc05e0212688d3ebaa2
