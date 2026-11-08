@@ -6,7 +6,7 @@ metadata({
 	name = "gcc",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	description = "The GNU Compiler Collection - C and C++ frontends and runtimes",
 	website = "https://gcc.gnu.org",
 	license = "GPL-3.0-or-later WITH GCC-exception-3.1 AND GFDL-1.3-or-later",
@@ -121,6 +121,11 @@ dependencies({
 			main = {
 				required = {
 					"zoi:@core/binutils",
+					"zoi:@core/gmp",
+					"zoi:@core/libisl",
+					"zoi:@core/libmpc",
+					"zoi:@core/mpfr",
+					"zoi:@core/zstd",
 					"zoi:@core/glibc",
 					"zoi:@core/gcc:libgcc",
 					"zoi:@core/gcc:libstdc++",

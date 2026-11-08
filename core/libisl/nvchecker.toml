@@ -1,0 +1,4 @@
+[libisl]
+source = "regex"
+url = "https://libisl.sourceforge.io/"
+regex = 'isl-([\d.]+)\.tar\.xz'
