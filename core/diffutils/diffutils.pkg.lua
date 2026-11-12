@@ -85,6 +85,15 @@ function prepare()
 			retry git submodule update
 			# Translations come from the release tarball below
 			./bootstrap --skip-po
+
+			# bootstrap links build-aux files with absolute paths into this
+			# temporary checkout; replace them with real files so the source
+			# bundle still works once unpacked elsewhere
+			find . -path ./.git -prune -o -type l -print | while read -r link; do
+				case "$(readlink "$link")" in
+					/*) if [ -e "$link" ]; then cp --remove-destination "$(readlink -f "$link")" "$link"; fi ;;
+				esac
+			done
 			cd ..
 		fi
 
