@@ -6,7 +6,7 @@ metadata({
 	name = "openssl",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "The Open Source toolkit for cryptography and Transport Layer Security (TLS/SSL)",
 	website = "https://www.openssl.org",
 	license = "Apache-2.0",

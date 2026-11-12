@@ -6,7 +6,7 @@ metadata({
 	name = "iproute2",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "IP Routing Utilities (ip, tc, ss, bridge, devlink)",
 	website = "https://wiki.linuxfoundation.org/networking/iproute2",
 	license = "GPL-2.0-or-later",

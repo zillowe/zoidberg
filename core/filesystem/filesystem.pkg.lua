@@ -4,7 +4,7 @@ metadata({
 	name = "filesystem",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Base Parlex Linux files",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "0BSD",

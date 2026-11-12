@@ -6,7 +6,7 @@ metadata({
 	name = "file",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "File type identification utility",
 	website = "https://www.darwinsys.com/file/",
 	license = "BSD-2-Clause-Darwin",

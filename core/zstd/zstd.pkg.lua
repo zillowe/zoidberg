@@ -6,7 +6,7 @@ metadata({
 	name = "zstd",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Zstandard - Fast real-time compression algorithm",
 	website = "https://facebook.github.io/zstd/",
 	license = "BSD-3-Clause AND GPL-2.0-only",
