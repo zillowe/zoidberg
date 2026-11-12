@@ -659,7 +659,7 @@
       "repo_type": "official",
       "version": "111",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "An event driven initramfs infrastructure",
       "scope": "system",
       "scopes": [
@@ -857,7 +857,7 @@
       "repo_type": "official",
       "version": "5.48",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "File type identification utility",
       "scope": "system",
       "scopes": [
@@ -901,7 +901,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Base Parlex Linux files",
       "scope": "system",
       "scopes": [
@@ -1430,7 +1430,7 @@
       "repo_type": "official",
       "version": "1.15",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "GNU compression utility",
       "scope": "system",
       "scopes": [
@@ -1466,7 +1466,7 @@
       "repo_type": "official",
       "version": "0.412",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Hardware identification databases (pci.ids, usb.ids, etc.)",
       "scope": "system",
       "scopes": [
@@ -1521,7 +1521,7 @@
       "repo_type": "official",
       "version": "7.3.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "IP Routing Utilities (ip, tc, ss, bridge, devlink)",
       "scope": "system",
       "scopes": [
@@ -1558,7 +1558,7 @@
       "repo_type": "official",
       "version": "20250605",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Network monitoring tools, including ping, arping, and tracepath",
       "scope": "system",
       "scopes": [
@@ -2145,7 +2145,7 @@
       "repo_type": "official",
       "version": "4.1.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The Open Source toolkit for cryptography and Transport Layer Security (TLS/SSL)",
       "scope": "system",
       "scopes": [
@@ -2317,7 +2317,7 @@
       "repo_type": "official",
       "version": "3.15.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "PCI bus configuration space access library and tools (lspci, setpci)",
       "scope": "system",
       "scopes": [
@@ -3080,7 +3080,7 @@
       "repo_type": "official",
       "version": "5.8.4",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Library and command line tools for XZ and LZMA compressed files",
       "scope": "system",
       "scopes": [
@@ -3208,7 +3208,7 @@
       "repo_type": "official",
       "version": "1.5.7",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Zstandard - Fast real-time compression algorithm",
       "scope": "system",
       "scopes": [
