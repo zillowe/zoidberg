@@ -1,0 +1,26 @@
+name: zoid-restart
+description: Restarting zoid to load the updated daemon...
+platforms: ["linux"]
+trigger:
+  packages: ["zoid"]
+  paths:
+    - "${usrroot}/usr/bin/zoid"
+    - "${usrroot}/usr/lib/systemd/system/zoid.service"
+  operation: ["install", "upgrade"]
+action:
+  when: PostTransaction
+  exec: |
+    # Only on a booted systemd system; installs into another root (sysroot,
+    # --root, image builds) have no running zoid to restart.
+    if [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; then
+      # The unit file may have changed with the package.
+      systemctl daemon-reload || true
+      if systemctl is-active --quiet zoid.service; then
+        # This transaction may itself be running under zoid (PackageKit,
+        # `zoi system apply`). Restarting now would kill it mid-way, so the
+        # restart is scheduled shortly after the transaction finishes.
+        systemd-run --quiet --collect --on-active=10 \
+          --unit=zoid-restart-after-update \
+          systemctl try-restart zoid.service || true
+      fi
+    fi

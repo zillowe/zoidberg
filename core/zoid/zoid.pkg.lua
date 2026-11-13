@@ -62,7 +62,7 @@ metadata({
 	name = "zoid",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "ZoiOS privileged system daemon",
 	website = "https://zillowe.qzz.io/zds/zoi",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zoi.git",
@@ -105,6 +105,8 @@ end
 function package()
 	zcp("source/zoid", "${usrroot}/usr/bin/zoid")
 	zcp("${pkgluadir}/zoid.service", "${usrroot}/usr/lib/systemd/system/zoid.service")
+	-- Restarts a running zoid after an update so the new daemon is loaded
+	zcp("${pkgluadir}/hooks/zoid-restart.hook.yaml", "${pkgstore}/hooks/zoid-restart.hook.yaml")
 	zman("zoid.8")
 	zlicense("LICENSE")
 end
