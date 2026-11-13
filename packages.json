@@ -2740,7 +2740,7 @@
       "repo_type": "official",
       "version": "262.1",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "System and service manager for Linux",
       "scope": "system",
       "scopes": [
@@ -2758,15 +2758,7 @@
       ],
       "vuln": [],
       "dependencies": {
-        "runtime": [
-          "zoi:@core/glibc",
-          "zoi:@core/systemd:libs",
-          "zoi:@core/bash",
-          "zoi:@core/kmod",
-          "zoi:@core/hwdata",
-          "zoi:@core/util-linux",
-          "zoi:@core/xz"
-        ],
+        "runtime": [],
         "build": [
           {
             "type": "source",
