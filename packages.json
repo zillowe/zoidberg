@@ -443,7 +443,7 @@
       "repo_type": "official",
       "version": "9.12",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "The basic file, shell and text manipulation utilities of the GNU operating system",
       "scope": "system",
       "scopes": [
@@ -1210,7 +1210,7 @@
       "repo_type": "official",
       "version": "2.44+r50+g1848099f063e",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "GNU C Library for Parlex Linux",
       "scope": "system",
       "scopes": [
@@ -2612,7 +2612,7 @@
       "repo_type": "official",
       "version": "4.20.0",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
