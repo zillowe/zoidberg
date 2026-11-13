@@ -9,7 +9,13 @@ metadata({
 	name = "grub",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
+	-- GRUB's modules and kernel images are loaded and relocated by GRUB
+	-- itself, which needs their symbols; only the host tools are stripped.
+	debug = {
+		sub_package = true,
+		exclude = { "usr/lib/grub/**" },
+	},
 	description = "GNU GRand Unified Bootloader (2)",
 	website = "https://www.gnu.org/software/grub/",
 	license = "GPL-3.0-or-later",

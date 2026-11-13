@@ -174,7 +174,7 @@ generate-child:
             "    PKG_VERSION: \"$PKG_VERSION\"" \
             "  before_script:" \
             "    - |" \
-            "      pacman -Syu --noconfirm curl git bash gnupg zstd coreutils jq bubblewrap" \
+            "      pacman -Syu --noconfirm curl git bash gnupg zstd coreutils jq bubblewrap binutils" \
             "      git config --system --add safe.directory '*'" \
             "      curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
             '      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \

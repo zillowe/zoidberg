@@ -6,7 +6,21 @@ metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
+	-- The dynamic loader, libc and libthread_db keep their symbols and debug
+	-- info: valgrind needs the loader's symbols and gdb needs libthread_db's
+	-- to debug threads.
+	debug = {
+		sub_package = true,
+		exclude = {
+			"usr/lib/ld-linux*.so*",
+			"usr/lib/libc.so*",
+			"usr/lib/libthread_db.so*",
+			"usr/lib32/ld-linux*.so*",
+			"usr/lib32/libc.so*",
+			"usr/lib32/libthread_db.so*",
+		},
+	},
 	description = "GNU C Library for Parlex Linux",
 	website = "https://www.gnu.org/software/libc",
 	license = "GPL-2.0-or-later AND LGPL-2.1-or-later",
