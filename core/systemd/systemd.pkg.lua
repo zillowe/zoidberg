@@ -6,7 +6,7 @@ metadata({
 	name = "systemd",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	debug = { sub_package = true },
 	description = "System and service manager for Linux",
 	website = "https://systemd.io",
@@ -157,15 +157,8 @@ dependencies({
 		},
 	},
 	runtime = {
-		required = {
-			"zoi:@core/glibc",
-			"zoi:@core/systemd:libs",
-			"zoi:@core/bash",
-			"zoi:@core/kmod",
-			"zoi:@core/hwdata",
-			"zoi:@core/util-linux",
-			"zoi:@core/xz",
-		},
+		-- No shared top-level list: it applies to every sub-package, which made
+		-- systemd:libs depend on itself and on util-linux, kmod and hwdata.
 		sub_packages = {
 			main = {
 				required = {
