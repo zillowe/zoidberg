@@ -1,5 +1,5 @@
 local version = ZOI.VERSION or "10.6p1"
-local tar_url = string.format("https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%s.tar.gz", version)
+local tar_url = string.format("https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%s.tar.gz", version)
 
 metadata({
 	name = "openssh",
@@ -75,8 +75,11 @@ dependencies({
 function prepare()
 	cmd(string.format(
 		[[
+		set -e
 		if [ ! -d "openssh-%s" ]; then
-			curl -sSL "%s" | tar -xz
+			curl -fsSL --retry 5 -o openssh.tar.gz "%s"
+			tar -xzf openssh.tar.gz
+			rm -f openssh.tar.gz
 		fi
 
 		cd "openssh-%s"
