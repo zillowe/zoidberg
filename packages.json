@@ -6,7 +6,7 @@
       "repo_type": "official",
       "version": "2.4.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Access control list utilities, libraries and headers",
       "scope": "system",
       "scopes": [
@@ -42,7 +42,7 @@
       "repo_type": "official",
       "version": "2.6.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Extended attribute support library for ACL support",
       "scope": "system",
       "scopes": [
@@ -77,7 +77,7 @@
       "repo_type": "official",
       "version": "4.2.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Userspace components of the audit framework",
       "scope": "system",
       "scopes": [
@@ -118,7 +118,7 @@
       "repo_type": "official",
       "version": "2.73",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A GNU tool for automatically configuring source code",
       "scope": "system",
       "scopes": [
@@ -156,7 +156,7 @@
       "repo_type": "official",
       "version": "1.19",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A GNU tool for automatically creating Makefiles",
       "scope": "system",
       "scopes": [
@@ -192,7 +192,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Minimal userland for Parlex Linux and isolated (--pure) build roots",
       "scope": "system",
       "scopes": [
@@ -217,7 +217,7 @@
       "repo_type": "official",
       "version": "5.3.20",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "The GNU Bourne Again shell",
       "scope": "system",
       "scopes": [
@@ -256,7 +256,7 @@
       "repo_type": "official",
       "version": "2.47",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A set of programs to assemble and manipulate binary and object files",
       "scope": "system",
       "scopes": [
@@ -298,7 +298,7 @@
       "repo_type": "official",
       "version": "3.8.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The GNU general-purpose parser generator",
       "scope": "system",
       "scopes": [
@@ -338,7 +338,7 @@
       "repo_type": "official",
       "version": "0.13.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Unprivileged sandboxing tool",
       "scope": "system",
       "scopes": [
@@ -377,7 +377,7 @@
       "repo_type": "official",
       "version": "1.0.8",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A high-quality data compression program",
       "scope": "system",
       "scopes": [
@@ -410,7 +410,7 @@
       "repo_type": "official",
       "version": "20240618",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Common CA certificates and trust management utilities",
       "scope": "system",
       "scopes": [
@@ -443,7 +443,7 @@
       "repo_type": "official",
       "version": "9.12",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "The basic file, shell and text manipulation utilities of the GNU operating system",
       "scope": "system",
       "scopes": [
@@ -487,7 +487,7 @@
       "repo_type": "official",
       "version": "2.15",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A tool to copy files into or out of a cpio or tar archive",
       "scope": "system",
       "scopes": [
@@ -525,7 +525,7 @@
       "repo_type": "official",
       "version": "8.23.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Command line tool and library for transferring data with URLs",
       "scope": "system",
       "scopes": [
@@ -570,7 +570,7 @@
       "repo_type": "official",
       "version": "5.4",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Tool to mangle source locations in .debug files",
       "scope": "system",
       "scopes": [
@@ -616,7 +616,7 @@
       "repo_type": "official",
       "version": "3.12",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Utility programs used for creating patch files",
       "scope": "system",
       "scopes": [
@@ -659,7 +659,7 @@
       "repo_type": "official",
       "version": "111",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "An event driven initramfs infrastructure",
       "scope": "system",
       "scopes": [
@@ -703,7 +703,7 @@
       "repo_type": "official",
       "version": "18",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Linux user-space application to modify the EFI Boot Manager",
       "scope": "system",
       "scopes": [
@@ -737,7 +737,7 @@
       "repo_type": "official",
       "version": "0.197",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Handle ELF object files and DWARF debugging information",
       "scope": "system",
       "scopes": [
@@ -784,7 +784,7 @@
       "repo_type": "official",
       "version": "2.10.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "An XML parser library",
       "scope": "system",
       "scopes": [
@@ -816,7 +816,7 @@
       "repo_type": "official",
       "version": "1.37.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Tool for simulating superuser privileges",
       "scope": "system",
       "scopes": [
@@ -857,7 +857,7 @@
       "repo_type": "official",
       "version": "5.48",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "File type identification utility",
       "scope": "system",
       "scopes": [
@@ -901,7 +901,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Base Parlex Linux files",
       "scope": "system",
       "scopes": [
@@ -923,7 +923,7 @@
       "repo_type": "official",
       "version": "4.11.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "GNU utilities to locate files (find, xargs)",
       "scope": "system",
       "scopes": [
@@ -960,7 +960,7 @@
       "repo_type": "official",
       "version": "2.6.4",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A tool for generating text-scanning programs",
       "scope": "system",
       "scopes": [
@@ -1001,7 +1001,7 @@
       "repo_type": "official",
       "version": "5.4.1",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "GNU version of awk",
       "scope": "system",
       "scopes": [
@@ -1038,7 +1038,7 @@
       "repo_type": "official",
       "version": "16.2.1+r23+gd564253eb6c8",
       "epoch": 0,
-      "revision": "8",
+      "revision": "9",
       "description": "The GNU Compiler Collection - C and C++ frontends and runtimes",
       "scope": "system",
       "scopes": [
@@ -1121,7 +1121,7 @@
       "repo_type": "official",
       "version": "1.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU internationalization and localization system",
       "scope": "system",
       "scopes": [
@@ -1160,7 +1160,7 @@
       "repo_type": "official",
       "version": "2.56.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The fast distributed version control system",
       "scope": "system",
       "scopes": [
@@ -1210,7 +1210,7 @@
       "repo_type": "official",
       "version": "2.44+r50+g1848099f063e",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "GNU C Library for Parlex Linux",
       "scope": "system",
       "scopes": [
@@ -1258,7 +1258,7 @@
       "repo_type": "official",
       "version": "6.3.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A free library for arbitrary precision arithmetic",
       "scope": "system",
       "scopes": [
@@ -1299,7 +1299,7 @@
       "repo_type": "official",
       "version": "3.12",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "A string search utility",
       "scope": "system",
       "scopes": [
@@ -1336,7 +1336,7 @@
       "repo_type": "official",
       "version": "1.24.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU troff text-formatting system",
       "scope": "system",
       "scopes": [
@@ -1380,7 +1380,7 @@
       "repo_type": "official",
       "version": "2.16",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "GNU GRand Unified Bootloader (2)",
       "scope": "system",
       "scopes": [
@@ -1430,7 +1430,7 @@
       "repo_type": "official",
       "version": "1.15",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "GNU compression utility",
       "scope": "system",
       "scopes": [
@@ -1466,7 +1466,7 @@
       "repo_type": "official",
       "version": "0.412",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Hardware identification databases (pci.ids, usb.ids, etc.)",
       "scope": "system",
       "scopes": [
@@ -1494,7 +1494,7 @@
       "repo_type": "official",
       "version": "2026.10.30",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "/etc/protocols and /etc/services provided by IANA",
       "scope": "system",
       "scopes": [
@@ -1521,7 +1521,7 @@
       "repo_type": "official",
       "version": "7.3.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "IP Routing Utilities (ip, tc, ss, bridge, devlink)",
       "scope": "system",
       "scopes": [
@@ -1558,7 +1558,7 @@
       "repo_type": "official",
       "version": "20250605",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Network monitoring tools, including ping, arping, and tracepath",
       "scope": "system",
       "scopes": [
@@ -1594,7 +1594,7 @@
       "repo_type": "official",
       "version": "34.3",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Linux kernel module management tools and library (modprobe, lsmod, depmod)",
       "scope": "system",
       "scopes": [
@@ -1636,7 +1636,7 @@
       "repo_type": "official",
       "version": "2.78",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "POSIX 1003.1e capabilities",
       "scope": "system",
       "scopes": [
@@ -1673,7 +1673,7 @@
       "repo_type": "official",
       "version": "0.9.6",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A library for Linux that makes using posix capabilities easy",
       "scope": "system",
       "scopes": [
@@ -1709,7 +1709,7 @@
       "repo_type": "official",
       "version": "0.28",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Library for manipulating sets and relations of integer points bounded by linear constraints",
       "scope": "system",
       "scopes": [
@@ -1745,7 +1745,7 @@
       "repo_type": "official",
       "version": "1.4.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Library for the arithmetic of complex numbers with arbitrarily high precision",
       "scope": "system",
       "scopes": [
@@ -1782,7 +1782,7 @@
       "repo_type": "official",
       "version": "2.6.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A generic library support script",
       "scope": "system",
       "scopes": [
@@ -1821,7 +1821,7 @@
       "repo_type": "official",
       "version": "4.5.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Modern library for one-way hashing of passwords",
       "scope": "system",
       "scopes": [
@@ -1861,7 +1861,7 @@
       "repo_type": "official",
       "version": "7.2.14.parlex.1",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "The Linux kernel and modules (Parlex Linux)",
       "scope": "system",
       "scopes": [
@@ -1917,7 +1917,7 @@
       "repo_type": "official",
       "version": "20261019",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Firmware files for Linux",
       "scope": "system",
       "scopes": [
@@ -1956,7 +1956,7 @@
       "repo_type": "official",
       "version": "1.4.21",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The GNU macro processor",
       "scope": "system",
       "scopes": [
@@ -1998,7 +1998,7 @@
       "repo_type": "official",
       "version": "4.4.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU make utility to maintain groups of programs",
       "scope": "system",
       "scopes": [
@@ -2031,7 +2031,7 @@
       "repo_type": "official",
       "version": "4.2.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Multiple-precision floating-point library",
       "scope": "system",
       "scopes": [
@@ -2070,7 +2070,7 @@
       "repo_type": "official",
       "version": "6.6",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "System V Release 4.0 curses emulation library",
       "scope": "system",
       "scopes": [
@@ -2105,7 +2105,7 @@
       "repo_type": "official",
       "version": "10.6p1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "SSH protocol implementation for remote login, command execution and file transfer",
       "scope": "system",
       "scopes": [
@@ -2145,7 +2145,7 @@
       "repo_type": "official",
       "version": "4.1.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "The Open Source toolkit for cryptography and Transport Layer Security (TLS/SSL)",
       "scope": "system",
       "scopes": [
@@ -2182,7 +2182,7 @@
       "repo_type": "official",
       "version": "1.7.3",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "PAM (Pluggable Authentication Modules) library",
       "scope": "system",
       "scopes": [
@@ -2231,7 +2231,7 @@
       "repo_type": "official",
       "version": "20260616",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Base PAM configuration for services",
       "scope": "system",
       "scopes": [
@@ -2247,7 +2247,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Package set for a bootable Parlex Linux installation",
       "scope": "system",
       "scopes": [
@@ -2276,7 +2276,7 @@
       "repo_type": "official",
       "version": "2.8.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A utility to apply patch files to original sources",
       "scope": "system",
       "scopes": [
@@ -2317,7 +2317,7 @@
       "repo_type": "official",
       "version": "3.15.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "PCI bus configuration space access library and tools (lspci, setpci)",
       "scope": "system",
       "scopes": [
@@ -2352,7 +2352,7 @@
       "repo_type": "official",
       "version": "10.49",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A library that implements Perl 5-style regular expressions. 2nd version",
       "scope": "system",
       "scopes": [
@@ -2392,7 +2392,7 @@
       "repo_type": "official",
       "version": "5.44.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A highly capable, feature-rich programming language",
       "scope": "system",
       "scopes": [
@@ -2425,7 +2425,7 @@
       "repo_type": "official",
       "version": "3.0.10",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Package compiler and linker metadata toolkit",
       "scope": "system",
       "scopes": [
@@ -2457,7 +2457,7 @@
       "repo_type": "official",
       "version": "4.0.7",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Utilities for monitoring your system and its processes (ps, top, free, etc.)",
       "scope": "system",
       "scopes": [
@@ -2498,7 +2498,7 @@
       "repo_type": "official",
       "version": "23.7",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Miscellaneous procfs tools (fuser, killall, pstree)",
       "scope": "system",
       "scopes": [
@@ -2537,7 +2537,7 @@
       "repo_type": "official",
       "version": "8.3.6",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU readline library",
       "scope": "system",
       "scopes": [
@@ -2573,7 +2573,7 @@
       "repo_type": "official",
       "version": "4.10",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "GNU stream editor",
       "scope": "system",
       "scopes": [
@@ -2612,7 +2612,7 @@
       "repo_type": "official",
       "version": "4.20.0",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
@@ -2664,7 +2664,7 @@
       "repo_type": "official",
       "version": "3.54.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A C library that implements an SQL database engine",
       "scope": "system",
       "scopes": [
@@ -2701,7 +2701,7 @@
       "repo_type": "official",
       "version": "1.9.17.p2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Give certain users the ability to run some commands as root",
       "scope": "system",
       "scopes": [
@@ -2740,7 +2740,7 @@
       "repo_type": "official",
       "version": "262.1",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "System and service manager for Linux",
       "scope": "system",
       "scopes": [
@@ -2836,7 +2836,7 @@
       "repo_type": "official",
       "version": "1.35",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Utility used to store, backup, and transport files",
       "scope": "system",
       "scopes": [
@@ -2880,7 +2880,7 @@
       "repo_type": "official",
       "version": "7.3",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU documentation system for on-line information and printed output",
       "scope": "system",
       "scopes": [
@@ -2919,7 +2919,7 @@
       "repo_type": "official",
       "version": "2.42.4",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Miscellaneous system utilities for Linux",
       "scope": "system",
       "scopes": [
@@ -2973,7 +2973,7 @@
       "repo_type": "official",
       "version": "1.25.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Network utility to retrieve files from the web",
       "scope": "system",
       "scopes": [
@@ -3016,7 +3016,7 @@
       "repo_type": "official",
       "version": "2.25",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A utility to show the full path of commands",
       "scope": "system",
       "scopes": [
@@ -3049,7 +3049,7 @@
       "repo_type": "official",
       "version": "0.8.4",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Extremely fast non-cryptographic hash algorithm",
       "scope": "system",
       "scopes": [
@@ -3080,7 +3080,7 @@
       "repo_type": "official",
       "version": "5.8.4",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Library and command line tools for XZ and LZMA compressed files",
       "scope": "system",
       "scopes": [
@@ -3118,7 +3118,7 @@
       "repo_type": "official",
       "version": "1.3.2",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Compression library implementing the deflate compression method found in gzip and PKZIP",
       "scope": "system",
       "scopes": [
@@ -3162,7 +3162,7 @@
       "repo_type": "official",
       "version": "1.29.9",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Advanced Package Manager & Environment Orchestrator",
       "scope": "system",
       "scopes": [
@@ -3186,7 +3186,7 @@
       "repo_type": "official",
       "version": "1.29.9",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "ZoiOS privileged system daemon",
       "scope": "system",
       "scopes": [
@@ -3208,7 +3208,7 @@
       "repo_type": "official",
       "version": "1.5.7",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Zstandard - Fast real-time compression algorithm",
       "scope": "system",
       "scopes": [
