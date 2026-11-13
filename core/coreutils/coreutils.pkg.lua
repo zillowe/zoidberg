@@ -5,7 +5,7 @@ metadata({
 	name = "coreutils",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "The basic file, shell and text manipulation utilities of the GNU operating system",
 	website = "https://www.gnu.org/software/coreutils/",
@@ -227,6 +227,8 @@ function package()
 		mkdir -p "$ROOT"
 
 		make -C "coreutils-%s" DESTDIR="$ROOT" install
+		# The Info index is generated on the target, never shipped.
+		rm -f "$ROOT/usr/share/info/dir"
 	]],
 		root,
 		version

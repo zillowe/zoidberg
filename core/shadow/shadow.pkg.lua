@@ -5,7 +5,7 @@ metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	debug = { sub_package = true },
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
@@ -171,6 +171,13 @@ function package()
 
 		make -C "shadow-%s" DESTDIR="$ROOT" install
 		make -C "shadow-%s/man" DESTDIR="$ROOT" install 2>/dev/null || true
+
+		# util-linux provides these, as on Arch; shipping both is a file
+		# conflict between the two packages.
+		rm -f "$ROOT"/usr/bin/{chfn,chsh,login,newgrp}
+		rm -f "$ROOT"/etc/pam.d/{chfn,chsh,login}
+		rm -f "$ROOT"/usr/share/man/man1/{chfn,chsh,login,newgrp}.1
+		rm -f "$ROOT"/usr/share/man/man8/{nologin,vipw,vigr}.8
 
 		install -m644 "shadow-%s/COPYING" "$ROOT/usr/share/licenses/shadow/COPYING" 2>/dev/null || true
 		install -m600 "${PKGLUADIR}/useradd.defaults" "$ROOT/etc/default/useradd"

@@ -6,7 +6,7 @@ metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	-- The dynamic loader, libc and libthread_db keep their symbols and debug
 	-- info: valgrind needs the loader's symbols and gdb needs libthread_db's
 	-- to debug threads.
@@ -200,6 +200,8 @@ function package(args)
 			mkdir -p "$ROOT"
 
 			make -C glibc-build DESTDIR="$ROOT" install
+			# The Info index is generated on the target, never shipped.
+			rm -f "$ROOT/usr/share/info/dir"
 			rm -f "$ROOT/etc/ld.so.cache"
 			rm -f "$ROOT"/usr/bin/{tzselect,zdump,zic}
 
