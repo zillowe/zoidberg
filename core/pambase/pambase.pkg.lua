@@ -4,7 +4,7 @@ metadata({
 	name = "pambase",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Base PAM configuration for services",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "GPL-3.0-or-later",

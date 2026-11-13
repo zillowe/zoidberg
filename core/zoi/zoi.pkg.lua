@@ -70,7 +70,7 @@ metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zoi.git",

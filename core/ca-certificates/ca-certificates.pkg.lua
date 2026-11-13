@@ -4,7 +4,7 @@ metadata({
 	name = "ca-certificates",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Common CA certificates and trust management utilities",
 	website = "https://src.fedoraproject.org/rpms/ca-certificates",
 	license = "GPL-2.0-or-later",

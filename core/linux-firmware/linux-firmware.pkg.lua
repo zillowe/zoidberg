@@ -6,7 +6,7 @@ metadata({
 	name = "linux-firmware",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	-- Firmware blobs can be ELF files for other processors (DSPs, Wi-Fi and
 	-- GPU microcontrollers) and must reach the device byte-for-byte.
 	debug = { strip = "none" },

@@ -4,7 +4,7 @@ metadata({
 	name = "autoconf",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "A GNU tool for automatically configuring source code",
 	website = "https://www.gnu.org/software/autoconf",
 	license = "GPL-2.0-or-later AND GPL-3.0-or-later WITH Autoconf-exception-3.0",

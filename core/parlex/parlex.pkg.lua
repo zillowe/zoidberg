@@ -4,7 +4,7 @@ metadata({
 	name = "parlex",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Package set for a bootable Parlex Linux installation",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",

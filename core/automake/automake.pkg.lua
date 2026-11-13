@@ -4,7 +4,7 @@ metadata({
 	name = "automake",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "A GNU tool for automatically creating Makefiles",
 	website = "https://www.gnu.org/software/automake",
 	license = "GPL-2.0-or-later",
