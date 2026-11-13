@@ -6,7 +6,7 @@ metadata({
 	name = "gcc",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "8",
 	description = "The GNU Compiler Collection - C and C++ frontends and runtimes",
 	website = "https://gcc.gnu.org",
 	license = "GPL-3.0-or-later WITH GCC-exception-3.1 AND GFDL-1.3-or-later",
@@ -429,12 +429,17 @@ function build()
 		make -C gcc-build DESTDIR="$SPLIT_ROOT" install
 		make -C gcc-build/gcc DESTDIR="$SPLIT_ROOT" jit.install-common jit.install-info
 
+		# Absolute destination, fixed here: _pick runs from inside SPLIT_ROOT,
+		# where $(pwd) would put the picked files back into the staging root
+		# (and so into the main package) instead of split/<sub>.
+		SPLIT_DIR="$(pwd)/split"
+
 		_pick() {
 			local p="$1"; shift
 			for f in "$@"; do
 				[ -e "$f" ] || [ -L "$f" ] || continue
 				local rel="${f#$SPLIT_ROOT/}"
-				local d="$(pwd)/split/$p/$rel"
+				local d="$SPLIT_DIR/$p/$rel"
 				mkdir -p "$(dirname "$d")"
 				mv "$f" "$d"
 				rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")" 2>/dev/null || true
