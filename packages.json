@@ -1210,7 +1210,7 @@
       "repo_type": "official",
       "version": "2.44+r50+g1848099f063e",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "GNU C Library for Parlex Linux",
       "scope": "system",
       "scopes": [
