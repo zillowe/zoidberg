@@ -6,7 +6,7 @@ metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	-- The dynamic loader, libc and libthread_db keep their symbols and debug
 	-- info: valgrind needs the loader's symbols and gdb needs libthread_db's
 	-- to debug threads.
@@ -231,11 +231,11 @@ function package(args)
 			install -m644 "${PKGLUADIR}/tunables.conf" "$ROOT/etc/tunables.conf"
 			install -m644 "${PKGLUADIR}/shstk.conf" "$ROOT/etc/tunables.conf.d/shstk.conf"
 
-			# Ensure standard /lib64 interpreter symlink for x86_64
-			if [ "$(uname -m)" = "x86_64" ]; then
-				mkdir -p "$ROOT/lib64"
-				ln -sf ../usr/lib/ld-linux-x86-64.so.2 "$ROOT/lib64/ld-linux-x86-64.so.2"
-			fi
+			# No lib64/ here: @core/filesystem makes /lib64 a symlink to usr/lib,
+			# so /lib64/ld-linux-x86-64.so.2 already resolves to the real loader.
+			# Shipping lib64/ld-linux-x86-64.so.2 -> ../usr/lib/... wrote that
+			# symlink through /lib64 onto the loader itself, breaking every
+			# program in the system.
 		]],
 			root,
 			pkgdir
