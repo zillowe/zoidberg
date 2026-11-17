@@ -6,7 +6,7 @@ metadata({
 	name = "util-linux",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	debug = { sub_package = true },
 	description = "Miscellaneous system utilities for Linux",
 	website = "https://github.com/util-linux/util-linux",
@@ -241,7 +241,7 @@ function build()
 			-Dbuild-line=disabled \
 			-Dbuild-mesg=enabled \
 			-Dbuild-newgrp=enabled \
-			-Dbuild-vipw=enabled \
+			-Dbuild-vipw=disabled \
 			-Dbuild-write=enabled
 
 		meson compile -C build -j"$(nproc)"
@@ -263,6 +263,14 @@ function package(args)
 
 			# Remove static libraries
 			rm -f "$ROOT"/usr/lib/lib*.a
+
+			# /usr/sbin is a symlink to bin on Parlex (merged /usr). Files recorded
+			# under sbin would hide conflicts with packages using bin.
+			if [ -d "$ROOT/usr/sbin" ] && [ ! -L "$ROOT/usr/sbin" ]; then
+				mkdir -p "$ROOT/usr/bin"
+				mv "$ROOT"/usr/sbin/* "$ROOT"/usr/bin/
+				rmdir "$ROOT/usr/sbin"
+			fi
 
 			# Stash runtime libraries for the libs subpackage
 			mkdir -p split_libs/lib split_libs/include split_libs/man3

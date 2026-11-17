@@ -5,7 +5,7 @@ metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "8",
 	debug = { sub_package = true },
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
@@ -173,11 +173,19 @@ function package()
 		make -C "shadow-%s/man" DESTDIR="$ROOT" install 2>/dev/null || true
 
 		# util-linux provides these, as on Arch; shipping both is a file
-		# conflict between the two packages.
-		rm -f "$ROOT"/usr/bin/{chfn,chsh,login,newgrp}
+		# conflict between the two packages. shadow keeps vipw and vigr.
+		rm -f "$ROOT"/usr/bin/{chfn,chsh,login,newgrp,nologin}
 		rm -f "$ROOT"/etc/pam.d/{chfn,chsh,login}
 		rm -f "$ROOT"/usr/share/man/man1/{chfn,chsh,login,newgrp}.1
-		rm -f "$ROOT"/usr/share/man/man8/{nologin,vipw,vigr}.8
+		rm -f "$ROOT"/usr/share/man/man8/nologin.8
+
+		# /usr/sbin is a symlink to bin on Parlex (merged /usr). Files recorded
+		# under sbin would hide conflicts with packages using bin.
+		if [ -d "$ROOT/usr/sbin" ] && [ ! -L "$ROOT/usr/sbin" ]; then
+			mkdir -p "$ROOT/usr/bin"
+			mv "$ROOT"/usr/sbin/* "$ROOT"/usr/bin/
+			rmdir "$ROOT/usr/sbin"
+		fi
 
 		install -m644 "shadow-%s/COPYING" "$ROOT/usr/share/licenses/shadow/COPYING" 2>/dev/null || true
 		install -m600 "${PKGLUADIR}/useradd.defaults" "$ROOT/etc/default/useradd"
