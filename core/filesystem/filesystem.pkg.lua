@@ -4,7 +4,7 @@ metadata({
 	name = "filesystem",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "Base Parlex Linux files",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "0BSD",
@@ -58,7 +58,8 @@ end
 
 function package()
 	-- - Directories
-	-- Format: { [path] = { mode, user, group } }
+	-- Format: { [path] = { mode, user, group } }; modes are octal strings,
+	-- converted with tonumber(mode, 8) (a bare "0755" would be decimal 755).
 	local directories = {
 		["boot"] = { "0755", "root", "root" },
 		["dev"] = { "0755", "root", "root" },
@@ -117,7 +118,7 @@ function package()
 	for path, perms in pairs(directories) do
 		local full_path = "${usrroot}/" .. path
 		zmkdir(full_path)
-		zchmod(full_path, perms[1])
+		zchmod(full_path, tonumber(perms[1], 8))
 		zchown(full_path, perms[2], perms[3])
 	end
 
@@ -205,7 +206,7 @@ function package()
 		local src, mode, user, group = info[1], info[2], info[3], info[4]
 		local final_dest = "${usrroot}/" .. dest
 		zcp("${pkgluadir}/" .. src, final_dest)
-		zchmod(final_dest, mode)
+		zchmod(final_dest, tonumber(mode, 8))
 		zchown(final_dest, user, group)
 	end
 
