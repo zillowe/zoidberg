@@ -901,7 +901,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Base Parlex Linux files",
       "scope": "system",
       "scopes": [
