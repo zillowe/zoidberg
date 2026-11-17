@@ -2612,7 +2612,7 @@
       "repo_type": "official",
       "version": "4.20.0",
       "epoch": 0,
-      "revision": "7",
+      "revision": "8",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
@@ -2911,7 +2911,7 @@
       "repo_type": "official",
       "version": "2.42.4",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "Miscellaneous system utilities for Linux",
       "scope": "system",
       "scopes": [
