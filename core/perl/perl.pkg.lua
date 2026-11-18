@@ -5,7 +5,7 @@ metadata({
 	name = "perl",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "A highly capable, feature-rich programming language",
 	website = "https://www.perl.org",
@@ -97,6 +97,9 @@ function build()
 		cp "$PKGLUADIR/config.over" .
 
 		export TZ=UTC
+		# The man directories are set explicitly: -des otherwise looks for one
+		# on the build machine, and the minimal CI image has none, so every
+		# man page was installed into / as <name>.0.
 		./Configure -des -Dusethreads -Duseshrplib \
 			-Doptimize="${CFLAGS:--O2 -pipe}" \
 			-Dprefix=/usr -Dvendorprefix=/usr \
@@ -110,6 +113,9 @@ function build()
 			-Dsitescript=/usr/bin/site_perl \
 			-Dvendorscript=/usr/bin/vendor_perl \
 			-Dinc_version_list=none \
+			-Dman1dir=/usr/share/man/man1 -Dman3dir=/usr/share/man/man3 \
+			-Dsiteman1dir=/usr/share/man/man1 -Dsiteman3dir=/usr/share/man/man3 \
+			-Dvendorman1dir=/usr/share/man/man1 -Dvendorman3dir=/usr/share/man/man3 \
 			-Dman1ext=1perl -Dman3ext=3perl \
 			-Dlddlflags="-shared ${LDFLAGS:-}" -Dldflags="${LDFLAGS:-}" \
 			-Dnoextensions='DB_File GDBM_File NDBM_File ODBM_File'
