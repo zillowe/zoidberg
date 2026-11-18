@@ -6,7 +6,7 @@ metadata({
 	name = "hwdata",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "Hardware identification databases (pci.ids, usb.ids, etc.)",
 	website = "https://github.com/vcrhonek/hwdata",
 	license = "GPL-2.0-or-later",

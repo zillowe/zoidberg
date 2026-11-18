@@ -4,7 +4,7 @@ metadata({
 	name = "base",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "Minimal userland for Parlex Linux and isolated (--pure) build roots",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
