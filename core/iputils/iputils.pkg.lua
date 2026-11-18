@@ -6,7 +6,7 @@ metadata({
 	name = "iputils",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Network monitoring tools, including ping, arping, and tracepath",
 	website = "https://github.com/iputils/iputils",

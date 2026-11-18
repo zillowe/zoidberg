@@ -4,7 +4,7 @@ metadata({
 	name = "libmpc",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "Library for the arithmetic of complex numbers with arbitrarily high precision",
 	website = "https://www.multiprecision.org/",

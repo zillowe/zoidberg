@@ -4,7 +4,7 @@ metadata({
 	name = "pam",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "PAM (Pluggable Authentication Modules) library",
 	website = "https://github.com/linux-pam/linux-pam",

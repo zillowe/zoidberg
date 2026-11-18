@@ -6,7 +6,7 @@ metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	-- The dynamic loader, libc and libthread_db keep their symbols and debug
 	-- info: valgrind needs the loader's symbols and gdb needs libthread_db's
 	-- to debug threads.

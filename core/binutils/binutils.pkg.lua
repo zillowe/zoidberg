@@ -7,7 +7,7 @@ metadata({
 	name = "binutils",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "A set of programs to assemble and manipulate binary and object files",
 	website = "https://www.gnu.org/software/binutils/",

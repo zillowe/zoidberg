@@ -5,7 +5,7 @@ metadata({
 	name = "zlib",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Compression library implementing the deflate compression method found in gzip and PKZIP",
 	website = "https://www.zlib.net/",

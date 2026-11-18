@@ -6,7 +6,7 @@ metadata({
 	name = "gcc",
 	repo = "core",
 	version = version,
-	revision = "9",
+	revision = "10",
 	debug = { sub_package = true },
 	description = "The GNU Compiler Collection - C and C++ frontends and runtimes",
 	website = "https://gcc.gnu.org",

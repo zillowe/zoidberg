@@ -6,7 +6,7 @@ metadata({
 	name = "util-linux",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "8",
 	debug = { sub_package = true },
 	description = "Miscellaneous system utilities for Linux",
 	website = "https://github.com/util-linux/util-linux",

@@ -4,7 +4,7 @@ metadata({
 	name = "cpio",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "A tool to copy files into or out of a cpio or tar archive",
 	website = "https://www.gnu.org/software/cpio",

@@ -5,7 +5,7 @@ metadata({
 	name = "elfutils",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "Handle ELF object files and DWARF debugging information",
 	website = "https://sourceware.org/elfutils/",

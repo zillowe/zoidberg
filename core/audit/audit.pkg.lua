@@ -4,7 +4,7 @@ metadata({
 	name = "audit",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "Userspace components of the audit framework",
 	website = "https://github.com/linux-audit/audit-userspace",

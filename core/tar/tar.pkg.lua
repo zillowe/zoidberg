@@ -5,7 +5,7 @@ metadata({
 	name = "tar",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "Utility used to store, backup, and transport files",
 	website = "https://www.gnu.org/software/tar/",

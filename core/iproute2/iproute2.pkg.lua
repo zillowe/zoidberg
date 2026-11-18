@@ -6,7 +6,7 @@ metadata({
 	name = "iproute2",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "IP Routing Utilities (ip, tc, ss, bridge, devlink)",
 	website = "https://wiki.linuxfoundation.org/networking/iproute2",

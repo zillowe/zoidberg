@@ -7,7 +7,7 @@ metadata({
 	name = "fakeroot",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "Tool for simulating superuser privileges",
 	website = "https://tracker.debian.org/pkg/fakeroot",

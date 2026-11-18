@@ -6,7 +6,7 @@ metadata({
 	name = "pciutils",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "PCI bus configuration space access library and tools (lspci, setpci)",
 	website = "https://mj.ucw.cz/sw/pciutils/",

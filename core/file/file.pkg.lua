@@ -6,7 +6,7 @@ metadata({
 	name = "file",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "File type identification utility",
 	website = "https://www.darwinsys.com/file/",

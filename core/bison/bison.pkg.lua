@@ -4,7 +4,7 @@ metadata({
 	name = "bison",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "The GNU general-purpose parser generator",
 	website = "https://www.gnu.org/software/bison/bison.html",

@@ -12,7 +12,7 @@ metadata({
 	name = "readline",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "GNU readline library",
 	website = "https://tiswww.case.edu/php/chet/readline/rltop.html",

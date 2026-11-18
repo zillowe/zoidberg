@@ -6,7 +6,7 @@ metadata({
 	name = "systemd",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "8",
 	debug = { sub_package = true },
 	description = "System and service manager for Linux",
 	website = "https://systemd.io",

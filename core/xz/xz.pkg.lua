@@ -6,7 +6,7 @@ metadata({
 	name = "xz",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Library and command line tools for XZ and LZMA compressed files",
 	website = "https://tukaani.org/xz/",

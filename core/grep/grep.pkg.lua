@@ -5,7 +5,7 @@ metadata({
 	name = "grep",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "A string search utility",
 	website = "https://www.gnu.org/software/grep/",

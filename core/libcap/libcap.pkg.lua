@@ -4,7 +4,7 @@ metadata({
 	name = "libcap",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "POSIX 1003.1e capabilities",
 	website = "https://sites.google.com/site/fullycapable/",

@@ -12,7 +12,7 @@ metadata({
 	name = "bash",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "The GNU Bourne Again shell",
 	website = "https://www.gnu.org/software/bash/bash.html",

@@ -4,7 +4,7 @@ metadata({
 	name = "libcap-ng",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "A library for Linux that makes using posix capabilities easy",
 	website = "https://people.redhat.com/sgrubb/libcap-ng/",

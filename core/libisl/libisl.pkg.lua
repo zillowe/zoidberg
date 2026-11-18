@@ -4,7 +4,7 @@ metadata({
 	name = "libisl",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "Library for manipulating sets and relations of integer points bounded by linear constraints",
 	website = "https://libisl.sourceforge.io",

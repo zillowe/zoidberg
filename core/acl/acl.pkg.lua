@@ -4,7 +4,7 @@ metadata({
 	name = "acl",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "Access control list utilities, libraries and headers",
 	website = "https://savannah.nongnu.org/projects/acl",

@@ -5,7 +5,7 @@ metadata({
 	name = "coreutils",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	debug = { sub_package = true },
 	description = "The basic file, shell and text manipulation utilities of the GNU operating system",
 	website = "https://www.gnu.org/software/coreutils/",

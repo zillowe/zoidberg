@@ -12,7 +12,7 @@ metadata({
 	name = "sqlite",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "A C library that implements an SQL database engine",
 	website = "https://www.sqlite.org/",

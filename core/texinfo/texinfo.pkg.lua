@@ -4,7 +4,7 @@ metadata({
 	name = "texinfo",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "GNU documentation system for on-line information and printed output",
 	website = "https://www.gnu.org/software/texinfo/",

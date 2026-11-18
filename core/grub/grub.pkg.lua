@@ -9,7 +9,7 @@ metadata({
 	name = "grub",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	-- GRUB's modules and kernel images are loaded and relocated by GRUB
 	-- itself, which needs their symbols; only the host tools are stripped.
 	debug = {

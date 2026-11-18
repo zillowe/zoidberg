@@ -6,7 +6,7 @@ metadata({
 	name = "dracut",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "An event driven initramfs infrastructure",
 	website = "https://github.com/dracut-ng/dracut-ng",

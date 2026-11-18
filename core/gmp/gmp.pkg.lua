@@ -4,7 +4,7 @@ metadata({
 	name = "gmp",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "A free library for arbitrary precision arithmetic",
 	website = "https://gmplib.org/",

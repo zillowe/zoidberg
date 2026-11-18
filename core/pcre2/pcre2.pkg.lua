@@ -4,7 +4,7 @@ metadata({
 	name = "pcre2",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "A library that implements Perl 5-style regular expressions. 2nd version",
 	website = "https://github.com/PCRE2Project/pcre2",

@@ -5,7 +5,7 @@ metadata({
 	name = "findutils",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "GNU utilities to locate files (find, xargs)",
 	website = "https://www.gnu.org/software/findutils/",

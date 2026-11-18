@@ -5,7 +5,7 @@ metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "8",
+	revision = "9",
 	debug = { sub_package = true },
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
