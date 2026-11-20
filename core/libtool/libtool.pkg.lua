@@ -1,12 +1,11 @@
 -- NOTE: libtool must be rebuilt (revision bump) with each new GCC version.
 local version = ZOI.VERSION or "2.6.2"
-local commit = "309bb53a8adfb22c6e5869cc8da049bf123e5438"
 
 metadata({
 	name = "libtool",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "A generic library support script",
 	website = "https://www.gnu.org/software/libtool",
@@ -38,11 +37,8 @@ dependencies({
 					"pacman:autoconf",
 					"pacman:automake",
 					"pacman:gcc",
-					"pacman:git",
-					"pacman:help2man",
 					"pacman:m4",
 					"pacman:make",
-					"pacman:texinfo",
 				},
 			},
 		},
@@ -56,12 +52,16 @@ dependencies({
 	},
 })
 
+local sha512 = "7517648aaa704a87a35ce23c47dd6415c1ac81056aadb076960cd93c0ee31c431ab95aa85a4cc1eaaee1dcf860a90898fb6514f0bb4aa70b940757c8301260cf"
+-- Release signing key (Ileana Dumitrescu), from upstream's keyring.
+local signing_key = "FA26CA784BE188927F22B99F6570EA01146F7354"
+
 -- Runs a script in a subshell with `set -e` and fails the build on error.
 local function sh(script)
 	local loc = LOCATION or {}
 	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
 	local env = "VER='" .. version .. "'\n"
-		.. "COMMIT='" .. commit .. "'\n"
+		.. "SHA512='" .. sha512 .. "'\n"
 		.. "ROOT='" .. root .. "'\n"
 	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
 	if code ~= 0 then
@@ -70,38 +70,31 @@ local function sh(script)
 end
 
 function prepare()
-	-- Upstream's .gitmodules pulls gnulib and gnulib's bootstrap module.
+	local tarball = "libtool-" .. version .. ".tar.xz"
 	sh([[
-		# Savannah's git server intermittently returns HTTP 500; retry with backoff
-		retry() { i=1; while ! "$@"; do [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
-		clone() { url=$1; dir=$2; shift 2; i=1; while :; do rm -rf "$dir"; git clone "$@" "$url" "$dir" && return 0; [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
-		# gnulib's official GitHub mirror spares Savannah the largest fetch
-		gnulib_mirror() { git config submodule.gnulib.url https://github.com/coreutils/gnulib.git; }
-
-		if [ ! -d libtool ]; then
-			clone https://git.savannah.gnu.org/git/libtool.git libtool
-			cd libtool
-			git checkout "$COMMIT"
-			git submodule init
-			gnulib_mirror
-			retry git submodule update
-			./bootstrap
-
-			# bootstrap links build-aux files with absolute paths into this
-			# temporary checkout; replace them with real files so the source
-			# bundle still works once unpacked elsewhere
-			find . -path ./.git -prune -o -type l -print | while read -r link; do
-				case "$(readlink "$link")" in
-					/*) if [ -e "$link" ]; then cp --remove-destination "$(readlink -f "$link")" "$link"; fi ;;
-				esac
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/libtool" \
+				"https://mirrors.kernel.org/gnu/libtool" \
+				"https://ftp.gnu.org/gnu/libtool"; do
+				curl -sSfL --retry 3 "$base/$1" -o "$1" && return 0
 			done
-		fi
+			return 1
+		}
+		fetch "libtool-$VER.tar.xz"
+		fetch "libtool-$VER.tar.xz.sig"
+		echo "$SHA512  libtool-$VER.tar.xz" | sha512sum -c -
 	]])
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	sh([[tar -xf "libtool-$VER.tar.xz"]])
 end
 
 function build()
 	sh([[
-		cd libtool
+		cd "libtool-$VER"
 		./configure \
 			--prefix=/usr \
 			lt_cv_sys_lib_dlsearch_path_spec="/usr/lib /usr/lib32"
@@ -112,7 +105,7 @@ end
 function package()
 	sh([[
 		mkdir -p "$ROOT"
-		make -C libtool DESTDIR="$ROOT" install
+		make -C "libtool-$VER" DESTDIR="$ROOT" install
 	]])
 end
 
