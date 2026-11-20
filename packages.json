@@ -6,7 +6,7 @@
       "repo_type": "official",
       "version": "2.4.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Access control list utilities, libraries and headers",
       "scope": "system",
       "scopes": [
@@ -24,12 +24,8 @@
             "type": "source",
             "packages": [
               "pacman:attr",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
-              "pacman:libtool",
               "pacman:make"
             ]
           }
@@ -1782,7 +1778,7 @@
       "repo_type": "official",
       "version": "2.6.2",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A generic library support script",
       "scope": "system",
       "scopes": [
@@ -1805,11 +1801,8 @@
               "pacman:autoconf",
               "pacman:automake",
               "pacman:gcc",
-              "pacman:git",
-              "pacman:help2man",
               "pacman:m4",
-              "pacman:make",
-              "pacman:texinfo"
+              "pacman:make"
             ]
           }
         ],
@@ -2276,7 +2269,7 @@
       "repo_type": "official",
       "version": "2.8.1",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A utility to apply patch files to original sources",
       "scope": "system",
       "scopes": [
@@ -2296,16 +2289,10 @@
             "packages": [
               "pacman:base-devel",
               "pacman:attr",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:ed",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
-              "pacman:make",
-              "pacman:python",
-              "pacman:texinfo",
-              "pacman:wget"
+              "pacman:make"
             ]
           }
         ],
