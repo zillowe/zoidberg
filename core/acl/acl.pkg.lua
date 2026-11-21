@@ -70,7 +70,7 @@ function prepare()
 			for base in \
 				"https://download.savannah.nongnu.org/releases/acl" \
 				"https://download-mirror.savannah.gnu.org/releases/acl"; do
-				curl -sSfL --retry 3 "$base/$1" -o "$1" && return 0
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
 			done
 			return 1
 		}

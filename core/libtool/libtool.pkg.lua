@@ -77,7 +77,7 @@ function prepare()
 				"https://ftpmirror.gnu.org/gnu/libtool" \
 				"https://mirrors.kernel.org/gnu/libtool" \
 				"https://ftp.gnu.org/gnu/libtool"; do
-				curl -sSfL --retry 3 "$base/$1" -o "$1" && return 0
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
 			done
 			return 1
 		}
