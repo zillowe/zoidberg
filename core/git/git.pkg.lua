@@ -4,7 +4,7 @@ metadata({
 	name = "git",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "The fast distributed version control system",
 	website = "https://git-scm.com/",

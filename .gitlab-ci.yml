@@ -8,6 +8,9 @@ stages:
 variables:
   PUBLISH_VERSION: "latest"
   GIT_DEPTH: "0"
+  # The Docker executor otherwise checks out with umask 0000, leaving every
+  # repository file world-writable, and packages copied those modes.
+  FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: "true"
 
 .gpg_setup: &gpg_setup
   - |
@@ -131,6 +134,7 @@ generate-child:
         "variables:" \
         '  PUBLISH_VERSION: "latest"' \
         "  GIT_DEPTH: \"0\"" \
+        '  FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: "true"' \
         "" > generated/child.yml
 
       for PKG_FILE in $CHANGED_FILES; do
