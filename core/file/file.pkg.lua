@@ -6,7 +6,7 @@ metadata({
 	name = "file",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "File type identification utility",
 	website = "https://www.darwinsys.com/file/",
@@ -53,6 +53,7 @@ dependencies({
 		required = {
 			"zoi:@core/bzip2",
 			"zoi:@core/glibc",
+			"zoi:@core/libseccomp",
 			"zoi:@core/xz",
 			"zoi:@core/zlib",
 			"zoi:@core/zstd",

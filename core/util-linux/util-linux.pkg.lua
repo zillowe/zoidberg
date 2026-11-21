@@ -6,7 +6,7 @@ metadata({
 	name = "util-linux",
 	repo = "core",
 	version = version,
-	revision = "8",
+	revision = "9",
 	debug = { sub_package = true },
 	description = "Miscellaneous system utilities for Linux",
 	website = "https://github.com/util-linux/util-linux",
@@ -158,6 +158,7 @@ dependencies({
 				required = {
 					"pacman:asciidoctor",
 					"pacman:bison",
+					"pacman:cryptsetup",
 					"pacman:diffutils",
 					"pacman:file",
 					"pacman:flex",
@@ -237,6 +238,8 @@ function build()
 			-Dncurses=disabled \
 			-Dncursesw=enabled \
 			-Deconf=disabled \
+			-Dcryptsetup=enabled \
+			-Dcryptsetup-dlopen=enabled \
 			-Dbuild-chfn-chsh=enabled \
 			-Dbuild-line=disabled \
 			-Dbuild-mesg=enabled \

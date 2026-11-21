@@ -6,7 +6,7 @@ metadata({
 	name = "procps-ng",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "Utilities for monitoring your system and its processes (ps, top, free, etc.)",
 	website = "https://gitlab.com/procps-ng/procps",
@@ -67,6 +67,7 @@ dependencies({
 		required = {
 			"zoi:@core/glibc",
 			"zoi:@core/ncurses",
+			"zoi:@core/systemd:libs",
 		},
 	},
 })

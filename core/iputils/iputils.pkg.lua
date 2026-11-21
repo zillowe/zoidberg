@@ -6,7 +6,7 @@ metadata({
 	name = "iputils",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "Network monitoring tools, including ping, arping, and tracepath",
 	website = "https://github.com/iputils/iputils",
@@ -53,6 +53,8 @@ dependencies({
 	runtime = {
 		required = {
 			"zoi:@core/glibc",
+			"zoi:@core/libcap",
+			"zoi:@core/libidn2",
 		},
 	},
 })

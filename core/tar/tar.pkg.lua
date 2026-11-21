@@ -5,7 +5,7 @@ metadata({
 	name = "tar",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	debug = { sub_package = true },
 	description = "Utility used to store, backup, and transport files",
 	website = "https://www.gnu.org/software/tar/",
@@ -56,6 +56,7 @@ dependencies({
 		sub_packages = {
 			main = {
 				required = {
+					"zoi:@core/acl",
 					"zoi:@core/glibc",
 				},
 			},

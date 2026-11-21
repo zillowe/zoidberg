@@ -5,7 +5,7 @@ metadata({
 	name = "grep",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "A string search utility",
 	website = "https://www.gnu.org/software/grep/",
@@ -48,6 +48,7 @@ dependencies({
 	runtime = {
 		required = {
 			"zoi:@core/glibc",
+			"zoi:@core/pcre2",
 		},
 	},
 })

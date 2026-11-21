@@ -6,7 +6,7 @@ metadata({
 	name = "curl",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Command line tool and library for transferring data with URLs",
 	website = "https://curl.se",
@@ -55,8 +55,12 @@ dependencies({
 	},
 	runtime = {
 		required = {
+			"zoi:@core/brotli",
 			"zoi:@core/ca-certificates",
 			"zoi:@core/glibc",
+			"zoi:@core/libidn2",
+			"zoi:@core/libnghttp2",
+			"zoi:@core/libpsl",
 			"zoi:@core/openssl",
 			"zoi:@core/zlib",
 			"zoi:@core/zstd",

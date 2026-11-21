@@ -5,7 +5,7 @@ metadata({
 	name = "gawk",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "GNU version of awk",
 	website = "https://www.gnu.org/software/gawk/",
@@ -48,6 +48,9 @@ dependencies({
 	runtime = {
 		required = {
 			"zoi:@core/glibc",
+			"zoi:@core/gmp",
+			"zoi:@core/mpfr",
+			"zoi:@core/readline",
 		},
 	},
 })

@@ -5,7 +5,7 @@ metadata({
 	name = "coreutils",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	debug = { sub_package = true },
 	description = "The basic file, shell and text manipulation utilities of the GNU operating system",
 	website = "https://www.gnu.org/software/coreutils/",
@@ -157,7 +157,12 @@ dependencies({
 	},
 	runtime = {
 		required = {
+			"zoi:@core/acl",
+			"zoi:@core/attr",
 			"zoi:@core/glibc",
+			"zoi:@core/gmp",
+			"zoi:@core/libcap",
+			"zoi:@core/openssl",
 		},
 	},
 })

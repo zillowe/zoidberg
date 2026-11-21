@@ -6,7 +6,7 @@ metadata({
 	name = "kmod",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Linux kernel module management tools and library (modprobe, lsmod, depmod)",
 	website = "https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git",
@@ -59,6 +59,7 @@ dependencies({
 	runtime = {
 		required = {
 			"zoi:@core/glibc",
+			"zoi:@core/openssl",
 			"zoi:@core/xz",
 			"zoi:@core/zlib",
 			"zoi:@core/zstd",

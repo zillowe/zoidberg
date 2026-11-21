@@ -5,7 +5,7 @@ metadata({
 	name = "sed",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "GNU stream editor",
 	website = "https://www.gnu.org/software/sed/",
@@ -49,6 +49,8 @@ dependencies({
 	},
 	runtime = {
 		required = {
+			"zoi:@core/acl",
+			"zoi:@core/attr",
 			"zoi:@core/glibc",
 		},
 	},
