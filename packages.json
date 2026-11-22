@@ -1912,7 +1912,7 @@
       "repo_type": "official",
       "version": "710",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A terminal based program for viewing text files",
       "scope": "system",
       "scopes": [
