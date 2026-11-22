@@ -1,0 +1,4 @@
+[libpipeline]
+source = "git"
+git = "https://gitlab.com/libpipeline/libpipeline.git"
+include_regex = '^\d+\.\d+\.\d+$'

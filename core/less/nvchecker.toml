@@ -1,0 +1,4 @@
+[less]
+source = "regex"
+url = "https://www.greenwoodsoftware.com/less/download.html"
+regex = 'less-(\d+)\.tar\.gz'

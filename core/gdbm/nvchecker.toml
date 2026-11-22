@@ -1,0 +1,4 @@
+[gdbm]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/gdbm/"
+regex = 'gdbm-([\d.]+)\.tar\.gz'

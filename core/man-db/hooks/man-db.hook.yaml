@@ -1,0 +1,10 @@
+name: man-db
+description: Updating the manual page index...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr/share/man"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: "/usr/bin/mandb --quiet"

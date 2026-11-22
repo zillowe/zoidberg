@@ -1,0 +1,4 @@
+[man-db]
+source = "git"
+git = "https://gitlab.com/man-db/man-db.git"
+include_regex = '^\d+\.\d+\.\d+$'
