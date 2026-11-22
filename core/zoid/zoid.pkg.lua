@@ -1,7 +1,11 @@
-local version = "1.29.14"
+local version = "1.29.15"
 local tag = "Prod-Release-" .. version
 local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/" .. tag .. "/downloads"
-local public_key = "https://zillowe.pages.dev/keys/zillowe-main.asc"
+-- Zillowe release signing key (79590A44041642E9), as published at
+-- https://zillowe.pages.dev/keys/zillowe-main.asc.
+local function public_key()
+	return LOCATION.PKGLUADIR .. "/keys/pgp/B2DF6A70FAEBAF2F43D9D68B79590A44041642E9.asc"
+end
 
 local function archive_name()
 	local os, arch = SYSTEM.OS, SYSTEM.ARCH
@@ -49,7 +53,7 @@ local function fetch_verified()
 	UTILS.DOWNLOAD(release .. "/" .. archive, archive, "sha512-" .. sha)
 	UTILS.DOWNLOAD(release .. "/" .. archive .. ".asc", archive .. ".asc")
 
-	if not verifySignature(archive, archive .. ".asc", public_key) then
+	if not verifySignature(archive, archive .. ".asc", public_key()) then
 		error(
 			"the signature on " .. archive .. " is not valid for the Zillowe " .. "release key; refusing to install it"
 		)
@@ -62,7 +66,7 @@ metadata({
 	name = "zoid",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "ZoiOS privileged system daemon",
 	website = "https://zillowe.qzz.io/zds/zoi",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zoi.git",
@@ -109,17 +113,6 @@ function package()
 	zcp("${pkgluadir}/hooks/zoid-restart.hook.yaml", "${pkgstore}/hooks/zoid-restart.hook.yaml")
 	zman("zoid.8")
 	zlicense("LICENSE")
-end
-
-function verify()
-	local archive = archive_name()
-
-	local sha = published_sha512(archive)
-	if not sha then
-		return false
-	end
-
-	return verifyHash(archive, "sha512-" .. sha) and verifySignature(archive, archive .. ".asc", public_key)
 end
 
 function test()
