@@ -188,7 +188,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Minimal userland for Parlex Linux and isolated (--pure) build roots",
       "scope": "system",
       "scopes": [
@@ -1269,6 +1269,40 @@
         "test": []
       }
     },
+    "@core/gdbm": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.26",
+      "epoch": 0,
+      "revision": "1",
+      "description": "GNU database library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/readline"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:readline"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/gettext": {
       "repo": "core",
       "repo_type": "official",
@@ -1873,6 +1907,42 @@
         "test": []
       }
     },
+    "@core/less": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "710",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A terminal based program for viewing text files",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/ncurses",
+          "zoi:@core/pcre2"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:ncurses",
+              "pacman:pcre2"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/libbpf": {
       "repo": "core",
       "repo_type": "official",
@@ -2161,6 +2231,38 @@
       "epoch": 0,
       "revision": "1",
       "description": "Framing layer of the HTTP/2 protocol, implemented as a C library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libpipeline": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.5.8",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A C library for manipulating pipelines of subprocesses",
       "scope": "system",
       "scopes": [
         "system"
@@ -2660,6 +2762,51 @@
               "pacman:lzip",
               "pacman:make",
               "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/man-db": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.13.3",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A utility for reading man pages",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/gdbm",
+          "zoi:@core/glibc",
+          "zoi:@core/groff",
+          "zoi:@core/less",
+          "zoi:@core/libpipeline",
+          "zoi:@core/libseccomp",
+          "zoi:@core/zlib"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gdbm",
+              "pacman:groff",
+              "pacman:libpipeline",
+              "pacman:libseccomp",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:zlib"
             ]
           }
         ],
