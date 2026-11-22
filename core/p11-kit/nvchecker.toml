@@ -1,0 +1,4 @@
+[p11-kit]
+source = "git"
+git = "https://github.com/p11-glue/p11-kit.git"
+include_regex = '^\d+\.\d+\.\d+$'

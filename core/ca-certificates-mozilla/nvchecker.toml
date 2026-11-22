@@ -1,0 +1,8 @@
+# NSS release tags on Mozilla's official GitHub mirror (NSS_3_134_RTM).
+# ftp.mozilla.org's listing is too slow for nvchecker's timeout.
+[ca-certificates-mozilla]
+source = "git"
+git = "https://github.com/nss-dev/nss.git"
+include_regex = '^NSS_\d+_\d+_RTM$'
+from_pattern = '^NSS_(\d+)_(\d+)_RTM$'
+to_pattern = '\1.\2'

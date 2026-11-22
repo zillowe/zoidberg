@@ -1,0 +1,4 @@
+[libtasn1]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/libtasn1/"
+regex = 'libtasn1-([\d.]+)\.tar\.gz'
