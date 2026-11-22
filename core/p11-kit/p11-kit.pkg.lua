@@ -95,6 +95,7 @@ function build()
 		meson setup _build \
 			--prefix=/usr \
 			--buildtype=plain \
+			--libexecdir=lib \
 			-Dtrust_paths=/etc/ca-certificates/trust-source:/usr/share/ca-certificates/trust-source \
 			-Dlibffi=enabled \
 			-Dsystemd=disabled \
