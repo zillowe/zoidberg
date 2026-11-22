@@ -7,7 +7,7 @@ metadata({
 	name = "iptables",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Linux kernel packet control tool (legacy backend) and the libxtables library",
 	website = "https://www.netfilter.org/projects/iptables/",
@@ -94,6 +94,7 @@ function build()
 			--libexecdir=/usr/lib \
 			--disable-static \
 			--disable-nftables \
+			--disable-connlabel \
 			--enable-shared \
 			--enable-devel
 		make -j"$(nproc)"

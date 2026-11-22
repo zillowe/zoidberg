@@ -4,7 +4,7 @@ metadata({
 	name = "ca-certificates",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	description = "Common CA certificates and trust management utilities",
 	website = "https://src.fedoraproject.org/rpms/ca-certificates",
 	license = "GPL-2.0-or-later",
@@ -42,8 +42,11 @@ dependencies({
 	runtime = {
 		required = {
 			"zoi:@core/bash",
+			"zoi:@core/ca-certificates-mozilla",
 			"zoi:@core/coreutils",
 			"zoi:@core/findutils",
+			-- `trust` extracts the certificate bundles
+			"zoi:@core/p11-kit",
 		},
 	},
 })
@@ -51,9 +54,7 @@ dependencies({
 hooks({
 	post_install = {
 		[[
-		if [ -x /usr/bin/update-ca-trust ]; then
-			/usr/bin/update-ca-trust 2>/dev/null || true
-		fi
+		/usr/bin/update-ca-trust
 		]],
 	},
 })
