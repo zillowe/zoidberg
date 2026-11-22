@@ -440,7 +440,7 @@
       "repo_type": "official",
       "version": "20240618",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Common CA certificates and trust management utilities",
       "scope": "system",
       "scopes": [
@@ -452,8 +452,10 @@
       "dependencies": {
         "runtime": [
           "zoi:@core/bash",
+          "zoi:@core/ca-certificates-mozilla",
           "zoi:@core/coreutils",
-          "zoi:@core/findutils"
+          "zoi:@core/findutils",
+          "zoi:@core/p11-kit"
         ],
         "build": [
           {
@@ -462,6 +464,35 @@
               "pacman:asciidoc",
               "pacman:coreutils",
               "pacman:p11-kit"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/ca-certificates-mozilla": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.134",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Mozilla's set of trusted CA certificates",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:openssl",
+              "pacman:python"
             ]
           }
         ],
@@ -1699,7 +1730,7 @@
       "repo_type": "official",
       "version": "1.8.13",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Linux kernel packet control tool (legacy backend) and the libxtables library",
       "scope": "system",
       "scopes": [
@@ -1952,6 +1983,38 @@
         "test": []
       }
     },
+    "@core/libffi": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.8.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Portable foreign function interface library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/libidn2": {
       "repo": "core",
       "repo_type": "official",
@@ -2186,6 +2249,38 @@
               "pacman:curl",
               "pacman:gcc",
               "pacman:gperf",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libtasn1": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "4.21.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "The ASN.1 library used in GnuTLS",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
               "pacman:make"
             ]
           }
@@ -2716,6 +2811,44 @@
               "pacman:tar",
               "pacman:zlib",
               "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/p11-kit": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "0.26.6",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Loads and enumerates PKCS#11 modules, and provides the system trust store",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/libffi",
+          "zoi:@core/libtasn1"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libffi",
+              "pacman:libtasn1",
+              "pacman:meson",
+              "pacman:ninja",
+              "pacman:pkgconf"
             ]
           }
         ],
