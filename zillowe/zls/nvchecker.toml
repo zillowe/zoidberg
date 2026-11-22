@@ -1,4 +1,0 @@
-[zls]
-source = "gitlab"
-gitlab = "zillowe/zillwen/zusty/zls"
-use_max_tag = true
