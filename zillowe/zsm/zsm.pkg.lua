@@ -15,7 +15,7 @@ metadata({
 	name = "zsm",
 	repo = "zillowe",
 	version = version,
-	revision = "21",
+	revision = "22",
 	description = "Modern, security-first replacement for shell-based installation scripts",
 	website = "https://zillowe.qzz.io/docs/zds/zsm",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zsm",
@@ -68,10 +68,6 @@ function package()
 		local bin_name = "zsm"
 		zcp("source/zig-out/bin/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
-end
-
-function verify()
-	return true
 end
 
 function uninstall() end

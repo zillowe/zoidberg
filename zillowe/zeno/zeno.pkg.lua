@@ -29,7 +29,7 @@ metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "The typography system for the Zillowe Foundation",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",
@@ -60,15 +60,13 @@ dependencies({
 	},
 })
 function prepare()
-	UTILS.FILE(url, archive)
-	UTILS.EXTRACT(archive, "source")
-end
-
-function verify()
-	return verifyHash(
+	-- Verified before it is extracted; a mismatch stops the build.
+	UTILS.DOWNLOAD(
+		url,
 		archive,
 		"sha512-9765bf0d3a966c57676eeb04d218a694c25b10091713381c1d95905492312b6aa87ba694ccce04d98a9badb36e5796b559170753ac4391f7812ce6567179cb41"
 	)
+	UTILS.EXTRACT(archive, "source")
 end
 
 function package()

@@ -4,7 +4,7 @@ metadata({
 	name = "zfvm",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "A Rust implementation of the ZF Versioning Method (ZFVM).",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zfvm",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zfvm",
@@ -34,10 +34,6 @@ dependencies({
 		},
 	},
 })
-
-function verify()
-	return true
-end
 
 function prepare()
 	cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")

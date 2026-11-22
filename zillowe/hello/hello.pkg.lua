@@ -18,7 +18,7 @@ metadata({
 	name = "hello",
 	repo = "zillowe",
 	version = version,
-	revision = "21",
+	revision = "22",
 	description = "Hello World",
 	website = "https://github.com/zillowe/hello",
 	git = git_url,
@@ -71,10 +71,6 @@ function package()
 		local bin_name = "hello"
 		zcp("source/zig-out/bin/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
-end
-
-function verify()
-	return true
 end
 
 function uninstall() end

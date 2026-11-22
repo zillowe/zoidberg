@@ -10,7 +10,7 @@ metadata({
 	name = "lct",
 	repo = "zillowe",
 	version = version,
-	revision = "21",
+	revision = "22",
 	description = "Command-line tool for easily adding open-source licenses to your projects",
 	website = "https://zillowe.qzz.io/docs/zds/lct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
@@ -43,10 +43,6 @@ dependencies({
 		},
 	},
 })
-
-function verify()
-	return true
-end
 
 function prepare()
 	if BUILD_TYPE == "source" then

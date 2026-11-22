@@ -15,7 +15,7 @@ metadata({
 	name = "zls",
 	repo = "zillowe",
 	version = version,
-	revision = "21",
+	revision = "22",
 	description = "Stateless link shortener inspired by ha.mr.",
 	website = "https://zillowe.qzz.io/docs/zds/zls",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zls",
@@ -68,10 +68,6 @@ function package()
 		local bin_name = "zls"
 		zcp("source/zig-out/bin/" .. bin_name, "${pkgstore}/bin/" .. bin_name)
 	end
-end
-
-function verify()
-	return true
 end
 
 function uninstall() end

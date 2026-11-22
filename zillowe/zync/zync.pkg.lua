@@ -4,7 +4,7 @@ metadata({
 	name = "zync",
 	repo = "zillowe",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "rsync over HTTP, with bsdiff residue reduction",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zync",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zync",
@@ -34,10 +34,6 @@ dependencies({
 		},
 	},
 })
-
-function verify()
-	return true
-end
 
 function prepare()
 	cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")

@@ -10,7 +10,7 @@ metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
@@ -46,10 +46,6 @@ dependencies({
 		required = { "native:git" },
 	},
 })
-
-function verify()
-	return true
-end
 
 function prepare()
 	if BUILD_TYPE == "source" then
