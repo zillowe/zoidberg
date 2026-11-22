@@ -9,7 +9,7 @@ metadata({
 	name = "less",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "A terminal based program for viewing text files",
 	website = "https://www.greenwoodsoftware.com/less/",
@@ -72,8 +72,13 @@ function prepare()
 	local tarball = "less-" .. version .. ".tar.gz"
 	sh([[
 		fetch() {
+			# greenwoodsoftware.com refuses (403) many CI runners, so fall
+			# back to Gentoo's distfiles mirror, which serves the same file
+			# under a directory named after the BLAKE2b of the file name.
+			gentoo="https://distfiles.gentoo.org/distfiles/$(printf %s "$1" | b2sum | cut -c1-2)"
 			for base in \
-				"https://www.greenwoodsoftware.com/less"; do
+				"https://www.greenwoodsoftware.com/less" \
+				"$gentoo"; do
 				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
 			done
 			return 1
