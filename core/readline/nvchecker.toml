@@ -1,13 +1,14 @@
-["readline:base"]
-source = "htmlparser"
-url = "https://cgit.git.savannah.gnu.org/cgit/readline.git/commit/"
-xpath = "//div[@class='commit-subject']"
-from_pattern = '[rR]eadline-([\d.]+)(\s+patch\s+(\d+))?.*'
-to_pattern = '\1\2'
+["readline:major"]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/readline/"
+regex = 'readline-(\d+\.\d+)\.tar\.gz'
+
+["readline:patch"]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/readline/readline-8.3-patches/"
+regex = 'readline83-0*(\d+)'
 
 [readline]
 source = "combiner"
-from = ["readline:base"]
-format = "$1"
-from_pattern = " patch "
-to_pattern = "."
+from = ["readline:major", "readline:patch"]
+format = "$1.$2"

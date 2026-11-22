@@ -1,0 +1,5 @@
+[cryptsetup]
+source = "git"
+git = "https://gitlab.com/cryptsetup/cryptsetup.git"
+include_regex = '^v\d+\.\d+\.\d+$'
+prefix = "v"

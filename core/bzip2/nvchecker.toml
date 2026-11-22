@@ -1,4 +1,4 @@
 [bzip2]
-source = "git"
-git = "https://sourceware.org/git/bzip2.git"
-prefix = "bzip2-"
+source = "regex"
+url = "https://mirrors.kernel.org/sourceware/bzip2/"
+regex = 'bzip2-([\d.]+)\.tar\.gz'

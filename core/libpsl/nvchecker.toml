@@ -1,0 +1,4 @@
+[libpsl]
+source = "git"
+git = "https://github.com/rockdaboot/libpsl.git"
+include_regex = '^\d+\.\d+\.\d+$'

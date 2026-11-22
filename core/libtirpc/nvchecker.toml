@@ -1,0 +1,4 @@
+[libtirpc]
+source = "regex"
+url = "https://sourceforge.net/projects/libtirpc/rss?path=/libtirpc"
+regex = 'libtirpc-(\d+\.\d+\.\d+)\.tar\.bz2'

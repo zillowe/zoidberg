@@ -1,0 +1,5 @@
+[iptables]
+source = "git"
+git = "https://git.netfilter.org/iptables"
+include_regex = '^v\d+\.\d+\.\d+$'
+prefix = "v"

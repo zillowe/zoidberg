@@ -1,0 +1,4 @@
+[libxml2]
+source = "regex"
+url = "https://download.gnome.org/sources/libxml2/cache.json"
+regex = 'libxml2-(\d+\.\d+\.\d+)\.tar\.xz'

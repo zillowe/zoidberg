@@ -1,4 +1,4 @@
 [debugedit]
 source = "regex"
-url = "https://sourceware.org/ftp/debugedit/"
+url = "https://mirrors.kernel.org/sourceware/debugedit/"
 regex = '"(\d+\.\d+)/"'

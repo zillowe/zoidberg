@@ -1,4 +1,4 @@
 [elfutils]
 source = "regex"
-url = "https://sourceware.org/elfutils/ftp/"
+url = "https://mirrors.kernel.org/sourceware/elfutils/"
 regex = '"(\d+\.\d+)/"'

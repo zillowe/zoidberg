@@ -1,0 +1,4 @@
+[libunistring]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/libunistring/"
+regex = 'libunistring-([\d.]+)\.tar\.xz'

@@ -1,0 +1,4 @@
+[device-mapper]
+source = "regex"
+url = "https://mirrors.kernel.org/sourceware/lvm2/"
+regex = 'LVM2\.(\d+\.\d+\.\d+)\.tgz'

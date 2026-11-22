@@ -1,5 +1,4 @@
 [libcap]
-source = "git"
-git = "https://git.kernel.org/pub/scm/libs/libcap/libcap.git"
-include_regex = '^libcap-[\d.]+$'
-prefix = "libcap-"
+source = "regex"
+url = "https://mirrors.edge.kernel.org/pub/linux/libs/security/linux-privs/libcap2/"
+regex = 'libcap-(2\.\d+)\.tar\.xz'

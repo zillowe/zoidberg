@@ -1,0 +1,5 @@
+[libnghttp2]
+source = "git"
+git = "https://github.com/nghttp2/nghttp2.git"
+include_regex = '^v\d+\.\d+\.\d+$'
+prefix = "v"

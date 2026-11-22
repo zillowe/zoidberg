@@ -1,0 +1,5 @@
+[libmnl]
+source = "git"
+git = "https://git.netfilter.org/libmnl"
+include_regex = '^libmnl-\d+\.\d+\.\d+$'
+prefix = "libmnl-"

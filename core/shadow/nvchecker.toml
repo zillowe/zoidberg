@@ -1,3 +1,4 @@
 [shadow]
 source = "git"
 git = "https://github.com/shadow-maint/shadow.git"
+include_regex = '^\d+\.\d+(\.\d+)?$'

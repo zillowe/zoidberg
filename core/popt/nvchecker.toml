@@ -1,0 +1,4 @@
+[popt]
+source = "regex"
+url = "https://ftp.osuosl.org/pub/rpm/popt/releases/popt-1.x/"
+regex = 'popt-([\d.]+)\.tar\.gz'

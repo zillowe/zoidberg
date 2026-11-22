@@ -1,4 +1,4 @@
 [gmp]
 source = "regex"
-url = "https://gmplib.org/download/gmp/"
-regex = 'gmp-([\d.]+)\.tar\.lz'
+url = "https://ftp.gnu.org/gnu/gmp/"
+regex = 'gmp-([\d.]+)\.tar\.xz'

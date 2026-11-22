@@ -1,4 +1,4 @@
 [m4]
-source = "git"
-git = "https://git.savannah.gnu.org/git/m4.git"
-prefix = "v"
+source = "regex"
+url = "https://ftp.gnu.org/gnu/m4/"
+regex = 'm4-(\d+\.\d+\.\d+)\.tar\.xz'
