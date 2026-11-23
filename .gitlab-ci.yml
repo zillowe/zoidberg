@@ -184,6 +184,7 @@ generate-child:
             '      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
             "      zoi sync" \
             '      if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
+            '      unset GPG_PRIVATE_KEY' \
             '      if [ -n "$GPG_PASSWORD" ]; then export GPG_PASSWORD=$(echo "$GPG_PASSWORD" | base32 -d); fi' \
             "  script:" \
             "    - |" \
@@ -271,6 +272,7 @@ generate-child:
             '      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
             "      zoi sync" \
             '      if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
+            '      unset GPG_PRIVATE_KEY' \
             '      if [ -n "$GPG_PASSWORD" ]; then export GPG_PASSWORD=$(echo "$GPG_PASSWORD" | base32 -d); fi' \
             "  script:" \
             "    - |" \
