@@ -1,4 +1,4 @@
 [diffutils]
-source = "git"
-git = "https://git.savannah.gnu.org/git/diffutils.git"
-prefix = "v"
+source = "regex"
+url = "https://mirrors.kernel.org/gnu/diffutils/"
+regex = 'diffutils-([\d.]+)\.tar\.xz"'

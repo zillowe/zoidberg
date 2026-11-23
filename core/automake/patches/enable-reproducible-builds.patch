@@ -1,8 +1,12 @@
---- automake.orig/m4/tar.m4	2026-09-25 21:51:20.852644136 -0400
-+++ automake.new/m4/tar.m4	2026-09-25 21:52:11.165914689 -0400
-@@ -87,8 +87,8 @@ m4_if([$1], [v7],
-       for _am_tar in tar gnutar gtar; do
-         AM_RUN_LOG([$_am_tar --version | grep GNU >/dev/null]) && break
+Make tarballs created by automake-generated "make dist" reproducible
+(sorted names, fixed mtime and owner). Taken from Arch Linux's automake
+package, refreshed for automake 1.20.
+
+--- a/m4/tar.m4
++++ b/m4/tar.m4
+@@ -89,8 +89,8 @@
+           ($_am_tar --version) 2>&1 | grep -i busybox >/dev/null || break
+         fi
        done
 -      am__tar="$_am_tar --format=m4_if([$1], [pax], [posix], [$1]) -chf - "'"$$tardir"'
 -      am__tar_="$_am_tar --format=m4_if([$1], [pax], [posix], [$1]) -chf - "'"$tardir"'

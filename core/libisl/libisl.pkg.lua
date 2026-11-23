@@ -1,10 +1,13 @@
 local version = ZOI.VERSION or "0.28"
+-- isl releases are not signed. This hash matches Gentoo's Manifest, and the
+-- file's BLAKE2b matches Arch Linux's b2sums for the same release.
+local sha512 = "fa43fe01d62b5a0c4962ec07b06b51143c5781b615de58d76e00e829a8cb35201130db5b1d467773be49e9ecf8f87a8641646c32a852ac6ce53f5add76e4d11a"
 
 metadata({
 	name = "libisl",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Library for manipulating sets and relations of integer points bounded by linear constraints",
 	website = "https://libisl.sourceforge.io",
@@ -51,52 +54,54 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d "isl-$VER" ]; then
-			# libisl.sourceforge.io rejects some CI networks; fall back to the
-			# SourceForge download mirrors
-			for url in \
-				"https://libisl.sourceforge.io/isl-$VER.tar.xz" \
-				"https://downloads.sourceforge.net/project/libisl/isl-$VER.tar.xz"; do
-				curl -sSfL --retry 3 "$url" -o "isl-$VER.tar.xz" && break
+	cmd(
+		[[
+		# libisl.sourceforge.io rejects some CI networks; fall back to the
+		# SourceForge download mirrors
+		fetch() {
+			for base in \
+				"https://libisl.sourceforge.io" \
+				"https://downloads.sourceforge.net/project/libisl"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
 			done
-			echo "8d14052a11bbba409b163e979652e489000e3ab9a13a70f9c6088757da47079eb79128ae59513727214e2906f82e6416d7f91444f0f80121bfbb5085a9f44647  isl-$VER.tar.xz" | b2sum -c -
-			tar -xf "isl-$VER.tar.xz"
-		fi
-	]])
+			return 1
+		}
+		fetch "isl-$VER.tar.xz"
+		echo "$SHA512  isl-$VER.tar.xz" | sha512sum -c -
+		tar -xf "isl-$VER.tar.xz"
+	]],
+		opts
+	)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "isl-$VER"
 		./configure --prefix=/usr
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		make -C "isl-$VER" DESTDIR="$ROOT" install
 
 		install -dm755 "$ROOT/usr/share/gdb/auto-load/usr/lib/"
 		mv "$ROOT"/usr/lib/libisl.so.*-gdb.py "$ROOT/usr/share/gdb/auto-load/usr/lib/"
+	]],
+		opts
+	)
 
-		install -Dm644 "isl-$VER/LICENSE" "$ROOT/usr/share/licenses/libisl/LICENSE"
-	]])
+	zlicense("isl-" .. version .. "/LICENSE")
 end
 
 function test()

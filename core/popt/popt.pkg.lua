@@ -7,7 +7,7 @@ metadata({
 	name = "popt",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Command line option parsing library",
 	website = "https://github.com/rpm-software-management/popt",
@@ -48,22 +48,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "popt-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://ftp.osuosl.org/pub/rpm/popt/releases/popt-1.x"; do
@@ -73,26 +65,31 @@ function prepare()
 		}
 		fetch "popt-$VER.tar.gz"
 		echo "$SHA512  popt-$VER.tar.gz" | sha512sum -c -
-	]])
-	sh([[tar -xf "popt-$VER.tar.gz"]])
+	]],
+		opts
+	)
+	cmd([[tar -xf "popt-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "popt-$VER"
 		./configure --prefix=/usr --disable-static
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "popt-$VER"
 		make DESTDIR="$ROOT" install
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/popt/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	zlicense("popt-" .. version .. "/COPYING")
 end

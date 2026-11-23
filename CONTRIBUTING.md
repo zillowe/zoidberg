@@ -15,7 +15,12 @@ zoidberg/
 ├── core/
 │   └── <package-name>/
 │       ├── <package-name>.pkg.lua
-│       └── nvchecker.toml      (optional, for auto-updates)
+│       ├── nvchecker.toml      (optional, for auto-updates)
+│       ├── *.sec.yaml          (security advisories, if any)
+│       ├── patches/            (patch files)
+│       ├── keys/pgp/           (upstream signing keys, <FINGERPRINT>.asc)
+│       ├── hooks/              (package hooks, *.hook.yaml)
+│       └── files/              (units, PAM/config files, scripts, ...)
 ├── main/
 │   └── ...
 ├── extra/
@@ -24,6 +29,8 @@ zoidberg/
 ├── parlex/
 └── ...
 ```
+
+Only the recipe, `nvchecker.toml`, `env.toml` and advisories sit at the top of a package directory; see the [package directory layout](https://zillowe.qzz.io/docs/zds/zoi/zoidberg-guidelines#63-package-directory-layout) in the Zoidberg guidelines.
 
 Choose the repo based on the package's maturity:
 

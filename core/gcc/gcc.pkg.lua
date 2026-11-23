@@ -1,12 +1,16 @@
-local version = ZOI.VERSION or "16.2.1+r23+gd564253eb6c8"
-local commit = "d564253eb6c859e266d3cae18e82fb4db9a88316"
-local git_url = "https://forge.sourceware.org/gcc/gcc"
+local version = ZOI.VERSION or "16.2.0"
+local sha512 = "c51c30ca7422d0cbecf504b2e0f33c3aca31e0f90a76b65217f465163fa6fa17b3f5de39e145c47e5bab90ac0ce7fff3b03c8d553ae36e01faaea5a50f8648d1"
+-- Upstream signs releases (key 13975A70E63C361C73AE69EF6EEB81F8981C74C7, Richard
+-- Biener, signing subkey 7F74F97C103468EE5D750B583AB00996FC26A641, listed in the
+-- GNU keyring), but the key is only bound with SHA-1 self-signatures, which
+-- Zoi's verifier rejects. The pinned hash matches Gentoo's Manifest for this
+-- file (Gentoo verifies the signature); the pinned hash is the trust anchor.
 
 metadata({
 	name = "gcc",
 	repo = "core",
 	version = version,
-	revision = "10",
+	revision = "1",
 	debug = { sub_package = true },
 	description = "The GNU Compiler Collection - C and C++ frontends and runtimes",
 	website = "https://gcc.gnu.org",
@@ -95,8 +99,8 @@ dependencies({
 					"pacman:flex",
 					"pacman:gawk",
 					"pacman:gcc-ada",
+					"pacman:curl",
 					"pacman:gcc-d",
-					"pacman:git",
 					"pacman:gmp",
 					"pacman:lib32-gcc-libs",
 					"pacman:lib32-glibc",
@@ -324,41 +328,52 @@ dependencies({
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		if [ ! -d gcc ]; then
-			git clone %s gcc
-			cd gcc
-			git checkout %s
-			cd ..
-		fi
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
-		cd gcc
+function prepare()
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/gcc/gcc-$VER" \
+				"https://mirrors.kernel.org/gnu/gcc/gcc-$VER" \
+				"https://ftp.gnu.org/gnu/gcc/gcc-$VER"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "gcc-$VER.tar.xz"
+		echo "$SHA512  gcc-$VER.tar.xz" | sha512sum -c -
+		tar -xf "gcc-$VER.tar.xz"
+
+		cd "gcc-$VER"
+		# Fixes from the releases/gcc-16 branch made after the release
+		patch -Np1 -i "$PKGLUADIR/patches/0001-backports-from-releases-gcc-16.patch"
+
 		# Arch Linux installs x86_64 libraries into /usr/lib rather than /usr/lib64
 		sed -i '/m64=/s/lib64/lib/' gcc/config/i386/t-linux64
 
 		# Reproducible gcc-ada
-		patch -Np0 < "${PKGLUADIR}/gcc-ada-repro.patch"
+		patch -Np0 -i "$PKGLUADIR/patches/gcc-ada-repro.patch"
 
 		# Tune branch prediction cost
-		patch -Np1 < "${PKGLUADIR}/tune_branch_prediction_cost.patch"
+		patch -Np1 -i "$PKGLUADIR/patches/tune_branch_prediction_cost.patch"
 		cd ..
 
 		mkdir -p gcc-build libgccjit-build split
 	]],
-		git_url,
-		commit
-	))
+		opts
+	)
 end
 
 function build()
-	cmd([[
-		set -e
-
+	cmd(
+		[[
 		CHOST="${CHOST:-x86_64-pc-linux-gnu}"
 		CARCH="${CARCH:-x86_64}"
-		_pkgver="16.2.1"
+		_pkgver="$VER"
 		_libdir="usr/lib/gcc/$CHOST/${_pkgver%%.*}"
 
 		_confflags=(
@@ -396,14 +411,14 @@ function build()
 			CFLAGS=${CFLAGS/-Werror=format-security/}
 			CXXFLAGS=${CXXFLAGS/-Werror=format-security/}
 
-			../gcc/configure \
+			../gcc-$VER/configure \
 				--enable-languages=ada,c,c++,d,fortran,go,lto,m2,objc,obj-c++,rust,cobol \
 				--disable-bootstrap \
 				"${_confflags[@]}"
 
 			make -O -j"$(nproc)" LDFLAGS_FOR_TARGET="$LDFLAGS"
 
-			# Documentation
+			# Documentation (needs doxygen; optional, so a failure is not fatal)
 			make -O -C "$CHOST/libstdc++-v3/doc" doc-man-doxygen || true
 			cd ..
 		fi
@@ -411,7 +426,7 @@ function build()
 		# Build libgccjit separately
 		if [ ! -f libgccjit-build/gcc/libgccjit.so ]; then
 			cd libgccjit-build
-			../gcc/configure \
+			../gcc-$VER/configure \
 				--enable-languages=jit \
 				--disable-bootstrap \
 				--enable-host-shared \
@@ -586,56 +601,46 @@ function build()
 			ln -sf "/usr/bin/$binary" "split/main/usr/bin/$CARCH-linux-gnu-$binary"
 		done
 
-		install -Dm755 "${PKGLUADIR}/c89" split/main/usr/bin/c89
-		install -Dm755 "${PKGLUADIR}/c99" split/main/usr/bin/c99
+		install -Dm755 "${PKGLUADIR}/files/c89" split/main/usr/bin/c89
+		install -Dm755 "${PKGLUADIR}/files/c99" split/main/usr/bin/c99
 
+		# The man pages need doxygen output, which is optional; a failed doc
+		# build above leaves nothing to install.
 		make -C "gcc-build/$CHOST/libstdc++-v3/doc" DESTDIR="$(pwd)/split/main" doc-install-man || true
 
+		# Byte-compiling the gdb pretty printers is an optimisation only.
 		python3 -m compileall "split/main/usr/share/gcc-${_pkgver%%.*}/" 2>/dev/null || true
 		python3 -O -m compileall "split/main/usr/share/gcc-${_pkgver%%.*}/" 2>/dev/null || true
-	]])
+	]],
+		opts
+	)
 end
 
 function package(args)
 	local sub = (args and args.sub) or "main"
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	if sub == "main" or sub == "" then
-		cmd(string.format(
-			[[
-			ROOT="%s"
-			mkdir -p "$ROOT"
-			if [ -d split/main ]; then
-				cp -a split/main/* "$ROOT/"
-			fi
-		]],
-			root
-		))
-	elseif sub == "gcc-libs" then
-		cmd(string.format(
-			[[
-			ROOT="%s"
-			mkdir -p "$ROOT"
-			# Metapackage placeholder
-		]],
-			root
-		))
-	else
-		cmd(string.format(
-			[[
-			ROOT="%s"
-			mkdir -p "$ROOT"
-			if [ -d "split/%s" ]; then
-				cp -a "split/%s"/* "$ROOT/"
-			fi
-		]],
-			root,
-			sub,
-			sub
-		))
+	if sub == "" then
+		sub = "main"
 	end
 
-	-- zlicense("LICENSE")
+	-- gcc-libs is a metapackage: it only pulls in the runtime libraries.
+	local env = { SUB = sub }
+	cmd(
+		[[
+		mkdir -p "$ROOT"
+		if [ "$SUB" != "gcc-libs" ] && [ -d "split/$SUB" ]; then
+			cp -a "split/$SUB"/. "$ROOT/"
+		fi
+	]],
+		{ check = true, env = env }
+	)
+
+	-- Every sub-package except the gcc-libs metapackage ships GCC code under
+	-- GPL-3.0-or-later with the GCC Runtime Library Exception.
+	if sub ~= "gcc-libs" then
+		local src = "gcc-" .. version
+		zlicense(src .. "/COPYING3")
+		zlicense(src .. "/COPYING.RUNTIME", "RUNTIME.LIBRARY.EXCEPTION")
+	end
 end
 
 function test()

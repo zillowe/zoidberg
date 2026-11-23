@@ -7,7 +7,7 @@ metadata({
 	name = "libxml2",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "XML C parser and toolkit",
 	website = "https://gitlab.gnome.org/GNOME/libxml2",
@@ -37,6 +37,7 @@ dependencies({
 					"pacman:base-devel",
 					"pacman:curl",
 					"pacman:gcc",
+					"pacman:icu",
 					"pacman:meson",
 					"pacman:ninja",
 					"pacman:zlib",
@@ -47,27 +48,20 @@ dependencies({
 	runtime = {
 		required = {
 			"zoi:@core/glibc",
+			"zoi:@core/icu",
 			"zoi:@core/zlib",
 		},
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "libxml2-" .. version .. ".tar.xz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://download.gnome.org/sources/libxml2/2.15"; do
@@ -77,35 +71,39 @@ function prepare()
 		}
 		fetch "libxml2-$VER.tar.xz"
 		echo "$SHA512  libxml2-$VER.tar.xz" | sha512sum -c -
-	]])
-	sh([[tar -xf "libxml2-$VER.tar.xz"]])
+	]],
+		opts
+	)
+	cmd([[tar -xf "libxml2-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "libxml2-$VER"
 		meson setup _build \
 			--prefix=/usr \
 			--buildtype=plain \
 			-Ddefault_library=shared \
-			-Dicu=disabled \
+			-Dicu=enabled \
 			-Dhistory=disabled \
 			-Dreadline=disabled \
 			-Dpython=disabled \
 			-Dlegacy=enabled \
 			-Dzlib=enabled
 		meson compile -C _build
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "libxml2-$VER"
 		meson install -C _build --destdir "$ROOT"
-		for f in Copyright; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/libxml2/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+	zlicense("libxml2-" .. version .. "/Copyright")
 end

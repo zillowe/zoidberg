@@ -1,10 +1,14 @@
 local version = ZOI.VERSION or "1.7.3"
+local sha512 = "1f0946461b879886ecade76793377d97d6a3036960196e37bb4fb05d6e30552e17fe1e652c6b0e7b7b1ce159d75c00f35df1c197cfd6b0012e7e3bb1bd42f144"
+-- Release signing key (Dmitry V. Levin), one of the Linux-PAM release keys
+-- listed by Arch Linux.
+local signing_key = "7BECFE3AF7B280BB52FF77F104BA4521C996DDE1"
 
 metadata({
 	name = "pam",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "PAM (Pluggable Authentication Modules) library",
 	website = "https://github.com/linux-pam/linux-pam",
@@ -52,6 +56,7 @@ dependencies({
 				required = {
 					-- Arch packaging assumes the base-devel group
 					"pacman:base-devel",
+					"pacman:curl",
 					"pacman:audit",
 					"pacman:docbook-xml",
 					"pacman:docbook-xsl",
@@ -60,14 +65,17 @@ dependencies({
 					"pacman:fop",
 					"pacman:gcc",
 					"pacman:gettext",
-					"pacman:git",
+					"pacman:libnsl",
+					"pacman:libtirpc",
 					"pacman:libxcrypt",
 					"pacman:libxml2",
 					"pacman:libxslt",
 					"pacman:meson",
 					"pacman:ninja",
 					"pacman:systemd",
+					"pacman:tar",
 					"pacman:w3m",
+					"pacman:xz",
 				},
 			},
 		},
@@ -76,6 +84,8 @@ dependencies({
 		required = {
 			"zoi:@core/audit",
 			"zoi:@core/glibc",
+			"zoi:@core/libnsl",
+			"zoi:@core/libtirpc",
 			"zoi:@core/libxcrypt",
 			"zoi:@core/pambase",
 			"zoi:@core/systemd:libs",
@@ -83,33 +93,42 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d pam ]; then
-			git clone --depth 1 --branch "v$VER" https://github.com/linux-pam/linux-pam.git pam
-		fi
-	]])
+	local tarball = "Linux-PAM-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://github.com/linux-pam/linux-pam/releases/download/v$VER"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "Linux-PAM-$VER.tar.xz"
+		fetch "Linux-PAM-$VER.tar.xz.asc"
+		echo "$SHA512  Linux-PAM-$VER.tar.xz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".asc", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "Linux-PAM-$VER.tar.xz"]], opts)
 end
 
 function build()
-	-- Parlex ships no libtirpc/libnsl, so NIS support is disabled instead of
-	-- linking the build host's copies. With --auto-features enabled, the
-	-- remaining auto features become hard requirements: i18n (glibc intl +
-	-- gettext), docs (xsltproc, xmllint, xmlcatalog, docbook catalogs, w3m),
-	-- audit (libaudit) and pam_unix (libxcrypt). openssl defaults to disabled.
-	sh([[
+	-- With --auto-features enabled, auto features become hard requirements:
+	-- i18n (glibc intl + gettext), docs (xsltproc, xmllint, xmlcatalog,
+	-- docbook catalogs, w3m), audit (libaudit), pam_unix (libxcrypt) and NIS
+	-- support in pam_unix (libnsl + libtirpc, as in Arch). openssl defaults
+	-- to disabled.
+	cmd(
+		[[
 		rm -rf build
 		meson setup \
 			--prefix /usr \
@@ -123,24 +142,28 @@ function build()
 			-Deconf=disabled \
 			-Dselinux=disabled \
 			-Delogind=disabled \
-			-Dnis=disabled \
 			-Dpam_userdb=disabled \
 			-Dpwaccess=disabled \
 			-Dvendordir='' \
-			pam build
+			"Linux-PAM-$VER" build
 		meson compile -C build
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		meson install -C build --destdir "$ROOT"
-		install -Dm644 "$PKGLUADIR/pam.tmpfiles" "$ROOT/usr/lib/tmpfiles.d/pam.conf"
+		install -Dm644 "$PKGLUADIR/files/pam.tmpfiles" "$ROOT/usr/lib/tmpfiles.d/pam.conf"
 		rm -f "$ROOT"/usr/share/doc/Linux-PAM/*.pdf
 		chmod +s "$ROOT/usr/bin/unix_chkpwd"
 		find "$ROOT" -type d -empty -delete
-	]])
+	]],
+		opts
+	)
+	zlicense("Linux-PAM-" .. version .. "/COPYING")
 end
 
 function test()

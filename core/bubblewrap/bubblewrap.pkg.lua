@@ -1,10 +1,12 @@
 local version = ZOI.VERSION or "0.13.1"
+local sha512 =
+	"8c8b7e2ec0362e60e88674a1ffb001a9cc7e4107d754ba0db262fe4f14453df2c9a2f0f18a9267f56f0c89d97cdf7f2e244315e86d03b1404477f21e8184dd1c"
 
 metadata({
 	name = "bubblewrap",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Unprivileged sandboxing tool",
 	website = "https://github.com/containers/bubblewrap",
@@ -31,12 +33,11 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					-- Arch packaging assumes the base-devel group
 					"pacman:base-devel",
 					"pacman:bash-completion",
+					"pacman:curl",
 					"pacman:docbook-xsl",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:libcap",
 					"pacman:libxslt",
 					"pacman:meson",
@@ -54,31 +55,27 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d bubblewrap ]; then
-			git clone --depth 1 --branch "v$VER" https://github.com/containers/bubblewrap.git bubblewrap
-		fi
-	]])
+	cmd(
+		[[
+		curl -sSfL --retry 3 --retry-all-errors \
+			"https://github.com/containers/bubblewrap/releases/download/v$VER/bubblewrap-$VER.tar.xz" \
+			-o "bubblewrap-$VER.tar.xz"
+		echo "$SHA512  bubblewrap-$VER.tar.xz" | sha512sum -c -
+		tar -xf "bubblewrap-$VER.tar.xz"
+	]],
+		opts
+	)
 end
 
 function build()
 	-- assume_kernel: oldest kernel bwrap may run on (major.minor.0). Kept at
 	-- the same conservative baseline Arch uses, so older retained kernels
 	-- still work.
-	sh([[
+	cmd(
+		[[
 		rm -rf build
 		meson setup \
 			--prefix /usr \
@@ -90,16 +87,23 @@ function build()
 			-D b_pie=true \
 			-D assume_kernel=6.18.0 \
 			-D selinux=disabled \
-			bubblewrap build
+			"bubblewrap-$VER" build
 		meson compile -C build
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
+	cmd(
+		[[
 		mkdir -p "$ROOT"
 		meson install -C build --destdir "$ROOT"
-	]])
+	]],
+		opts
+	)
+
+	zlicense("bubblewrap-" .. version .. "/COPYING")
 end
 
 function test()

@@ -7,7 +7,7 @@ metadata({
 	name = "man-db",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "A utility for reading man pages",
 	website = "https://man-db.gitlab.io/man-db/",
@@ -62,22 +62,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "man-db-" .. version .. ".tar.xz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://download.savannah.nongnu.org/releases/man-db" \
@@ -89,16 +81,19 @@ function prepare()
 		fetch "man-db-$VER.tar.xz"
 		fetch "man-db-$VER.tar.xz.asc"
 		echo "$SHA512  man-db-$VER.tar.xz" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".asc", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "man-db-$VER.tar.xz"]])
+	cmd([[tar -xf "man-db-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "man-db-$VER"
 		./configure \
 			--prefix=/usr \
@@ -112,21 +107,27 @@ function build()
 			--enable-mandirs=GNU \
 			--with-sections="1 1p n l 8 3 3p 0 0p 2 3type 5 4 9 6 7"
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "man-db-$VER"
 		make DESTDIR="$ROOT" install
 		# Part of groff
 		rm -f "$ROOT/usr/bin/zsoelim" "$ROOT/usr/share/man/man1/zsoelim.1"
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/man-db/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+	-- COPYING is GPL-3; the GPL-2 text man-db is licensed under and the
+	-- LGPL-2.1 of its bundled library code live in docs/.
+	local src = "man-db-" .. version
+	zlicense(src .. "/COPYING")
+	zlicense(src .. "/docs/COPYING.GPLv2")
+	zlicense(src .. "/docs/COPYING.LIB")
 	-- Keeps the index `apropos` and `whatis` read up to date.
 	zcp("${pkgluadir}/hooks/man-db.hook.yaml", "${pkgstore}/hooks/man-db.hook.yaml")
 end

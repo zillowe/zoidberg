@@ -4,7 +4,7 @@ metadata({
 	name = "pambase",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	description = "Base PAM configuration for services",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "GPL-3.0-or-later",
@@ -48,12 +48,18 @@ end
 
 function package()
 	for _, f in ipairs(files) do
-		zcp("${pkgluadir}/" .. f, "${usrroot}/etc/pam.d/" .. f)
+		zcp("${pkgluadir}/files/" .. f, "${usrroot}/etc/pam.d/" .. f)
 	end
+	-- These configuration files have no upstream source tree, so the license
+	-- text they are distributed under is committed next to this recipe.
+	zlicense("${pkgluadir}/files/LICENSE.GPL-3.0-or-later", "LICENSE")
 end
 
 function test()
-	cmd([[
-		test -f /etc/pam.d/system-auth || true
-	]])
+	-- zcp operations are staged after package() returns, so check the files
+	-- this package ships rather than the staged root.
+	for _, f in ipairs(files) do
+		cmd([[test -s "$PKGLUADIR/files/$F"]], { check = true, env = { F = f } })
+	end
+	return true
 end

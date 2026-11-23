@@ -1,11 +1,14 @@
 local version = ZOI.VERSION or "9.12"
-local tar_url = string.format("https://ftp.gnu.org/gnu/coreutils/coreutils-%s.tar.gz", version)
+local sha512 =
+	"f25514cf02fd25365252d9a8f6fc5f8ed063fffdcb11c7eff380e3fa632741105d11b45ded332a2af5e913f77a143b68a2bd1fbdca0085e127fb17c80c35279b"
+-- Release signing key (Pádraig Brady), listed in the GNU keyring.
+local signing_key = "6C37DC12121A5006BC1DB804DF6FD971306037D9"
 
 metadata({
 	name = "coreutils",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "8",
 	debug = { sub_package = true },
 	description = "The basic file, shell and text manipulation utilities of the GNU operating system",
 	website = "https://www.gnu.org/software/coreutils/",
@@ -137,13 +140,10 @@ dependencies({
 				required = {
 					"pacman:acl",
 					"pacman:attr",
-					"pacman:autoconf",
-					"pacman:automake",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
 					"pacman:gmp",
-					"pacman:gperf",
 					"pacman:libcap",
 					"pacman:make",
 					"pacman:openssl",
@@ -167,79 +167,68 @@ dependencies({
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		if [ ! -d "coreutils-%s" ]; then
-			if ! curl -sSfL "%s" -o "coreutils-%s.tar.gz"; then
-				echo "Tarball download failed, falling back to git clone..."
-				git clone --depth 1 --branch "v%s" https://git.savannah.gnu.org/git/coreutils.git "coreutils-%s"
-				cd "coreutils-%s"
-				git clone --depth 1 https://git.savannah.gnu.org/git/gnulib.git gnulib
-				export GNULIB_SRCDIR="$(pwd)/gnulib"
-				./bootstrap --skip-po --gnulib-srcdir="$(pwd)/gnulib"
-				cd ..
-			else
-				tar -xf "coreutils-%s.tar.gz"
-			fi
-		fi
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
-		cd "coreutils-%s"
-		if [ ! -f .patched ]; then
-			patch -Np1 -i "${PKGLUADIR}/0001-env-printenv-only-quote-when-outputting-to-terminals.patch" || true
-			touch .patched
-		fi
+function prepare()
+	local tarball = "coreutils-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/coreutils" \
+				"https://mirrors.kernel.org/gnu/coreutils" \
+				"https://ftp.gnu.org/gnu/coreutils"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "coreutils-$VER.tar.xz"
+		fetch "coreutils-$VER.tar.xz.sig"
+		echo "$SHA512  coreutils-$VER.tar.xz" | sha512sum -c -
 	]],
-		version,
-		tar_url,
-		version,
-		version,
-		version,
-		version,
-		version,
-		version
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "coreutils-$VER.tar.xz"
+		cd "coreutils-$VER"
+		patch -Np1 -i "$PKGLUADIR/patches/0001-env-printenv-only-quote-when-outputting-to-terminals.patch"
+	]],
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "coreutils-%s"
-
+		cd "coreutils-$VER"
 		export FORCE_UNSAFE_CONFIGURE=1
-		find . -type f \( -name "config.hin" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
-
 		./configure \
 			--prefix=/usr \
 			--libexecdir=/usr/lib \
 			--with-openssl \
 			--enable-no-install-program=kill,uptime
-
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		mkdir -p "$ROOT"
-
-		make -C "coreutils-%s" DESTDIR="$ROOT" install
+		make -C "coreutils-$VER" DESTDIR="$ROOT" install
 		# The Info index is generated on the target, never shipped.
 		rm -f "$ROOT/usr/share/info/dir"
 	]],
-		root,
-		version
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("coreutils-" .. version .. "/COPYING")
 end
 
 function test()

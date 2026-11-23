@@ -1,4 +1,9 @@
 local version = ZOI.VERSION or "3.54.1"
+local sha512 = "1c728b93da228d2c135096a5896728934d7d3eda4bdaa2dd05bb02812691ed56c8a4a9181b3b00215f5849d5cd8a191a7cbbc132f11b1fa2ebb6f8abaa92c677"
+-- SQLite does not sign releases. The hash is Gentoo's (same file, same
+-- size as listed on sqlite.org/download.html, whose SHA3-256 for it is
+-- 877c6f4996ce7adb368686bce21638de9e3d91534832ad3d9d119037d1bc22ad), and the
+-- previously pinned sha256 (387e7f6c...c71b) matches Arch's.
 -- sqlite.org groups source archives by release year
 local release_year = "2026"
 
@@ -12,7 +17,7 @@ metadata({
 	name = "sqlite",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "A C library that implements an SQL database engine",
 	website = "https://www.sqlite.org/",
@@ -47,6 +52,9 @@ metadata({
 	types = { "source" },
 	zoios = true,
 	provides = { "sqlite3" },
+	-- tcl: the Tcl extension (TEA) and sqltclsh, Arch's sqlite-tcl.
+	sub_packages = { "main", "tcl" },
+	main_subs = { "main" },
 })
 
 dependencies({
@@ -66,40 +74,53 @@ dependencies({
 		},
 	},
 	runtime = {
-		required = {
-			"zoi:@core/glibc",
-			"zoi:@core/readline",
-			"zoi:@core/zlib",
+		sub_packages = {
+			main = {
+				required = {
+					"zoi:@core/glibc",
+					"zoi:@core/readline",
+					"zoi:@core/zlib",
+				},
+			},
+			tcl = {
+				required = {
+					"zoi:@core/glibc",
+					"zoi:@core/sqlite",
+					"zoi:@core/tcl",
+					"zoi:@core/zlib",
+				},
+			},
 		},
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SRCVER='" .. srcver .. "'\n"
-		.. "YEAR='" .. release_year .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { SRCVER = srcver, YEAR = release_year, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d "sqlite-src-$SRCVER" ]; then
-			curl -sSfL "https://www.sqlite.org/$YEAR/sqlite-src-$SRCVER.zip" -o "sqlite-src-$SRCVER.zip"
-			echo "387e7f6cad4797b17848c07d453dc6606917bb356a6cfe5a3abafd38c240c71b  sqlite-src-$SRCVER.zip" | sha256sum -c -
-			unzip -q "sqlite-src-$SRCVER.zip"
-		fi
-	]])
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://www.sqlite.org/$YEAR" \
+				"https://www2.sqlite.org/$YEAR" \
+				"https://www3.sqlite.org/$YEAR"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "sqlite-src-$SRCVER.zip"
+		echo "$SHA512  sqlite-src-$SRCVER.zip" | sha512sum -c -
+		unzip -q "sqlite-src-$SRCVER.zip"
+	]],
+		opts
+	)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		export CFLAGS="$(printf '%s' "${CFLAGS:-}" | sed 's/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2/')"
 		export CXXFLAGS="$(printf '%s' "${CXXFLAGS:-}" | sed 's/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2/')"
 		export CPPFLAGS="${CPPFLAGS:-} \
@@ -127,24 +148,64 @@ function build()
 		sed -i -e 's/$(LDFLAGS.libsqlite3)/ -Wl,-O1,--as-needed \0/g' main.mk
 		make -j"$(nproc)"
 		make -j"$(nproc)" dbdump dbhash dbtotxt index_usage showdb showjournal showshm \
-			showstat4 showwal sqldiff sqlite3_expert sqlite3_rsync
-	]])
+			showstat4 showwal sqldiff sqlite3_expert sqlite3_rsync sqltclsh
+	]],
+		opts
+	)
 end
 
-function package()
-	sh([[
-		mkdir -p "$ROOT"
-		cd "sqlite-src-$SRCVER"
-		make DESTDIR="$ROOT" install
-		install -m755 dbdump dbhash dbtotxt index_usage showdb showjournal showshm \
-			showstat4 showwal sqldiff sqlite3_expert sqlite3_rsync "$ROOT/usr/bin/"
-		install -dm755 "$ROOT/usr/share/man/man1"
-		install -m644 sqlite3.1 "$ROOT/usr/share/man/man1/"
-		install -Dm644 "$PKGLUADIR/license.txt" "$ROOT/usr/share/licenses/sqlite/license.txt"
+function package(args)
+	local sub = (args and args.sub) or "main"
 
-		# The Tcl extension is not shipped
-		rm -rf "$ROOT"/usr/lib/tcl*
-	]])
+	-- Install once into a scratch tree, then split it between sub-packages.
+	cmd(
+		[[
+		DEST="$(pwd)/sqlite-dest"
+		if [ ! -d "$DEST" ]; then
+			make -C "sqlite-src-$SRCVER" DESTDIR="$DEST" install
+		fi
+	]],
+		opts
+	)
+
+	if sub == "tcl" then
+		-- The extension directory (holding pkgIndex.tcl) is wherever the
+		-- build host's Tcl wants packages, e.g. /usr/lib/tcl9.0/sqlite3.x.
+		cmd(
+			[[
+			DEST="$(pwd)/sqlite-dest"
+			ext="$(find "$DEST/usr/lib" -name pkgIndex.tcl -path '*sqlite*' -printf '%h\n')"
+			[ -n "$ext" ] || { echo "sqlite Tcl extension was not built" >&2; exit 1; }
+			rel="${ext#"$DEST"/}"
+			mkdir -p "$ROOT/$(dirname "$rel")" "$ROOT/usr/bin"
+			cp -a "$ext" "$ROOT/$rel"
+			install -m755 "sqlite-src-$SRCVER/sqltclsh" "$ROOT/usr/bin/"
+		]],
+			opts
+		)
+	else
+		cmd(
+			[[
+			DEST="$(pwd)/sqlite-dest"
+			mkdir -p "$ROOT"
+			cp -a "$DEST/." "$ROOT/"
+			# The Tcl extension is the tcl sub-package
+			find "$ROOT/usr/lib" -name pkgIndex.tcl -path '*sqlite*' -printf '%h\n' | while read -r ext; do
+				rm -rf "$ext"
+			done
+			find "$ROOT/usr/lib" -mindepth 1 -type d -empty -delete
+			cd "sqlite-src-$SRCVER"
+			install -m755 dbdump dbhash dbtotxt index_usage showdb showjournal showshm \
+				showstat4 showwal sqldiff sqlite3_expert sqlite3_rsync "$ROOT/usr/bin/"
+			install -dm755 "$ROOT/usr/share/man/man1"
+			install -m644 sqlite3.1 "$ROOT/usr/share/man/man1/"
+		]],
+			opts
+		)
+	end
+	-- SQLite is public domain; the text is sqlite.org's copyright page
+	-- (as Arch's license.txt).
+	zlicense("${pkgluadir}/files/license.txt")
 end
 
 function test()

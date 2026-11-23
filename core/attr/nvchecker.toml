@@ -1,4 +1,4 @@
 [attr]
-source = "git"
-git = "https://git.savannah.nongnu.org/git/attr.git"
-prefix = "v"
+source = "regex"
+url = "https://download.savannah.nongnu.org/releases/attr/"
+regex = 'attr-([\d.]+)\.tar\.xz'

@@ -1,11 +1,15 @@
-local version = ZOI.VERSION or "1.3.2"
-local tar_url = string.format("https://github.com/madler/zlib/releases/download/v%s/zlib-%s.tar.xz", version, version)
+local version = ZOI.VERSION or "1.4"
+local sha512 = "c6701ef216f2ea451056466794c520df62af0a7ddf57c907c3263678dc625f3d6466e0187106dec0d7721ad6fc6cf105e0f93a4cac82fbcc2ba919eebd29c0b0"
+-- Upstream signs releases (key 5ED46A6721D365587791E2AA783FCD8E58BCAFBA, Mark Adler),
+-- but the key is only bound with SHA-1 self-signatures, which Zoi's
+-- verifier rejects. The signature was checked with gpg when this hash was
+-- recorded; the pinned hash is the trust anchor.
 
 metadata({
 	name = "zlib",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "1",
 	debug = { sub_package = true },
 	description = "Compression library implementing the deflate compression method found in gzip and PKZIP",
 	website = "https://www.zlib.net/",
@@ -40,7 +44,6 @@ dependencies({
 					"pacman:gcc",
 					"pacman:libtool",
 					"pacman:make",
-					"pacman:patch",
 					"pacman:tar",
 					"pacman:xz",
 				},
@@ -73,41 +76,41 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	cmd(
 		[[
-		if [ ! -d "zlib-%s" ]; then
-			curl -sSL "%s" -o "zlib-%s.tar.xz"
-			tar -xf "zlib-%s.tar.xz"
-		fi
+		fetch() {
+			for base in \
+				"https://zlib.net" \
+				"https://zlib.net/fossils" \
+				"https://github.com/madler/zlib/releases/download/v$VER"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "zlib-$VER.tar.xz"
+		echo "$SHA512  zlib-$VER.tar.xz" | sha512sum -c -
+		tar -xf "zlib-$VER.tar.xz"
 
-		cd "zlib-%s"
-
-		# Download and apply upstream patches if not already applied
-		if [ ! -f .patched ]; then
-			curl -sSL "https://github.com/madler/zlib/commit/36ff1be48ef696cc67b0855f7c8537ce0276210d.patch" | patch -Np1 || true
-			curl -sSL "https://github.com/madler/zlib/commit/df84af25dc1942490e1d1c899a07619152a46148.patch" | patch -Np1 || true
-			touch .patched
-		fi
-
-		cd contrib/minizip
-		cp -f Makefile Makefile.orig 2>/dev/null || true
-		cp -f ../README.contrib readme.txt 2>/dev/null || true
+		# minizip ships only configure.ac/Makefile.am, so it is bootstrapped
+		# here; the top-level configure is a hand-written script.
+		cd "zlib-$VER/contrib/minizip"
+		cp -f Makefile Makefile.orig
+		cp -f ../README.contrib readme.txt
 		autoreconf -fiv
 	]],
-		version,
-		tar_url,
-		version,
-		version,
-		version
-	))
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "zlib-%s"
+		cd "zlib-$VER"
 
 		CFLAGS="${CFLAGS} -ffat-lto-objects"
 		./configure --prefix=/usr
@@ -117,55 +120,48 @@ function build()
 		./configure --prefix=/usr --enable-static=no
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package(args)
 	local sub = (args and args.sub) or "main"
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
 
 	if sub == "main" or sub == "" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT"
 
-			make -C "zlib-%s" DESTDIR="$ROOT" install
+			make -C "zlib-$VER" DESTDIR="$ROOT" install
 			# Remove static library to isolate into static sub-package
 			rm -f "$ROOT/usr/lib/libz.a"
 		]],
-			root,
-			version
-		))
+			opts
+		)
 	elseif sub == "static" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT/usr/lib"
-			install -m644 "zlib-%s/libz.a" "$ROOT/usr/lib/libz.a"
+			install -m644 "zlib-$VER/libz.a" "$ROOT/usr/lib/libz.a"
 		]],
-			root,
-			version
-		))
+			opts
+		)
 	elseif sub == "minizip" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT"
 
-			make -C "zlib-%s/contrib/minizip" DESTDIR="$ROOT" install
+			make -C "zlib-$VER/contrib/minizip" DESTDIR="$ROOT" install
 			rm -f "$ROOT/usr/include/minizip/crypt.h"
 		]],
-			root,
-			version
-		))
+			opts
+		)
+		-- The Info-ZIP-derived encryption code is compiled into libminizip.
+		zlicense("zlib-" .. version .. "/contrib/minizip/LICENSE.Info-Zip")
 	end
 
-	-- zlicense("LICENSE")
+	-- Every sub-package (main, static, minizip) gets its own copy.
+	zlicense("zlib-" .. version .. "/LICENSE")
 end
 
 function test()

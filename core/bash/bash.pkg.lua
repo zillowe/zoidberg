@@ -1,18 +1,18 @@
 local version = ZOI.VERSION or "5.3.20"
-local patchlevel = string.match(version, "%.(%d+)$") or "0"
-local basever = string.gsub(version, "%.%d+$", "")
-if basever == version then
-	basever = version
-	patchlevel = "0"
-end
-
-local tar_url = string.format("https://ftp.gnu.org/gnu/bash/bash-%s.tar.gz", basever)
+local basever = string.match(version, "^(%d+%.%d+)")
+local patchlevel = string.match(version, "^%d+%.%d+%.(%d+)$") or "0"
+local sha512 =
+	"426702c8b0fb9e0c9956259973ce5b657890fd47f4f807a64febf20077bb48d0b91474ed6e843d2ef277186b46c5fffa79b808da9b48d4ec027d5e2de1b28ed8"
+-- Upstream signs releases and patches (key 7C0135FB088AAF6C66C650B9BB5869F064EA74AB,
+-- Chet Ramey), but the key is only bound with SHA-1 self-signatures, which
+-- Zoi's verifier rejects. The signatures were checked with gpg when this hash
+-- and the patches were recorded; the pinned hash is the trust anchor.
 
 metadata({
 	name = "bash",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "The GNU Bourne Again shell",
 	website = "https://www.gnu.org/software/bash/bash.html",
@@ -83,45 +83,44 @@ hooks({
 	},
 })
 
+local opts = { check = true, env = { BASEVER = basever, PLEVEL = patchlevel, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	cmd(
 		[[
-		if [ ! -d "bash-%s" ]; then
-			curl -sSL "%s" -o "bash-%s.tar.gz"
-			tar -xf "bash-%s.tar.gz"
-		fi
-
-		cd "bash-%s"
-
-		# Download and apply official GNU point patches
-		_plevel=%s
-		_bver_flat=$(echo "%s" | tr -d '.')
-		for (( _p=1; _p <= _plevel; _p++ )); do
-			_patch_num=$(printf "%%03d" $_p)
-			_patch_name="bash${_bver_flat}-${_patch_num}"
-			if [ ! -f ".applied_${_patch_name}" ]; then
-				echo "Applying $_patch_name..."
-				curl -sSL "https://ftp.gnu.org/gnu/bash/bash-%s-patches/${_patch_name}" | patch -p0 || true
-				touch ".applied_${_patch_name}"
-			fi
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/bash" \
+				"https://ftp.gnu.org/gnu/bash" \
+				"https://mirrors.kernel.org/gnu/bash"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "bash-$BASEVER.tar.gz"
+		echo "$SHA512  bash-$BASEVER.tar.gz" | sha512sum -c -
+		tar -xf "bash-$BASEVER.tar.gz"
+	]],
+		opts
+	)
+	cmd(
+		[[
+		cd "bash-$BASEVER"
+		flat=$(echo "$BASEVER" | tr -d '.')
+		p=1
+		while [ "$p" -le "$PLEVEL" ]; do
+			patch -p0 -i "$PKGLUADIR/patches/bash$flat-$(printf '%03d' "$p")"
+			p=$((p + 1))
 		done
 	]],
-		basever,
-		tar_url,
-		basever,
-		basever,
-		basever,
-		patchlevel,
-		basever,
-		basever
-	))
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "bash-%s"
+		cd "bash-$BASEVER"
 
 		_bashconfig=(
 			-DDEFAULT_PATH_VALUE=\'\"/usr/local/sbin:/usr/local/bin:/usr/bin\"\'
@@ -144,37 +143,32 @@ function build()
 
 		make -j"$(nproc)"
 	]],
-		basever
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
 		mkdir -p "$ROOT"/usr/bin "$ROOT"/etc/skel
 
-		make -C "bash-%s" DESTDIR="$ROOT" install
+		make -C "bash-$BASEVER" DESTDIR="$ROOT" install
 		ln -sf bash "$ROOT/usr/bin/sh"
 		ln -sf bash "$ROOT/usr/bin/rbash"
 
 		# System-wide configuration files
-		install -m644 "${PKGLUADIR}/system.bashrc" "$ROOT/etc/bash.bashrc"
-		install -m644 "${PKGLUADIR}/system.bash_logout" "$ROOT/etc/bash.bash_logout"
+		install -m644 "$PKGLUADIR/files/system.bashrc" "$ROOT/etc/bash.bashrc"
+		install -m644 "$PKGLUADIR/files/system.bash_logout" "$ROOT/etc/bash.bash_logout"
 
 		# User configuration file skeletons
-		install -m644 "${PKGLUADIR}/dot.bashrc" "$ROOT/etc/skel/.bashrc"
-		install -m644 "${PKGLUADIR}/dot.bash_profile" "$ROOT/etc/skel/.bash_profile"
-		install -m644 "${PKGLUADIR}/dot.bash_logout" "$ROOT/etc/skel/.bash_logout"
+		install -m644 "$PKGLUADIR/files/dot.bashrc" "$ROOT/etc/skel/.bashrc"
+		install -m644 "$PKGLUADIR/files/dot.bash_profile" "$ROOT/etc/skel/.bash_profile"
+		install -m644 "$PKGLUADIR/files/dot.bash_logout" "$ROOT/etc/skel/.bash_logout"
 	]],
-		root,
-		basever
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("bash-" .. basever .. "/COPYING")
 end
 
 function test()

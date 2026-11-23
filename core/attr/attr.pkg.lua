@@ -1,10 +1,14 @@
 local version = ZOI.VERSION or "2.6.0"
+local sha512 =
+	"870d0c34fbaa7520aad058ecd6509fe8eddd17430781a16d1e80484d4947307a7c641f0449183cbac1da611a85f82c9bee2d2d7bff76170fc2195b123100d22e"
+-- Release signing key (Andreas Gruenbacher), from upstream's keyring.
+local signing_key = "259B3792B3D6D319212CC4DCD5BF9FEB0313653A"
 
 metadata({
 	name = "attr",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Extended attribute support library for ACL support",
 	website = "https://savannah.nongnu.org/projects/attr",
@@ -34,12 +38,9 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:autoconf",
-					"pacman:automake",
+					"pacman:curl",
 					"pacman:gcc",
 					"pacman:gettext",
-					"pacman:git",
-					"pacman:libtool",
 					"pacman:make",
 				},
 			},
@@ -52,50 +53,68 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d attr ]; then
-			git clone --depth 1 --branch "v$VER" https://git.savannah.nongnu.org/git/attr.git attr
-			cd attr
+	local tarball = "attr-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://download.savannah.nongnu.org/releases/attr" \
+				"https://download-mirror.savannah.gnu.org/releases/attr"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "attr-$VER.tar.xz"
+		fetch "attr-$VER.tar.xz.sig"
+		echo "$SHA512  attr-$VER.tar.xz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "attr-$VER.tar.xz"
+		cd "attr-$VER"
 
-			# Remove the nfs entries from /etc/xattr.conf
-			# http://lists.gnu.org/archive/html/bug-coreutils/2019-03/msg00008.html
-			sed -i '/nfs/d' xattr.conf
-
-			./autogen.sh
-		fi
-	]])
+		# Remove the nfs entries from /etc/xattr.conf
+		# http://lists.gnu.org/archive/html/bug-coreutils/2019-03/msg00008.html
+		sed -i '/nfs/d' xattr.conf
+	]],
+		opts
+	)
 end
 
 function build()
-	sh([[
-		cd attr
+	cmd(
+		[[
+		cd "attr-$VER"
 		./configure \
 			--libdir=/usr/lib \
 			--libexecdir=/usr/lib \
 			--prefix=/usr \
 			--sysconfdir=/etc
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
-		make -C attr DESTDIR="$ROOT" install
-	]])
+	cmd(
+		[[
+		make -C "attr-$VER" DESTDIR="$ROOT" install
+	]],
+		opts
+	)
+
+	zlicense("attr-" .. version .. "/doc/COPYING")
+	zlicense("attr-" .. version .. "/doc/COPYING.LGPL")
 end
 
 function test()

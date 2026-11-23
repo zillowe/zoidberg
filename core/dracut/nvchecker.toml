@@ -1,3 +1,4 @@
 [dracut]
 source = "git"
-git = "https://github.com/dracut-ng/dracut-ng.git"
+git = "https://github.com/dracut-ng/dracut.git"
+include_regex = '^\d+$'

@@ -1,10 +1,14 @@
 local version = ZOI.VERSION or "0.8.4"
+local sha512 = "1585ae3f3feded2492e43f4dd5dd43183329c57ffe92afa907f71eb26deaf34beab4434458a2d87e8795a4226339c5b0b493bd8a9186bb6f0c752fa1fdef10e3"
+-- Upstream publishes no release tarball and does not sign releases, so this
+-- is GitHub's archive of the v<version> tag. The hash matches the one Gentoo
+-- records for the same archive (dev-libs/xxhash Manifest).
 
 metadata({
 	name = "xxhash",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Extremely fast non-cryptographic hash algorithm",
 	website = "https://cyan4973.github.io/xxHash/",
@@ -31,8 +35,8 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:curl",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:make",
 				},
 			},
@@ -45,38 +49,44 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d xxHash ]; then
-			git clone --depth 1 --branch "v$VER" https://github.com/Cyan4973/xxHash.git xxHash
-		fi
-	]])
+	cmd(
+		[[
+		curl -sSfL --retry 3 --retry-all-errors \
+			"https://github.com/Cyan4973/xxHash/archive/refs/tags/v$VER.tar.gz" \
+			-o "xxhash-$VER.tar.gz"
+		echo "$SHA512  xxhash-$VER.tar.gz" | sha512sum -c -
+		tar -xf "xxhash-$VER.tar.gz"
+	]],
+		opts
+	)
 end
 
 function build()
-	sh([[
-		make -j"$(nproc)" PREFIX=/usr DISPATCH=1 -C xxHash
-	]])
+	cmd(
+		[[
+		make -j"$(nproc)" PREFIX=/usr DISPATCH=1 -C "xxHash-$VER"
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
+	cmd(
+		[[
 		mkdir -p "$ROOT"
-		make PREFIX=/usr DISPATCH=1 DESTDIR="$ROOT" -C xxHash install
-		install -Dm644 xxHash/LICENSE -t "$ROOT/usr/share/licenses/xxhash"
-	]])
+		make PREFIX=/usr DISPATCH=1 DESTDIR="$ROOT" -C "xxHash-$VER" install
+	]],
+		opts
+	)
+
+	-- The library is BSD-2-Clause; the xxhsum command line tool is GPL-2.0-or-later.
+	zlicense("xxHash-" .. version .. "/LICENSE")
+	zlicense("xxHash-" .. version .. "/cli/COPYING", "COPYING.cli")
 end
 
 function test()

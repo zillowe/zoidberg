@@ -1,12 +1,13 @@
 local version = ZOI.VERSION or "20250605"
-local tag = version
-local git_url = "https://github.com/iputils/iputils.git"
+local sha512 = "1f3df2a4ea0a3f95bb9657d9ee36ed929fa841c9442dfd04e5d7f55ef533b0cac3182c2172b627c7ad7f366afdc1d232f2618d701bd1c601feadbfc754059cae"
+-- Release signing key (Petr Vorel), matching Arch Linux's validpgpkeys.
+local signing_key = "2016FEA4858B1C36B32E833AC0DEC2EE72F33A5F"
 
 metadata({
 	name = "iputils",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	debug = { sub_package = true },
 	description = "Network monitoring tools, including ping, arping, and tracepath",
 	website = "https://github.com/iputils/iputils",
@@ -38,9 +39,9 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:curl",
 					"pacman:docbook-xsl",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:libcap",
 					"pacman:libidn2",
 					"pacman:meson",
@@ -59,45 +60,59 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	local tarball = "iputils-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d iputils ]; then
-			git clone --depth 1 --branch "%s" "%s" iputils
-		fi
+		fetch() {
+			curl -sSfL --retry 3 --retry-all-errors \
+				"https://github.com/iputils/iputils/releases/download/$VER/$1" -o "$1"
+		}
+		fetch "iputils-$VER.tar.xz"
+		fetch "iputils-$VER.tar.xz.asc"
+		echo "$SHA512  iputils-$VER.tar.xz" | sha512sum -c -
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".asc", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "iputils-$VER.tar.xz"]], opts)
 end
 
 function build()
-	cmd([[
-		set -e
-
-		meson setup iputils build \
+	cmd(
+		[[
+		meson setup "iputils-$VER" build \
 			--prefix=/usr \
 			--buildtype=release \
 			-DUSE_IDN=true \
 			-DBUILD_MANS=true
 
 		meson compile -C build -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
 		DESTDIR="$ROOT" meson install -C build --quiet
 	]],
-		root
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	-- LICENSE maps each tool to its license; the texts are in Documentation/.
+	local src = "iputils-" .. version
+	zlicense(src .. "/LICENSE")
+	zlicense(src .. "/Documentation/LICENSE.BSD3")
+	zlicense(src .. "/Documentation/LICENSE.GPL2")
 end
 
 function test()

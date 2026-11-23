@@ -1,10 +1,14 @@
-local version = ZOI.VERSION or "2.6.4"
+local version = ZOI.VERSION or "2.7.5"
+local sha512 = "30d03ca78a30eedf98c9923a81fd279ecf91aee08c398a467533e856079c61e70ecbf37755c08c288c1c29dfaf1279845ccfb824eb06443cbf2a4602de441a44"
+-- Release signing key (Flex Releases), published with every upstream release
+-- and in the release announcement.
+local signing_key = "56D664C70CC2364CF5164914B7DFE8BB6C241FED"
 
 metadata({
 	name = "flex",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	debug = { sub_package = true },
 	description = "A tool for generating text-scanning programs",
 	website = "https://github.com/westes/flex",
@@ -31,16 +35,11 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:autoconf",
-					"pacman:automake",
 					"pacman:curl",
 					"pacman:gcc",
 					"pacman:gettext",
-					"pacman:help2man",
-					"pacman:libtool",
 					"pacman:m4",
 					"pacman:make",
-					"pacman:patch",
 					"pacman:tar",
 				},
 			},
@@ -55,49 +54,57 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d "flex-$VER" ]; then
-			curl -sSfL "https://github.com/westes/flex/releases/download/v$VER/flex-$VER.tar.gz" -o "flex-$VER.tar.gz"
-			echo "e87aae032bf07c26f85ac0ed3250998c37621d95f8bd748b31f15b33c45ee995  flex-$VER.tar.gz" | sha256sum -c -
-			tar -xf "flex-$VER.tar.gz"
-			cd "flex-$VER"
-			patch -p1 -i "$PKGLUADIR/flex-pie.patch"
-			autoreconf -fiv
-		fi
-	]])
+	local tarball = "flex-" .. version .. ".tar.gz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://github.com/westes/flex/releases/download/v$VER"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "flex-$VER.tar.gz"
+		fetch "flex-$VER.tar.gz.sig"
+		echo "$SHA512  flex-$VER.tar.gz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "flex-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "flex-$VER"
 		./configure --prefix=/usr
 		# Prevent excessive overlinking due to libtool
 		sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		make -C "flex-$VER" DESTDIR="$ROOT" install
 		ln -sf flex "$ROOT/usr/bin/lex"
+	]],
+		opts
+	)
 
-		install -Dm644 "flex-$VER/COPYING" "$ROOT/usr/share/licenses/flex/license.txt"
-	]])
+	zlicense("flex-" .. version .. "/COPYING", "license.txt")
 end
 
 function test()

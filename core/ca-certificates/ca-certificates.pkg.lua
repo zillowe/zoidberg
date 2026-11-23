@@ -4,7 +4,7 @@ metadata({
 	name = "ca-certificates",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	description = "Common CA certificates and trust management utilities",
 	website = "https://src.fedoraproject.org/rpms/ca-certificates",
 	license = "GPL-2.0-or-later",
@@ -45,7 +45,6 @@ dependencies({
 			"zoi:@core/ca-certificates-mozilla",
 			"zoi:@core/coreutils",
 			"zoi:@core/findutils",
-			-- `trust` extracts the certificate bundles
 			"zoi:@core/p11-kit",
 		},
 	},
@@ -59,33 +58,21 @@ hooks({
 	},
 })
 
+local opts = { check = true }
+
 function prepare()
 	-- Source files are packaged directly in the repository
 end
 
 function build()
-	cmd([[
-		if [ -f update-ca-trust.8.txt ]; then
-			a2x -v -f manpage update-ca-trust.8.txt 2>/dev/null || true
-		fi
-	]])
+	cmd([[a2x -v -f manpage -D . "$PKGLUADIR/files/update-ca-trust.8.txt"]], opts)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-	local pkgdir = LOCATION.PKGLUADIR or "."
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		PKGLUADIR="%s"
-		mkdir -p "$ROOT"/usr/bin "$ROOT"/usr/share/man/man8
-
-		install -m755 "${PKGLUADIR}/update-ca-trust" "$ROOT"/usr/bin/update-ca-trust
-		if [ -f update-ca-trust.8 ]; then
-			install -m644 update-ca-trust.8 "$ROOT"/usr/share/man/man8/
-		fi
+		install -Dm755 "$PKGLUADIR/files/update-ca-trust" "$ROOT/usr/bin/update-ca-trust"
+		install -Dm644 update-ca-trust.8 "$ROOT/usr/share/man/man8/update-ca-trust.8"
 
 		etcdir="$ROOT/etc/ca-certificates"
 		ssldir="$ROOT/etc/ssl"
@@ -96,38 +83,38 @@ function package()
 			"$etcdir"/extracted \
 			"$ssldir"/certs/java
 
-		if [ -f "${PKGLUADIR}/README.etc" ]; then
-			install -m644 "${PKGLUADIR}/README.etc" "$etcdir/README"
-		fi
-		if [ -f "${PKGLUADIR}/README.src" ]; then
-			install -m644 "${PKGLUADIR}/README.src" "$etcdir/trust-source/README"
-		fi
-		if [ -f "${PKGLUADIR}/README.usr" ]; then
-			install -m644 "${PKGLUADIR}/README.usr" "$usrdir/trust-source/README"
-		fi
-		if [ -f "${PKGLUADIR}/README.etcssl" ]; then
-			install -m644 "${PKGLUADIR}/README.etcssl" "$ssldir/README"
-		fi
-		if [ -f "${PKGLUADIR}/README.extr" ]; then
-			install -m644 "${PKGLUADIR}/README.extr" "$etcdir/extracted/README"
-		fi
+		install -m644 "$PKGLUADIR/files/README.etc" "$etcdir/README"
+		install -m644 "$PKGLUADIR/files/README.src" "$etcdir/trust-source/README"
+		install -m644 "$PKGLUADIR/files/README.usr" "$usrdir/trust-source/README"
+		install -m644 "$PKGLUADIR/files/README.etcssl" "$ssldir/README"
+		install -m644 "$PKGLUADIR/files/README.java" "$ssldir/certs/java/README"
+		install -m644 "$PKGLUADIR/files/README.extr" "$etcdir/extracted/README"
 
 		# OpenSSL / Debian / Fedora compatibility symlinks
 		ln -sf /etc/ca-certificates/extracted/tls-ca-bundle.pem "$ssldir/cert.pem"
 		ln -sf /etc/ca-certificates/extracted/tls-ca-bundle.pem "$ssldir/certs/ca-certificates.crt"
 		ln -sf /etc/ca-certificates/extracted/tls-ca-bundle.pem "$ssldir/certs/ca-bundle.crt"
 	]],
-		root,
-		pkgdir
-	))
+		opts
+	)
 
 	zcp("${pkgluadir}/hooks/update-ca-trust.hook.yaml", "${pkgstore}/hooks/update-ca-trust.hook.yaml")
 
-	-- zlicense("LICENSE")
+	-- update-ca-trust and the READMEs come from the Fedora / Arch Linux
+	-- ca-certificates packaging (GPL-2.0-or-later), which ships no license
+	-- file: install a
+	-- copy of the GPL-2.0 text (from gnu.org) kept next to this recipe.
+	zlicense("${pkgluadir}/files/LICENSE.GPL-2.0", "LICENSE")
 end
 
 function test()
-	cmd([[
-		/usr/bin/update-ca-trust --help || update-ca-trust --help || true
-	]])
+	cmd(
+		[[
+		test -x "$ROOT/usr/bin/update-ca-trust"
+		bash -n "$ROOT/usr/bin/update-ca-trust"
+		test -f "$ROOT/usr/share/man/man8/update-ca-trust.8"
+	]],
+		opts
+	)
+	return true
 end

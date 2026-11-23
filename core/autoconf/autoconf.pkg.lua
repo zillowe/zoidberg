@@ -1,10 +1,14 @@
 local version = ZOI.VERSION or "2.73"
+local sha512 =
+	"be051d542f9bd93752eccbdc9b1f3cf1fa4069a153ef34edd5303bfdf162e24d56e33e70df1b978cebb8d1139a82417bb8299cfe6c38cff8613040a829cc624f"
+-- Release signing key (Zack Weinberg), listed in Arch Linux's validpgpkeys.
+local signing_key = "82F854F3CE73174B8B63174091FCC32B6769AA64"
 
 metadata({
 	name = "autoconf",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "A GNU tool for automatically configuring source code",
 	website = "https://www.gnu.org/software/autoconf",
 	license = "GPL-2.0-or-later AND GPL-3.0-or-later WITH Autoconf-exception-3.0",
@@ -59,47 +63,59 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d "autoconf-$VER" ]; then
-			curl -sSfL "https://ftp.gnu.org/pub/gnu/autoconf/autoconf-$VER.tar.xz" -o "autoconf-$VER.tar.xz"
-			echo "9fd672b1c8425fac2fa67fa0477b990987268b90ff36d5f016dae57be0d6b52e  autoconf-$VER.tar.xz" | sha256sum -c -
-			tar -xf "autoconf-$VER.tar.xz"
-		fi
-	]])
+	local tarball = "autoconf-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/autoconf" \
+				"https://mirrors.kernel.org/gnu/autoconf" \
+				"https://ftp.gnu.org/gnu/autoconf"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "autoconf-$VER.tar.xz"
+		fetch "autoconf-$VER.tar.xz.sig"
+		echo "$SHA512  autoconf-$VER.tar.xz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "autoconf-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "autoconf-$VER"
 		./configure --prefix=/usr
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		make -C "autoconf-$VER" DESTDIR="$ROOT" install
-
-		# License exception
-		install -Dm644 "autoconf-$VER/COPYING.EXCEPTION" "$ROOT/usr/share/licenses/autoconf/COPYING.EXCEPTION"
 
 		# Don't ship the GNU coding standards manual
 		rm -f "$ROOT/usr/share/info/standards.info"
-	]])
+	]],
+		opts
+	)
+
+	zlicense("autoconf-" .. version .. "/COPYING")
+	zlicense("autoconf-" .. version .. "/COPYINGv3")
+	zlicense("autoconf-" .. version .. "/COPYING.EXCEPTION")
 end
 
 function test()

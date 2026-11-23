@@ -1,5 +1,5 @@
 [xz]
-source = "git"
-git = "https://github.com/tukaani-project/xz.git"
+source = "github"
+github = "tukaani-project/xz"
+use_latest_release = true
 prefix = "v"
-exclude_regex = ".*(pre|a|alpha|b|beta|r|rc|RC|BETA|ALPHA).*"

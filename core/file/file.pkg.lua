@@ -1,12 +1,15 @@
 local version = ZOI.VERSION or "5.48"
-local tag = "FILE" .. string.gsub(version, "%.", "_")
-local git_url = "https://github.com/file/file.git"
+local sha512 = "9672504f9473e41ed047bb019f1a003965b3f12e16b77d090e819e094805e42d66d07582402eb9df6be98932161ee6a014a549dbcca9cef10c236b0a3a71a642"
+-- Upstream signs releases (key BE04995BA8F90ED0C0C176C471112AB16CB33B3A, Christos Zoulas),
+-- but the key is only bound with SHA-1 self-signatures, which Zoi's
+-- verifier rejects. The signature was checked with gpg when this hash was
+-- recorded; the pinned hash is the trust anchor.
 
 metadata({
 	name = "file",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	debug = { sub_package = true },
 	description = "File type identification utility",
 	website = "https://www.darwinsys.com/file/",
@@ -33,14 +36,11 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:autoconf",
-					"pacman:automake",
 					"pacman:bzip2",
+					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:libseccomp",
-					"pacman:libtool",
 					"pacman:make",
 					"pacman:xz",
 					"pacman:zlib",
@@ -61,53 +61,59 @@ dependencies({
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		if [ ! -d file ]; then
-			git clone --depth 1 --branch %s %s file
-		fi
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
-		cd file
-		autoreconf -fiv
+function prepare()
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://astron.com/pub/file" \
+				"https://ftp.astron.com/pub/file"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "file-$VER.tar.gz"
+		echo "$SHA512  file-$VER.tar.gz" | sha512sum -c -
+		tar -xf "file-$VER.tar.gz"
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
 end
 
 function build()
-	cmd([[
-		set -e
-		cd file
+	cmd(
+		[[
+		cd "file-$VER"
 
-		export CFLAGS="${CFLAGS} -pthread"
+		export CFLAGS="${CFLAGS:-} -pthread"
 		./configure \
 			--prefix=/usr \
 			--datadir=/usr/share/file \
 			--enable-fsect-man5 \
 			--enable-libseccomp
 
-		sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool 2>/dev/null || true
+		sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
 		mkdir -p "$ROOT"
 
-		make -C file DESTDIR="$ROOT" install
+		make -C "file-$VER" DESTDIR="$ROOT" install
 	]],
-		root
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("file-" .. version .. "/COPYING")
 end
 
 function test()

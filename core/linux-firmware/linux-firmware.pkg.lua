@@ -1,12 +1,14 @@
 local version = ZOI.VERSION or "20261019"
-local tag = version
-local git_url = "https://gitlab.com/kernel-firmware/linux-firmware.git"
+local sha512 = "725bfcc57def709e43dcd89683e1a663c2d221e3d34da58ffcbf8af3b9c6da2b763739ec8fe0c2ece2620c71b2556b97f93e784c2d3f7c320b98bf35338e6aed"
+-- Release signing key (Josh Boyer), from kernel.org's pgpkeys repository
+-- (keys/A31B6BD72486CFD6.asc), listed in Arch Linux's validpgpkeys.
+local signing_key = "4CDE8575E547BF835FE15807A31B6BD72486CFD6"
 
 metadata({
 	name = "linux-firmware",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	-- Firmware blobs can be ELF files for other processors (DSPs, Wi-Fi and
 	-- GPU microcontrollers) and must reach the device byte-for-byte.
 	debug = { strip = "none" },
@@ -37,12 +39,12 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:git",
+					"pacman:curl",
 					"pacman:make",
 					"pacman:parallel",
-					"pacman:python",
 					"pacman:rdfind",
 					"pacman:tar",
+					"pacman:xz",
 					"pacman:zstd",
 				},
 			},
@@ -50,76 +52,95 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	local tarball = "linux-firmware-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d linux-firmware ]; then
-			git clone --depth 1 --branch "%s" "%s" linux-firmware
-		fi
+		fetch() {
+			for base in \
+				"https://cdn.kernel.org/pub/linux/kernel/firmware" \
+				"https://mirrors.edge.kernel.org/pub/linux/kernel/firmware" \
+				"https://www.kernel.org/pub/linux/kernel/firmware"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "linux-firmware-$VER.tar.xz"
+		fetch "linux-firmware-$VER.tar.sign"
+		echo "$SHA512  linux-firmware-$VER.tar.xz" | sha512sum -c -
+		# kernel.org signs the uncompressed tar.
+		xz -dk "linux-firmware-$VER.tar.xz"
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
+	local tar = tarball:gsub("%.xz$", "")
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tar, tar .. ".sign", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "linux-firmware-$VER.tar"
+		rm -f "linux-firmware-$VER.tar"
+	]],
+		opts
+	)
 end
 
 function build()
-	cmd([[
-		set -e
+	cmd(
+		[[
 		mkdir -p kernel/x86/microcode
-		cat linux-firmware/amd-ucode/microcode_amd*.bin > kernel/x86/microcode/AuthenticAMD.bin 2>/dev/null || true
+		# Firmware tags without AMD microcode leave an empty file.
+		cat "linux-firmware-$VER"/amd-ucode/microcode_amd*.bin > kernel/x86/microcode/AuthenticAMD.bin 2>/dev/null || true
 
+		# The early-load image is optional: it needs bsdtar (libarchive).
 		if command -v bsdtar >/dev/null 2>&1; then
 			echo kernel/x86/microcode/AuthenticAMD.bin | \
 				bsdtar --uid 0 --gid 0 -cnf - -T - 2>/dev/null | \
 				bsdtar --null -cf - --format=newc @- > amd-ucode.img 2>/dev/null || true
 		fi
-	]])
+	]],
+		opts
+	)
 end
 
 function package(args)
 	local sub = (args and args.sub) or "main"
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	local src = "linux-firmware-" .. version
 
 	if sub == "main" or sub == "" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
-			mkdir -p "$ROOT"/usr/lib/firmware "$ROOT"/usr/share/licenses/linux-firmware
+			mkdir -p "$ROOT"/usr/lib/firmware
 
-			ZSTD_CLEVEL=19 make -C linux-firmware FIRMWAREDIR="$ROOT/usr/lib/firmware" install-zst
-			make -C linux-firmware FIRMWAREDIR="$ROOT/usr/lib/firmware" dedup 2>/dev/null || true
-
-			if [ -f linux-firmware/WHENCE ]; then
-				install -m644 linux-firmware/WHENCE "$ROOT"/usr/share/licenses/linux-firmware/
-			fi
+			ZSTD_CLEVEL=19 make -C "linux-firmware-$VER" FIRMWAREDIR="$ROOT/usr/lib/firmware" install-zst
+			# De-duplication (symlinking identical files) only saves space.
+			make -C "linux-firmware-$VER" FIRMWAREDIR="$ROOT/usr/lib/firmware" dedup 2>/dev/null || true
 		]],
-			root
-		))
+			opts
+		)
+		-- WHENCE lists each file's license; the texts live in LICENSES/
+		-- (LICENCE.*, LICENSE.*, NOTICE.*).
+		zlicense(src .. "/WHENCE")
+		zlicense(src .. "/LICENSES")
 	elseif sub == "whence" then
-		cmd(string.format(
-			[[
-			set -e
-			ROOT="%s"
-			mkdir -p "$ROOT"/usr/share/licenses/linux-firmware-whence
-			if [ -f linux-firmware/WHENCE ]; then
-				install -m644 linux-firmware/WHENCE "$ROOT"/usr/share/licenses/linux-firmware-whence/
-			fi
-		]],
-			root
-		))
+		zlicense(src .. "/WHENCE")
 	elseif sub == "amd_ucode" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
-			mkdir -p "$ROOT"/boot "$ROOT"/usr/share/licenses/amd-ucode
+			mkdir -p "$ROOT"/boot
 			if [ -f amd-ucode.img ]; then
 				install -m644 amd-ucode.img "$ROOT"/boot/amd-ucode.img
 			fi
 		]],
-			root
-		))
+			opts
+		)
+		zlicense(src .. "/LICENSES/LICENSE.amd-ucode")
 	end
 end
 

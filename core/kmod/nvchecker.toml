@@ -1,4 +1,4 @@
 [kmod]
-source = "git"
-git = "https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git"
-prefix = "v"
+source = "regex"
+url = "https://www.kernel.org/pub/linux/utils/kernel/kmod/"
+regex = 'kmod-(\d+(?:\.\d+)*)\.tar\.xz'

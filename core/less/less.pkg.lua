@@ -9,7 +9,7 @@ metadata({
 	name = "less",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "A terminal based program for viewing text files",
 	website = "https://www.greenwoodsoftware.com/less/",
@@ -55,22 +55,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "less-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			# greenwoodsoftware.com refuses (403) many CI runners, so fall
 			# back to Gentoo's distfiles mirror, which serves the same file
@@ -85,26 +77,34 @@ function prepare()
 		}
 		fetch "less-$VER.tar.gz"
 		echo "$SHA512  less-$VER.tar.gz" | sha512sum -c -
-	]])
-	sh([[tar -xf "less-$VER.tar.gz"]])
+	]],
+		opts
+	)
+	cmd([[tar -xf "less-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "less-$VER"
 		sh configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --with-regex=pcre2
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "less-$VER"
 		make DESTDIR="$ROOT" install
-		for f in LICENSE COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/less/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	local src = "less-" .. version
+	-- Dual-licensed: the Less License (LICENSE) or GPL-3.0 (COPYING).
+	zlicense(src .. "/LICENSE")
+	zlicense(src .. "/COPYING")
 end

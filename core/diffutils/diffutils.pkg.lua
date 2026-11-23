@@ -1,10 +1,14 @@
 local version = ZOI.VERSION or "3.12"
+local sha512 =
+	"10b17cf1dcdfa9ca0e5db91d62c4a079ebe9fd7eafa3aaebd4eb7e6206e4d753f348496622aa281e1bd7f7fcde65ce4a886dcc4acbb59332ef980f224197b4e4"
+-- Release signing key (Jim Meyering), listed in the GNU keyring.
+local signing_key = "155D3FC500C834486D1EEA677FD9FCCB000BEEEE"
 
 metadata({
 	name = "diffutils",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Utility programs used for creating patch files",
 	website = "https://www.gnu.org/software/diffutils",
@@ -31,21 +35,11 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					-- Arch packaging assumes the base-devel group
 					"pacman:base-devel",
-					"pacman:autoconf",
-					"pacman:automake",
 					"pacman:curl",
 					"pacman:gcc",
-					"pacman:gettext",
-					"pacman:git",
-					"pacman:gperf",
-					"pacman:help2man",
 					"pacman:make",
-					"pacman:python",
 					"pacman:tar",
-					"pacman:texinfo",
-					"pacman:wget",
 					"pacman:xz",
 				},
 			},
@@ -58,79 +52,51 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		# Savannah's git server intermittently returns HTTP 500; retry with backoff
-		retry() { i=1; while ! "$@"; do [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
-		clone() { url=$1; dir=$2; shift 2; i=1; while :; do rm -rf "$dir"; git clone "$@" "$url" "$dir" && return 0; [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
-		# gnulib's official GitHub mirror spares Savannah the largest fetch
-		gnulib_mirror() { git config submodule.gnulib.url https://github.com/coreutils/gnulib.git; }
-
-		if [ ! -d diffutils ]; then
-			clone https://git.savannah.gnu.org/git/diffutils.git diffutils --branch "v$VER"
-			cd diffutils
-			git submodule init
-			gnulib_mirror
-			retry git submodule update
-			# Translations come from the release tarball below
-			./bootstrap --skip-po
-
-			# bootstrap links build-aux files with absolute paths into this
-			# temporary checkout; replace them with real files so the source
-			# bundle still works once unpacked elsewhere
-			find . -path ./.git -prune -o -type l -print | while read -r link; do
-				case "$(readlink "$link")" in
-					/*) if [ -e "$link" ]; then cp --remove-destination "$(readlink -f "$link")" "$link"; fi ;;
-				esac
+	local tarball = "diffutils-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/diffutils" \
+				"https://mirrors.kernel.org/gnu/diffutils" \
+				"https://ftp.gnu.org/gnu/diffutils"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
 			done
-			cd ..
-		fi
-
-		if [ ! -d "diffutils-$VER" ]; then
-			curl -sSfL "https://ftp.gnu.org/gnu/diffutils/diffutils-$VER.tar.xz" -o "diffutils-$VER.tar.xz"
-			tar -xf "diffutils-$VER.tar.xz"
-		fi
-	]])
+			return 1
+		}
+		fetch "diffutils-$VER.tar.xz"
+		fetch "diffutils-$VER.tar.xz.sig"
+		echo "$SHA512  diffutils-$VER.tar.xz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "diffutils-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
-		cd diffutils
+	cmd(
+		[[
+		cd "diffutils-$VER"
 		./configure \
 			--prefix=/usr \
 			--disable-gcc-warnings
 		make -j"$(nproc)"
-
-		# Generate diffutils mo files from the dist tarball
-		cd "../diffutils-$VER/po"
-		for po in *.po; do
-			msgfmt "$po" -o "${po%.po}.mo"
-		done
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
-		make -C diffutils DESTDIR="$ROOT" install
+	cmd([[make -C "diffutils-$VER" DESTDIR="$ROOT" install]], opts)
 
-		cd "diffutils-$VER/po"
-		for mo in *.mo; do
-			install -Dm644 "$mo" "$ROOT/usr/share/locale/${mo%.mo}/LC_MESSAGES/diffutils.mo"
-		done
-	]])
+	zlicense("diffutils-" .. version .. "/COPYING")
 end
 
 function test()

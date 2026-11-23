@@ -1,4 +1,4 @@
 [gzip]
-source = "git"
-git = "https://git.savannah.gnu.org/git/gzip.git"
-prefix = "v"
+source = "regex"
+url = "https://mirrors.kernel.org/gnu/gzip/"
+regex = 'gzip-([\d.]+)\.tar\.xz"'

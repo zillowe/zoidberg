@@ -1,10 +1,16 @@
 local version = ZOI.VERSION or "2.15"
+local sha512 =
+	"e3c3d0344d13d540887198ee5d6209a9254ed34b87c3b3cabe6dc3ce22ef94d3f380bb60d3395eee44e4b0ec8460b957032c6251f101b4a9fbc5951a701aadff"
+-- Upstream signs releases (key 325F650C4C2B6AD58807327A3602B07F55D0C732, Sergey Poznyakoff),
+-- but the key is only bound with SHA-1 self-signatures, which Zoi's
+-- verifier rejects. The signature was checked with gpg when this hash was
+-- recorded; the pinned hash is the trust anchor.
 
 metadata({
 	name = "cpio",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "A tool to copy files into or out of a cpio or tar archive",
 	website = "https://www.gnu.org/software/cpio",
@@ -31,17 +37,13 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					-- Arch packaging assumes the base-devel group
 					"pacman:base-devel",
-					"pacman:autoconf",
-					"pacman:automake",
+					"pacman:bzip2",
+					"pacman:curl",
 					"pacman:gcc",
-					"pacman:gettext",
-					"pacman:git",
 					"pacman:make",
-					"pacman:rsync",
-					"pacman:texinfo",
-					"pacman:wget",
+					"pacman:patch",
+					"pacman:tar",
 				},
 			},
 		},
@@ -53,61 +55,60 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		# Savannah's git server intermittently returns HTTP 500; retry with backoff
-		retry() { i=1; while ! "$@"; do [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
-		clone() { url=$1; dir=$2; shift 2; i=1; while :; do rm -rf "$dir"; git clone "$@" "$url" "$dir" && return 0; [ "$i" -ge 5 ] && return 1; sleep $((i * 15)); i=$((i + 1)); done; }
-		# gnulib's official GitHub mirror spares Savannah the largest fetch
-		gnulib_mirror() { git config submodule.gnulib.url https://github.com/coreutils/gnulib.git; }
-
-		if [ ! -d cpio ]; then
-			clone https://git.savannah.gnu.org/git/cpio.git cpio
-			cd cpio
-			git checkout -q "v$VER"
-			# Pulls gnulib and paxutils
-			git submodule init
-			gnulib_mirror
-			retry git submodule update
-
-			# Fix C23 conformity
-			# https://cgit.git.savannah.gnu.org/cgit/cpio.git/commit/?id=f42137f5ab9cf07d1e62edc05e0212688d3ebaa2
-			git cherry-pick -n f42137f5ab9cf07d1e62edc05e0212688d3ebaa2
-
-			./bootstrap
-		fi
-	]])
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/cpio" \
+				"https://mirrors.kernel.org/gnu/cpio" \
+				"https://ftp.gnu.org/gnu/cpio"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "cpio-$VER.tar.bz2"
+		echo "$SHA512  cpio-$VER.tar.bz2" | sha512sum -c -
+	]],
+		opts
+	)
+	cmd(
+		[[
+		tar -xf "cpio-$VER.tar.bz2"
+		cd "cpio-$VER"
+		# C23 conformity fix from upstream commit f42137f5 (not in 2.15).
+		patch -Np1 -i "$PKGLUADIR/patches/fix-c23-conformity.patch"
+	]],
+		opts
+	)
 end
 
 function build()
-	sh([[
-		cd cpio
+	cmd(
+		[[
+		cd "cpio-$VER"
 		./configure \
 			--prefix=/usr \
 			--mandir=/usr/share/man \
 			--with-rmt=/dev/null
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
-		make -C cpio DESTDIR="$ROOT" install
+	cmd(
+		[[
+		make -C "cpio-$VER" DESTDIR="$ROOT" install
 		find "$ROOT" -type d -empty -delete
-	]])
+	]],
+		opts
+	)
+
+	zlicense("cpio-" .. version .. "/COPYING")
 end
 
 function test()

@@ -1,4 +1,4 @@
 [which]
 source = "regex"
-url = "https://ftp.gnu.org/gnu/which/"
-regex = 'which-([\d.]+)\.tar\.gz'
+url = "https://mirrors.kernel.org/gnu/which/"
+regex = 'which-([\d.]+)\.tar\.gz"'

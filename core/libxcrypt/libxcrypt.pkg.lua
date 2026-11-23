@@ -1,10 +1,13 @@
 local version = ZOI.VERSION or "4.5.2"
+local sha512 = "87b363e2bdc03ea993a9d154eb59a75ef77edd0490a9b58d443de4e1b4eec5196408a1eb9b739718fd92f565fe5157469c1ea3d336a4a54ac0947750b16c44c1"
+-- Release signing key (Björn Esser), as published with the release.
+local signing_key = "678CE3FEE430311596DB8C16F52E98007594C21D"
 
 metadata({
 	name = "libxcrypt",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Modern library for one-way hashing of passwords",
 	website = "https://github.com/besser82/libxcrypt/",
@@ -64,33 +67,40 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d "libxcrypt-$VER" ]; then
-			curl -sSfL "https://github.com/besser82/libxcrypt/releases/download/v$VER/libxcrypt-$VER.tar.xz" -o "libxcrypt-$VER.tar.xz"
-			echo "71513a31c01a428bccd5367a32fd95f115d6dac50fb5b60c779d5c7942aec071  libxcrypt-$VER.tar.xz" | sha256sum -c -
-			tar -xf "libxcrypt-$VER.tar.xz"
-		fi
-	]])
+	local tarball = "libxcrypt-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://github.com/besser82/libxcrypt/releases/download/v$VER"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "libxcrypt-$VER.tar.xz"
+		fetch "libxcrypt-$VER.tar.xz.asc"
+		echo "$SHA512  libxcrypt-$VER.tar.xz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".asc", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "libxcrypt-$VER.tar.xz"]], opts)
 end
 
 function build()
 	-- GCC 16 with glibc's C23 strchr() flags -Wdiscarded-qualifiers in the
 	-- yescrypt sources, which upstream builds with -Werror (configure has no
 	-- switch for it), so demote just that warning.
-	sh([[
+	cmd(
+		[[
 		mkdir -p build-libxcrypt build-libxcrypt-compat
 		export CFLAGS="${CFLAGS:--O2 -pipe} -Wno-error=discarded-qualifiers"
 
@@ -111,25 +121,36 @@ function build()
 			--enable-obsolete-api=glibc \
 			--disable-failure-tokens
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package(args)
 	local sub = (args and args.sub) or "main"
 
+	-- Both sub-packages ship libcrypt: LGPL-2.1 text plus the per-file
+	-- license inventory.
+	zlicense("libxcrypt-" .. version .. "/COPYING.LIB")
+	zlicense("libxcrypt-" .. version .. "/LICENSING")
+
 	if sub == "compat" then
 		-- Legacy API (libcrypt.so.1) only; headers and dev files come from main
-		sh([[
-			mkdir -p "$ROOT"
+		cmd(
+			[[
 			make -C build-libxcrypt-compat DESTDIR="$ROOT" install
 			rm -rf "$ROOT/usr/include" "$ROOT/usr/share" "$ROOT/usr/lib/pkgconfig"
 			rm -f "$ROOT"/usr/lib/lib*.so
-		]])
+		]],
+			opts
+		)
 	else
-		sh([[
-			mkdir -p "$ROOT"
+		cmd(
+			[[
 			make -C build-libxcrypt DESTDIR="$ROOT" install
-		]])
+		]],
+			opts
+		)
 	end
 end
 

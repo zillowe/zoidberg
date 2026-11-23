@@ -1,12 +1,13 @@
 local version = ZOI.VERSION or "6.6"
-local tag = "v" .. string.gsub(version, "%.", "_")
-local git_url = "https://github.com/ThomasDickey/ncurses-snapshots.git"
+local sha512 = "02647baae53abc844fbadee5b0a2187ad073125c4e8950df6d1c4feb781cb74ba64fb838cedfee2c246c39932187f6775b1df124f18b99a4233f0d98c72191de"
+-- Release signing key (Thomas E. Dickey), as published on invisible-island.net.
+local signing_key = "19882D92DDA4C400C22C0D56CC2AF4472167BE03"
 
 metadata({
 	name = "ncurses",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "System V Release 4.0 curses emulation library",
 	website = "https://invisible-island.net/ncurses/ncurses.html",
@@ -44,10 +45,11 @@ dependencies({
 			source = {
 				required = {
 					"pacman:autoconf-archive",
+					"pacman:curl",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:make",
 					"pacman:patch",
+					"pacman:tar",
 				},
 			},
 		},
@@ -61,29 +63,48 @@ dependencies({
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		if [ ! -d ncurses ]; then
-			git clone --depth 1 --branch %s %s ncurses
-		fi
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
-		cd ncurses
-		if [ ! -f .patched ]; then
-			patch -Np1 -i "${PKGLUADIR}/ncurses-6.6-libs.patch"
-			patch -Np1 -i "${PKGLUADIR}/ncurses-6.6-pkgconfig.patch"
-			touch .patched
-		fi
+function prepare()
+	local tarball = "ncurses-" .. version .. ".tar.gz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/ncurses" \
+				"https://mirrors.kernel.org/gnu/ncurses" \
+				"https://invisible-mirror.net/archives/ncurses"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "ncurses-$VER.tar.gz"
+		fetch "ncurses-$VER.tar.gz.sig"
+		echo "$SHA512  ncurses-$VER.tar.gz" | sha512sum -c -
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "ncurses-$VER.tar.gz"
+		cd "ncurses-$VER"
+		patch -Np1 -i "$PKGLUADIR/patches/ncurses-6.6-libs.patch"
+		patch -Np1 -i "$PKGLUADIR/patches/ncurses-6.6-pkgconfig.patch"
+	]],
+		opts
+	)
 end
 
 function build()
-	cmd([[
-		set -e
-		cd ncurses
+	cmd(
+		[[
+		cd "ncurses-$VER"
 
 		./configure \
 			--prefix=/usr \
@@ -103,24 +124,21 @@ function build()
 			--without-ada
 
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		mkdir -p "$ROOT"/usr/{lib/pkgconfig,share/licenses/ncurses}
+		mkdir -p "$ROOT"/usr/lib/pkgconfig
 
-		make DESTDIR="$ROOT" install -C ncurses
-		install -m644 ncurses/COPYING "$ROOT/usr/share/licenses/ncurses/COPYING"
+		make DESTDIR="$ROOT" install -C "ncurses-$VER"
 
 		# Non-wide-character compatibility wrappers
 		for lib in ncurses ncurses++ form panel menu; do
-			printf "INPUT(-l%%sw)\n" "${lib}" > "$ROOT/usr/lib/lib${lib}.so"
+			printf "INPUT(-l%sw)\n" "${lib}" > "$ROOT/usr/lib/lib${lib}.so"
 			ln -sf "${lib}w.pc" "$ROOT/usr/lib/pkgconfig/${lib}.pc"
 		done
 
@@ -129,19 +147,17 @@ function package()
 		ln -sf libncurses.so "$ROOT/usr/lib/libcurses.so"
 
 		# Tic and tinfo compatibility
-		_major="%s"
-		_major="${_major%%%%.*}"
+		_major="${VER%%.*}"
 		for lib in tic tinfo; do
-			printf "INPUT(libncursesw.so.%%s)\n" "${_major}" > "$ROOT/usr/lib/lib${lib}.so"
+			printf "INPUT(libncursesw.so.%s)\n" "${_major}" > "$ROOT/usr/lib/lib${lib}.so"
 			ln -sf "libncursesw.so.${_major}" "$ROOT/usr/lib/lib${lib}.so.${_major}"
 			ln -sf ncursesw.pc "$ROOT/usr/lib/pkgconfig/${lib}.pc"
 		done
 	]],
-		root,
-		version
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("ncurses-" .. version .. "/COPYING")
 end
 
 function test()

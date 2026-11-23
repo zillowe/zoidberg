@@ -1,10 +1,13 @@
 local version = ZOI.VERSION or "2.8.1"
+local sha512 = "344cad0f3a19a651c8f0188c89402018c65406b106adecdfec52df4359046ca5d86a70ce8d7943f8c41deed79918291b0a86bfa57dcec2c0aa2b4bbca6edc698"
+-- Release signing key (Andreas Gruenbacher), from upstream's keyring.
+local signing_key = "259B3792B3D6D319212CC4DCD5BF9FEB0313653A"
 
 metadata({
 	name = "patch",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "A utility to apply patch files to original sources",
 	website = "https://www.gnu.org/software/patch/",
@@ -50,26 +53,14 @@ dependencies({
 	},
 })
 
-local sha512 = "344cad0f3a19a651c8f0188c89402018c65406b106adecdfec52df4359046ca5d86a70ce8d7943f8c41deed79918291b0a86bfa57dcec2c0aa2b4bbca6edc698"
--- Release signing key (Andreas Gruenbacher), from upstream's keyring.
-local signing_key = "259B3792B3D6D319212CC4DCD5BF9FEB0313653A"
-
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "patch-" .. version .. ".tar.xz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://ftpmirror.gnu.org/gnu/patch" \
@@ -82,27 +73,36 @@ function prepare()
 		fetch "patch-$VER.tar.xz"
 		fetch "patch-$VER.tar.xz.sig"
 		echo "$SHA512  patch-$VER.tar.xz" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".sig", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "patch-$VER.tar.xz"]])
+	cmd([[tar -xf "patch-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "patch-$VER"
 		./configure --prefix=/usr
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		make -C "patch-$VER" DESTDIR="$ROOT" install
-	]])
+	]],
+		opts
+	)
+
+	zlicense("patch-" .. version .. "/COPYING")
 end
 
 function test()

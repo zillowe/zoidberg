@@ -1,13 +1,18 @@
 -- Toolchain build order: linux-api-headers -> glibc -> binutils -> gcc -> glibc -> binutils -> gcc
 local version = ZOI.VERSION or "2.47"
-local commit = "6ce87bbc521cf46eaee9a1f7ef61cee2cdfb3e32"
-local git_url = "https://forge.sourceware.org/binutils-gdb/binutils-gdb-mirror"
+local sha512 =
+	"3126a1064374d8da40d4d70630c204ed1e75d542c447d53fca9778c7ceff095c28e9b445e15a313fef9729082d7966471ee6b5b715d479aa6d568528743e1d98"
+-- Upstream signs releases (key 3A24BC1E8FB409FA9F14371813FCEF89DD9E3C4F, Nick
+-- Clifton, listed in the GNU keyring and Arch Linux's validpgpkeys), but the
+-- key is only bound with SHA-1 self-signatures, which Zoi's verifier rejects.
+-- The pinned hash matches Gentoo's Manifest for this file (Gentoo verifies the
+-- signature); the pinned hash is the trust anchor.
 
 metadata({
 	name = "binutils",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "A set of programs to assemble and manipulate binary and object files",
 	website = "https://www.gnu.org/software/binutils/",
@@ -36,7 +41,6 @@ metadata({
 		"gprofng",
 		"ld",
 		"ld.bfd",
-		"ld.gold",
 		"nm",
 		"objcopy",
 		"objdump",
@@ -58,8 +62,6 @@ metadata({
 	types = { "source" },
 	quiet = { "build" },
 	zoios = true,
-	-- The binutils-gdb tree is huge; like gcc, skip the intermediate source
-	-- bundle so its file listing doesn't exhaust the CI log limit.
 	zsa = false,
 	backup = {
 		"${usrroot}/etc/gprofng.rc",
@@ -71,14 +73,13 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					-- Arch packaging assumes the base-devel group
 					"pacman:base-devel",
 					"pacman:bison",
+					"pacman:curl",
 					"pacman:flex",
 					"pacman:gcc",
-					"pacman:git",
+					"pacman:jansson",
 					"pacman:make",
-					"pacman:patch",
 					"pacman:texinfo",
 					"pacman:zlib",
 					"pacman:zstd",
@@ -91,57 +92,46 @@ dependencies({
 			"zoi:@core/gcc:libgcc",
 			"zoi:@core/gcc:libstdc++",
 			"zoi:@core/glibc",
+			"zoi:@core/jansson",
 			"zoi:@core/zlib",
 			"zoi:@core/zstd",
 		},
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "COMMIT='" .. commit .. "'\n"
-		.. "GIT_URL='" .. git_url .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d binutils-gdb ]; then
-			mkdir binutils-gdb
-			cd binutils-gdb
-			git init -q
-			git remote add origin "$GIT_URL"
-			# Fetch only the pinned commit; the full history is several GB
-			if ! git fetch --depth 1 origin "$COMMIT"; then
-				git fetch origin
-			fi
-			git checkout -q "$COMMIT"
-
-			# Turn off development mode (-Werror, gas run-time checks, date in sonames)
-			sed -i '/^development=/s/true/false/' bfd/development.sh
-
-			# Only warn about unsupported gold targets, so BPF support can be enabled
-			patch -Np1 < "$PKGLUADIR/gold-warn-unsupported.patch"
-			cd ..
-		fi
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/binutils" \
+				"https://mirrors.kernel.org/gnu/binutils" \
+				"https://ftp.gnu.org/gnu/binutils"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "binutils-$VER.tar.xz"
+		echo "$SHA512  binutils-$VER.tar.xz" | sha512sum -c -
+		tar -xf "binutils-$VER.tar.xz"
 		mkdir -p binutils-build
-	]])
+	]],
+		opts
+	)
 end
 
 function build()
-	-- Parlex ships no jansson or debuginfod, so both are disabled explicitly
-	-- instead of auto-detecting the build host's copies.
-	sh([[
+	-- jansson (JSON support in ld, e.g. --package-metadata) is enabled as on
+	-- Arch. Arch also builds the debuginfod client (libdebuginfod from
+	-- elfutils); it stays disabled explicitly here instead of auto-detecting
+	-- the build host's copy.
+	cmd(
+		[[
 		cd binutils-build
 
-		../binutils-gdb/configure \
+		../binutils-$VER/configure \
 			--prefix=/usr \
 			--sysconfdir=/etc \
 			--with-lib-path=/usr/lib:/usr/local/lib \
@@ -150,9 +140,8 @@ function build()
 			--enable-colored-disassembly \
 			--enable-default-execstack=no \
 			--enable-deterministic-archives \
-			--enable-gold \
 			--enable-install-libiberty \
-			--disable-jansson \
+			--enable-jansson \
 			--enable-ld=default \
 			--enable-new-dtags \
 			--enable-pgo-build=lto \
@@ -174,12 +163,15 @@ function build()
 		make -O -j"$(nproc)" tooldir=/usr
 
 		# Extract the FSF All Permissive License used for some linker scripts
-		tail -n 5 ../binutils-gdb/ld/scripttempl/README > FSFAP
-	]])
+		tail -n 5 "../binutils-$VER/ld/scripttempl/README" > FSFAP
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
+	cmd(
+		[[
 		mkdir -p "$ROOT"
 		cd binutils-build
 		make DESTDIR="$ROOT" tooldir=/usr install
@@ -202,9 +194,15 @@ EOS
 
 INPUT( /usr/lib/libopcodes.a -lbfd )
 EOS
-
-		install -Dm644 -t "$ROOT/usr/share/licenses/binutils/" FSFAP
-	]])
+	]],
+		opts
+	)
+	local src = "binutils-" .. version
+	zlicense(src .. "/COPYING")
+	zlicense(src .. "/COPYING.LIB")
+	zlicense(src .. "/COPYING3")
+	zlicense(src .. "/COPYING3.LIB")
+	zlicense("binutils-build/FSFAP")
 end
 
 function test()

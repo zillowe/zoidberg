@@ -1,11 +1,15 @@
 local version = ZOI.VERSION or "5.44.0"
 local baseversion = string.match(version, "^(%d+%.%d+)") or version
+-- Perl releases are not signed. This hash is taken from Gentoo's Manifest;
+-- CPAN publishes a sha256 next to the tarball (perl-<version>.tar.xz.sha256.txt)
+-- that can be used to cross-check it.
+local sha512 = "734d00d00678add11544e8f483bf953e61ae391aa6a2bba61ec4e7727275e243cc411525d30e6a73f70ccc0603ebe85bc0c6dd69b0106a6162e21a4595d11075"
 
 metadata({
 	name = "perl",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "A highly capable, feature-rich programming language",
 	website = "https://www.perl.org",
@@ -33,10 +37,13 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:curl",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:libxcrypt",
 					"pacman:make",
+					"pacman:patch",
+					"pacman:tar",
+					"pacman:xz",
 				},
 			},
 		},
@@ -49,52 +56,51 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "BASEVER='" .. baseversion .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, BASEVER = baseversion, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d perl ]; then
-			git clone --depth 1 --branch "v$VER" https://github.com/Perl/perl5.git perl
-			cd perl
-			git config user.email "contact@zillowe.qzz.io"
-			git config user.name "Zillowe Foundation"
-
-			# Fix regex super-linear cache countdown before the 64-bit cleanup:
-			# https://github.com/Perl/perl5/commit/568e6fd238867bb9e99fa3f47cba3169009239e0
-			# Fix potential regex super-linear cache OOB access on very large matches:
-			# https://github.com/Perl/perl5/commit/54cf3d44cbbedd17d774e9a37921963e8fd5d0cb
-			for c in 568e6fd238867bb9e99fa3f47cba3169009239e0 54cf3d44cbbedd17d774e9a37921963e8fd5d0cb; do
-				git fetch --depth 2 origin "$c"
-				git cherry-pick -n "$c"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://www.cpan.org/src/5.0" \
+				"https://cpan.metacpan.org/src/5.0"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
 			done
+			return 1
+		}
+		fetch "perl-$VER.tar.xz"
+		echo "$SHA512  perl-$VER.tar.xz" | sha512sum -c -
+		tar -xf "perl-$VER.tar.xz"
+		cd "perl-$VER"
 
-			# Reproducible patchlevel_date
-			if [ -n "${SOURCE_DATE_EPOCH:-}" ]; then
-				touch -h -d "@$SOURCE_DATE_EPOCH" patchlevel.h
-			fi
+		# Fix regex super-linear cache countdown before the 64-bit cleanup:
+		# https://github.com/Perl/perl5/commit/568e6fd238867bb9e99fa3f47cba3169009239e0
+		patch -Np1 -i "$PKGLUADIR/patches/0001-regex-super-linear-cache-make-countdown-unsigned.patch"
+		# Fix potential regex super-linear cache OOB access on very large matches:
+		# https://github.com/Perl/perl5/commit/54cf3d44cbbedd17d774e9a37921963e8fd5d0cb
+		patch -Np1 -i "$PKGLUADIR/patches/0002-regex-make-superlinear-cache-64-bit-clean.patch"
+
+		# Reproducible patchlevel_date
+		if [ -n "${SOURCE_DATE_EPOCH:-}" ]; then
+			touch -h -d "@$SOURCE_DATE_EPOCH" patchlevel.h
 		fi
-	]])
+	]],
+		opts
+	)
 end
 
 function build()
 	-- Parlex ships no gdbm or Berkeley DB, so their extensions are skipped
 	-- instead of linking whatever the build host provides.
-	sh([[
-		cd perl
+	cmd(
+		[[
+		cd "perl-$VER"
 
 		# Reproducible build overrides are only fully effective when loaded from file
-		cp "$PKGLUADIR/config.over" .
+		cp "$PKGLUADIR/files/config.over" .
 
 		export TZ=UTC
 		# The man directories are set explicitly: -des otherwise looks for one
@@ -120,13 +126,15 @@ function build()
 			-Dlddlflags="-shared ${LDFLAGS:-}" -Dldflags="${LDFLAGS:-}" \
 			-Dnoextensions='DB_File GDBM_File NDBM_File ODBM_File'
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
-		make -C perl DESTDIR="$ROOT" install
+	cmd(
+		[[
+		make -C "perl-$VER" DESTDIR="$ROOT" install
 
 		# Change man page extensions for site and vendor module builds.
 		# Set no mail address since bug reports should go to the bug tracker
@@ -142,9 +150,9 @@ function package()
 			-i "$ROOT/usr/share/perl5/core_perl/CPAN/FirstTime.pm"
 
 		# Profile scripts adding the perl script directories to PATH
-		install -Dm644 "$PKGLUADIR/perlbin.sh" "$ROOT/etc/profile.d/perlbin.sh"
-		install -Dm644 "$PKGLUADIR/perlbin.csh" "$ROOT/etc/profile.d/perlbin.csh"
-		install -Dm755 "$PKGLUADIR/perlbin.fish" "$ROOT/usr/share/fish/vendor_conf.d/perlbin.fish"
+		install -Dm644 "$PKGLUADIR/files/perlbin.sh" "$ROOT/etc/profile.d/perlbin.sh"
+		install -Dm644 "$PKGLUADIR/files/perlbin.csh" "$ROOT/etc/profile.d/perlbin.csh"
+		install -Dm755 "$PKGLUADIR/files/perlbin.fish" "$ROOT/usr/share/fish/vendor_conf.d/perlbin.fish"
 
 		# Create the dirs so new installs already have them in PATH once
 		# they install their first perl program
@@ -152,7 +160,13 @@ function package()
 		install -dm755 "$ROOT/usr/bin/site_perl"
 
 		rm -f "$ROOT/usr/bin/perl$VER"
-	]])
+	]],
+		opts
+	)
+
+	-- Perl is dual-licensed: the Artistic License or the GPL (version 1 or later).
+	zlicense("perl-" .. version .. "/Artistic")
+	zlicense("perl-" .. version .. "/Copying")
 end
 
 function test()

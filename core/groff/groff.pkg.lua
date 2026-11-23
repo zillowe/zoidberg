@@ -1,10 +1,13 @@
-local version = ZOI.VERSION or "1.24.2"
+local version = ZOI.VERSION or "1.25.0"
+local sha512 = "a99dc11ff2398c13a2b644dca42b128e59e1ddb6ff73bfabd720953c785f85eda09a76d2ce92bc850365a658334af862c22d4ea00e1136616c50695eaa2b1e63"
+-- Release signing key (G. Branden Robinson), listed in Arch Linux's validpgpkeys.
+local signing_key = "8773D61D68E30E072B10DC1AD19E9C7D71266DCE"
 
 metadata({
 	name = "groff",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	debug = { sub_package = true },
 	description = "GNU troff text-formatting system",
 	website = "https://www.gnu.org/software/groff/groff.html",
@@ -48,12 +51,10 @@ dependencies({
 				required = {
 					-- Arch packaging assumes the base-devel group
 					"pacman:base-devel",
-					"pacman:autoconf",
-					"pacman:automake",
 					"pacman:bison",
+					"pacman:curl",
 					"pacman:gcc",
 					"pacman:gettext",
-					"pacman:git",
 					"pacman:m4",
 					"pacman:make",
 					"pacman:netpbm",
@@ -74,60 +75,81 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d groff ]; then
-			git clone --branch "$VER" https://git.savannah.gnu.org/git/groff.git groff
-			cd groff
-			git submodule update --init
-			./bootstrap
-		fi
-	]])
+	local tarball = "groff-" .. version .. ".tar.gz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/groff" \
+				"https://mirrors.kernel.org/gnu/groff" \
+				"https://ftp.gnu.org/gnu/groff"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "groff-$VER.tar.gz"
+		fetch "groff-$VER.tar.gz.sig"
+		echo "$SHA512  groff-$VER.tar.gz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "groff-$VER.tar.gz"]], opts)
 end
 
 function build()
 	-- Parlex has no X11 or uchardet, so gxditview and preconv's charset
 	-- detection are disabled rather than linked against the build host.
 	-- Serial make: groff's build is not reliably parallel.
-	sh([[
-		cd groff
+	cmd(
+		[[
+		cd "groff-$VER"
 		./configure \
 			--prefix=/usr \
 			--without-x \
 			--without-uchardet
 		make
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
-		make -C groff DESTDIR="$ROOT" install
+	cmd(
+		[[
+		make -C "groff-$VER" DESTDIR="$ROOT" install
 
 		# Compatibility symlinks
 		ln -sf eqn "$ROOT/usr/bin/geqn"
 		ln -sf tbl "$ROOT/usr/bin/gtbl"
 		ln -sf soelim "$ROOT/usr/bin/zsoelim"
 
-		cat "$PKGLUADIR/site.tmac" >> "$ROOT/usr/share/groff/site-tmac/man.local"
-		cat "$PKGLUADIR/site.tmac" >> "$ROOT/usr/share/groff/site-tmac/mdoc.local"
+		cat "$PKGLUADIR/files/site.tmac" >> "$ROOT/usr/share/groff/site-tmac/man.local"
+		cat "$PKGLUADIR/files/site.tmac" >> "$ROOT/usr/share/groff/site-tmac/mdoc.local"
 
 		# No docs, no empty directories
 		rm -rf "$ROOT/usr/share/doc"
 		find "$ROOT" -type d -empty -delete
-	]])
+	]],
+		opts
+	)
+
+	-- GPL-3.0-or-later overall; the man pages are also under the FDL, two
+	-- libgroff files under the LGPLv3. LICENSES lists which file is under
+	-- what, including the public-domain and BSD-style parts.
+	local src = "groff-" .. version
+	zlicense(src .. "/COPYING")
+	zlicense(src .. "/FDL")
+	zlicense(src .. "/LGPLv3")
+	zlicense(src .. "/LICENSES")
 end
 
 function test()

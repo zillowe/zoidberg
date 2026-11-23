@@ -1,10 +1,15 @@
 local version = ZOI.VERSION or "2.78"
+local sha512 = "a156a8708dd59f13400f701f4e1ddc81f915fe4e7b32f93a328f7d6f030b7a004fb985fa9ac60812dfffeb8ad860d2e1f59895485497350250efd9378682626b"
+-- Upstream signs releases (key 38A644698C69787344E954CE29EE848AE2CCF3F4,
+-- Andrew G. Morgan), but the key is only bound with SHA-1 self-signatures,
+-- which Zoi's verifier rejects. The signature was checked with gpg when this
+-- hash was recorded; the pinned hash is the trust anchor.
 
 metadata({
 	name = "libcap",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "POSIX 1003.1e capabilities",
 	website = "https://sites.google.com/site/fullycapable/",
@@ -33,13 +38,15 @@ dependencies({
 				required = {
 					-- Arch packaging assumes the base-devel group
 					"pacman:base-devel",
+					"pacman:curl",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:go",
 					"pacman:linux-api-headers",
 					"pacman:make",
 					"pacman:pam",
 					"pacman:patch",
+					"pacman:tar",
+					"pacman:xz",
 				},
 			},
 		},
@@ -52,34 +59,38 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-		-- Use CGO all the way, so the Go binaries get full RELRO
-		.. "export GOPATH=\"$(pwd)/gopath\"\n"
-		.. "MAKE_OPTS='CGO_REQUIRED=1'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+-- CGO_REQUIRED=1: use CGO all the way, so the Go binaries get full RELRO.
+local opts = { check = true, env = { VER = version, SHA512 = sha512, MAKE_OPTS = "CGO_REQUIRED=1" } }
 
 function prepare()
-	sh([[
-		if [ ! -d libcap ]; then
-			git clone --depth 1 --branch "sig-libcap-$VER" https://git.kernel.org/pub/scm/libs/libcap/libcap.git libcap
-			# Provide flags to go build (sent upstream)
-			patch -Np1 -d libcap -i "$PKGLUADIR/libcap-2.73-cgo-flags.patch"
-		fi
-	]])
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://cdn.kernel.org/pub/linux/libs/security/linux-privs/libcap2" \
+				"https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2" \
+				"https://mirrors.kernel.org/pub/linux/libs/security/linux-privs/libcap2"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "libcap-$VER.tar.xz"
+		echo "$SHA512  libcap-$VER.tar.xz" | sha512sum -c -
+		tar -xf "libcap-$VER.tar.xz"
+		# Provide flags to go build (sent upstream)
+		patch -Np1 -d "libcap-$VER" -i "$PKGLUADIR/patches/libcap-2.73-cgo-flags.patch"
+	]],
+		opts
+	)
 end
 
 function build()
-	sh([[
-		make -C libcap \
+	cmd(
+		[[
+		export GOPATH="$(pwd)/gopath"
+		make -C "libcap-$VER" \
 			CGO_CPPFLAGS="${CPPFLAGS:-}" \
 			CGO_CFLAGS="${CFLAGS:-}" \
 			CGO_CXXFLAGS="${CXXFLAGS:-}" \
@@ -92,13 +103,16 @@ function build()
 			lib=lib \
 			prefix=/usr \
 			sbindir=bin
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
-		make -C libcap \
+	cmd(
+		[[
+		export GOPATH="$(pwd)/gopath"
+		make -C "libcap-$VER" \
 			CGO_CPPFLAGS="${CPPFLAGS:-}" \
 			CGO_CFLAGS="${CFLAGS:-}" \
 			CGO_CXXFLAGS="${CXXFLAGS:-}" \
@@ -113,10 +127,15 @@ function package()
 			sbindir=bin \
 			install
 
-		install -vDm644 libcap/CHANGELOG libcap/README -t "$ROOT/usr/share/doc/libcap/"
-		install -vDm644 libcap/License -t "$ROOT/usr/share/licenses/libcap/"
-		install -vDm644 libcap/pam_cap/capability.conf -t "$ROOT/usr/share/doc/libcap/examples/"
-	]])
+		install -vDm644 "libcap-$VER/CHANGELOG" "libcap-$VER/README" -t "$ROOT/usr/share/doc/libcap/"
+		install -vDm644 "libcap-$VER/pam_cap/capability.conf" -t "$ROOT/usr/share/doc/libcap/examples/"
+	]],
+		opts
+	)
+
+	zlicense("libcap-" .. version .. "/License")
+	-- pam_cap is under its own terms (BSD-3-Clause OR LGPL-2.0-or-later).
+	zlicense("libcap-" .. version .. "/pam_cap/License", "License.pam_cap")
 end
 
 function test()

@@ -1,5 +1,5 @@
-local version = ZOI.VERSION or "0.21.5"
-local sha512 = "c14d575cecc0f1693894dd79565b6b9220084ddfa43b908a1cefe16d147cdd5ec47796eb0c2135e2f829a951abaf39d8a371ab5c1352f57b36e610e25adf91f5"
+local version = ZOI.VERSION or "0.23.3"
+local sha512 = "536abf5c713e879daf49a78813d39637c78de1cebb93be841adc0a733fc3fd708dad03acac4a5cf8d3bfd06ab2b6bf3e9b0cb7881367de1c471c4c49dab28465"
 -- Release signing key (Tim Rühsen), from upstream's published keys.
 local signing_key = "1CB27DBC98614B2D5841646D08302DB6A2670428"
 
@@ -7,7 +7,7 @@ metadata({
 	name = "libpsl",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Public Suffix List library",
 	website = "https://github.com/rockdaboot/libpsl",
@@ -54,22 +54,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "libpsl-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://github.com/rockdaboot/libpsl/releases/download/$VER"; do
@@ -80,16 +72,19 @@ function prepare()
 		fetch "libpsl-$VER.tar.gz"
 		fetch "libpsl-$VER.tar.gz.sig"
 		echo "$SHA512  libpsl-$VER.tar.gz" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".sig", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "libpsl-$VER.tar.gz"]])
+	cmd([[tar -xf "libpsl-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "libpsl-$VER"
 		./configure \
 			--prefix=/usr \
@@ -98,17 +93,20 @@ function build()
 			--enable-builtin \
 			--enable-runtime=libidn2
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "libpsl-$VER"
 		make DESTDIR="$ROOT" install
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/libpsl/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	local src = "libpsl-" .. version
+	zlicense(src .. "/COPYING")
 end

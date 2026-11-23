@@ -1,18 +1,21 @@
 local version = ZOI.VERSION or "8.3.6"
-local patchlevel = string.match(version, "%.(%d+)$") or "0"
-local basever = string.gsub(version, "%.%d+$", "")
-if basever == version then
-	basever = version
-	patchlevel = "0"
-end
-
-local tar_url = string.format("https://ftp.gnu.org/gnu/readline/readline-%s.tar.gz", basever)
+-- Version is <release>.<patchlevel>: the release tarball plus the official
+-- upstream patches readline83-001 .. readline83-<patchlevel>, committed in
+-- readline-8.3-patches/ (each checked against its upstream .sig with gpg and
+-- against Gentoo's Manifest when added).
+local basever = string.match(version, "^(%d+%.%d+)")
+local patchlevel = string.match(version, "^%d+%.%d+%.(%d+)$") or "0"
+local sha512 = "513002753dcf5db9213dbbb61d51217245f6a40d33b1dd45238e8062dfa8eef0c890b87a5548e11db959e842724fb572c4d3d7fb433773762a63c30efe808344"
+-- Upstream signs releases and patches (key 7C0135FB088AAF6C66C650B9BB5869F064EA74AB,
+-- Chet Ramey), but the key is only bound with SHA-1 self-signatures, which
+-- Zoi's verifier rejects. The signatures were checked with gpg when this hash
+-- and the patches were recorded; the pinned hash is the trust anchor.
 
 metadata({
 	name = "readline",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "GNU readline library",
 	website = "https://tiswww.case.edu/php/chet/readline/rltop.html",
@@ -60,77 +63,70 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { BASEVER = basever, PLEVEL = patchlevel, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	cmd(
 		[[
-		if [ ! -d "readline-%s" ]; then
-			curl -sSL "%s" -o "readline-%s.tar.gz"
-			tar -xf "readline-%s.tar.gz"
-		fi
-
-		cd "readline-%s"
-
-		# Download and apply official GNU point patches
-		_plevel=%s
-		_bver_flat=$(echo "%s" | tr -d '.')
-		for (( _p=1; _p <= _plevel; _p++ )); do
-			_patch_num=$(printf "%%03d" $_p)
-			_patch_name="readline${_bver_flat}-${_patch_num}"
-			if [ ! -f ".applied_${_patch_name}" ]; then
-				echo "Applying $_patch_name..."
-				curl -sSL "https://ftp.gnu.org/gnu/readline/readline-%s-patches/${_patch_name}" | patch -p0 || true
-				touch ".applied_${_patch_name}"
-			fi
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/readline" \
+				"https://ftp.gnu.org/gnu/readline" \
+				"https://mirrors.kernel.org/gnu/readline"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "readline-$BASEVER.tar.gz"
+		echo "$SHA512  readline-$BASEVER.tar.gz" | sha512sum -c -
+		tar -xf "readline-$BASEVER.tar.gz"
+	]],
+		opts
+	)
+	cmd(
+		[[
+		cd "readline-$BASEVER"
+		flat=$(echo "$BASEVER" | tr -d '.')
+		p=1
+		while [ "$p" -le "$PLEVEL" ]; do
+			patch -p0 -i "$PKGLUADIR/patches/readline$flat-$(printf '%03d' "$p")"
+			p=$((p + 1))
 		done
 
 		# Remove RPATH from shared objects
 		sed -i 's|-Wl,-rpath,$(libdir) ||g' support/shobj-conf
 	]],
-		basever,
-		tar_url,
-		basever,
-		basever,
-		basever,
-		patchlevel,
-		basever,
-		basever
-	))
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "readline-%s"
+		cd "readline-$BASEVER"
 
 		CFLAGS="${CFLAGS} -fPIC"
 		./configure --prefix=/usr
 		make -j"$(nproc)" SHLIB_LIBS=-lncurses
 	]],
-		basever
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-	local pkgdir = LOCATION.PKGLUADIR or "."
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		PKGLUADIR="%s"
 		mkdir -p "$ROOT/etc"
 
-		make -C "readline-%s" DESTDIR="$ROOT" install
-		install -m644 "${PKGLUADIR}/inputrc" "$ROOT/etc/inputrc"
+		make -C "readline-$BASEVER" DESTDIR="$ROOT" install
+		install -m644 "$PKGLUADIR/files/inputrc" "$ROOT/etc/inputrc"
 	]],
-		root,
-		pkgdir,
-		basever
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("readline-" .. basever .. "/COPYING")
 end
 
 function test()

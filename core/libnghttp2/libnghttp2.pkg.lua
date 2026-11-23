@@ -9,7 +9,7 @@ metadata({
 	name = "libnghttp2",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Framing layer of the HTTP/2 protocol, implemented as a C library",
 	website = "https://nghttp2.org",
@@ -50,22 +50,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "nghttp2-" .. version .. ".tar.xz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://github.com/nghttp2/nghttp2/releases/download/v$VER"; do
@@ -75,12 +67,15 @@ function prepare()
 		}
 		fetch "nghttp2-$VER.tar.xz"
 		echo "$SHA512  nghttp2-$VER.tar.xz" | sha512sum -c -
-	]])
-	sh([[tar -xf "nghttp2-$VER.tar.xz"]])
+	]],
+		opts
+	)
+	cmd([[tar -xf "nghttp2-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "nghttp2-$VER"
 		./configure \
 			--prefix=/usr \
@@ -89,17 +84,20 @@ function build()
 			--disable-python-bindings \
 			--enable-lib-only
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "nghttp2-$VER"
 		make -C lib DESTDIR="$ROOT" install
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/libnghttp2/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	local src = "nghttp2-" .. version
+	zlicense(src .. "/COPYING")
 end

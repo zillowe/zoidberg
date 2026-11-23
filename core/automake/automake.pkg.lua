@@ -1,10 +1,14 @@
-local version = ZOI.VERSION or "1.19"
+local version = ZOI.VERSION or "1.20"
+local sha512 =
+	"10a1836e4dc50b2b75da8892ce0a21451d2c001e46344c69d29c7d0c26d4910ba035c115aca55b9913761f7ff6d861db0619a0ff9c23be833d84c101867efadd"
+-- Release signing key (Kamila Szewczyk), listed in Arch Linux's validpgpkeys.
+local signing_key = "6C222EA6B2BD216AA406516AC868F0B6DE38409D"
 
 metadata({
 	name = "automake",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	description = "A GNU tool for automatically creating Makefiles",
 	website = "https://www.gnu.org/software/automake",
 	license = "GPL-2.0-or-later",
@@ -36,8 +40,8 @@ dependencies({
 			source = {
 				required = {
 					"pacman:autoconf",
+					"pacman:curl",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:make",
 					"pacman:patch",
 					"pacman:perl",
@@ -54,45 +58,68 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d automake ]; then
-			git clone --branch "v$VER" https://git.savannah.gnu.org/git/automake.git automake
-			cd automake
+	local tarball = "automake-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/automake" \
+				"https://mirrors.kernel.org/gnu/automake" \
+				"https://ftp.gnu.org/gnu/automake"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "automake-$VER.tar.xz"
+		fetch "automake-$VER.tar.xz.sig"
+		echo "$SHA512  automake-$VER.tar.xz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "automake-$VER.tar.xz"
+		cd "automake-$VER"
 
-			# Make amhello-1.0.tar.gz reproducible (together with GZIP_ENV below)
-			patch -Np1 -i "$PKGLUADIR/enable-reproducible-builds.patch"
-
-			./bootstrap
-		fi
-	]])
+		# Make tarballs from automake-generated `make dist` reproducible
+		# (together with GZIP_ENV below)
+		patch -Np1 -i "$PKGLUADIR/patches/enable-reproducible-builds.patch"
+		# The patch only changes the installed tar.m4 macro. Keep its old
+		# timestamp so make does not try to regenerate automake's own
+		# aclocal.m4 and configure from it.
+		touch -r aclocal.m4 m4/tar.m4
+	]],
+		opts
+	)
 end
 
 function build()
-	sh([[
-		cd automake
+	cmd(
+		[[
+		cd "automake-$VER"
 		./configure --prefix=/usr
 		make -j"$(nproc)" GZIP_ENV='-9 -n'
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
-		make -C automake DESTDIR="$ROOT" install
-	]])
+	cmd(
+		[[
+		make -C "automake-$VER" DESTDIR="$ROOT" install
+	]],
+		opts
+	)
+
+	zlicense("automake-" .. version .. "/COPYING")
 end
 
 function test()

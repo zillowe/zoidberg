@@ -1,4 +1,4 @@
 [gettext]
-source = "git"
-git = "https://git.savannah.gnu.org/git/gettext.git"
-prefix = "v"
+source = "regex"
+url = "https://ftp.gnu.org/gnu/gettext/"
+regex = 'gettext-([\d.]+)\.tar\.xz'

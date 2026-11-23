@@ -1,5 +1,4 @@
 [gcc]
-source = "git"
-git = "https://forge.sourceware.org/gcc/gcc.git"
-include_regex = 'releases/gcc-[\d\.]+'
-prefix = "releases/gcc-"
+source = "regex"
+url = "https://ftp.gnu.org/gnu/gcc/"
+regex = 'gcc-(\d+\.\d+\.\d+)/'

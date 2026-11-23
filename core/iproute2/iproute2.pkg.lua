@@ -1,12 +1,13 @@
 local version = ZOI.VERSION or "7.3.0"
-local tag = "v" .. version
-local git_url = "https://git.kernel.org/pub/scm/network/iproute2/iproute2.git"
+local sha512 = "1a8d1cdb16514348c9fcfd8f8ff753e258d3344a1810cd4c632f666397bff0cdbe3b9a96b519a50f4e7e9f1bd70e00d6af1a00f9a78a9ff0cc8739d76c3fea92"
+-- Release signing key (Stephen Hemminger), matching Arch Linux's validpgpkeys.
+local signing_key = "9F6FC345B05BE7E766B83C8F80A77F6095CDE47E"
 
 metadata({
 	name = "iproute2",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	debug = { sub_package = true },
 	description = "IP Routing Utilities (ip, tc, ss, bridge, devlink)",
 	website = "https://wiki.linuxfoundation.org/networking/iproute2",
@@ -66,9 +67,9 @@ dependencies({
 			source = {
 				required = {
 					"pacman:bison",
+					"pacman:curl",
 					"pacman:flex",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:iptables",
 					"pacman:libbpf",
 					"pacman:libcap",
@@ -94,46 +95,66 @@ dependencies({
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		if [ ! -d iproute2 ]; then
-			git clone --depth 1 --branch "%s" "%s" iproute2
-		fi
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
-		cd iproute2
-		if [ -f "${PKGLUADIR}/0001-make-iproute2-fhs-compliant.patch" ]; then
-			patch -Np1 -i "${PKGLUADIR}/0001-make-iproute2-fhs-compliant.patch" || true
-		fi
+function prepare()
+	local tarball = "iproute2-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://www.kernel.org/pub/linux/utils/net/iproute2" \
+				"https://mirrors.kernel.org/pub/linux/utils/net/iproute2"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "iproute2-$VER.tar.xz"
+		fetch "iproute2-$VER.tar.sign"
+		echo "$SHA512  iproute2-$VER.tar.xz" | sha512sum -c -
+		# kernel.org signs the uncompressed tar.
+		xz -dk "iproute2-$VER.tar.xz"
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
+	local tar = tarball:gsub("%.xz$", "")
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tar, tar .. ".sign", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "iproute2-$VER.tar.xz"
+		cd "iproute2-$VER"
+		patch -Np1 -i "$PKGLUADIR/patches/0001-make-iproute2-fhs-compliant.patch"
+	]],
+		opts
+	)
 end
 
 function build()
-	cmd([[
-		set -e
-		cd iproute2
+	cmd(
+		[[
+		cd "iproute2-$VER"
 		./configure --color auto
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
 		mkdir -p "$ROOT"/usr/bin "$ROOT"/usr/lib "$ROOT"/etc/iproute2
-		make -C iproute2 DESTDIR="$ROOT" SBINDIR="/usr/bin" install
+		make -C "iproute2-$VER" DESTDIR="$ROOT" SBINDIR="/usr/bin" install
 	]],
-		root
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("iproute2-" .. version .. "/COPYING")
 end
 
 function test()

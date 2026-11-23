@@ -7,7 +7,7 @@ metadata({
 	name = "gdbm",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "GNU database library",
 	website = "https://www.gnu.org/software/gdbm/",
@@ -51,22 +51,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "gdbm-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://ftpmirror.gnu.org/gnu/gdbm" \
@@ -79,30 +71,39 @@ function prepare()
 		fetch "gdbm-$VER.tar.gz"
 		fetch "gdbm-$VER.tar.gz.sig"
 		echo "$SHA512  gdbm-$VER.tar.gz" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".sig", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "gdbm-$VER.tar.gz"]])
+	cmd([[tar -xf "gdbm-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "gdbm-$VER"
 		./configure --prefix=/usr --disable-static --enable-libgdbm-compat
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "gdbm-$VER"
 		make DESTDIR="$ROOT" install
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/gdbm/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	local src = "gdbm-" .. version
+	zlicense(src .. "/COPYING")
+	zdoc(src .. "/AUTHORS")
+	zdoc(src .. "/NEWS")
+	zdoc(src .. "/README")
 end

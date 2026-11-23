@@ -1,3 +1,4 @@
 [efibootmgr]
 source = "git"
 git = "https://github.com/rhboot/efibootmgr"
+include_regex = '^\d+$'

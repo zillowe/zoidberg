@@ -1,15 +1,14 @@
 local version = ZOI.VERSION or "2.16"
-local tar_url = string.format(
-	"https://gitlab.freedesktop.org/api/v4/projects/26558/packages/generic/source-assets/grub-%s/grub-%s.tar.xz",
-	version,
-	version
-)
+local sha512 = "a6b3fd592cc6458bb3796fb0b197ff10fed4ed746a51f50705af5761fdde235981f871bb42b831522ec5a274aa67e9c94a98383302ebd2dcf0b195d6e3126978"
+-- Release signing key (Leonardo Sandoval), GRUB release manager; listed as a
+-- valid key by Arch Linux and Gentoo.
+local signing_key = "DFB62CC1A987E6C76EBF8143916EC0708CDFDDFD"
 
 metadata({
 	name = "grub",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	-- GRUB's modules and kernel images are loaded and relocated by GRUB
 	-- itself, which needs their symbols; only the host tools are stripped.
 	debug = {
@@ -69,25 +68,21 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:autoconf",
-					"pacman:autogen",
-					"pacman:automake",
 					"pacman:bison",
+					"pacman:curl",
 					"pacman:device-mapper",
 					"pacman:flex",
 					"pacman:freetype2",
 					"pacman:fuse3",
 					"pacman:gcc",
 					"pacman:gettext",
-					"pacman:git",
 					"pacman:help2man",
 					"pacman:libusb",
 					"pacman:make",
+					"pacman:patch",
 					"pacman:python",
-					"pacman:rsync",
 					"pacman:texinfo",
 					"pacman:ttf-dejavu",
-					"pacman:wget",
 					"pacman:xz",
 				},
 			},
@@ -112,45 +107,54 @@ hooks({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	local pkgdir = LOCATION.PKGLUADIR or "."
-
-	cmd(string.format(
+	local tarball = "grub-" .. version .. ".tar.xz"
+	-- GRUB moved to freedesktop.org; releases from 2.16 on are published
+	-- there as generic package assets, no longer on ftp.gnu.org.
+	cmd(
 		[[
-		if [ ! -d "grub-%s" ]; then
-			curl -sSfL "%s" -o "grub-%s.tar.xz"
-			tar -xf "grub-%s.tar.xz"
-		fi
-
-		cd "grub-%s"
-		PKGLUADIR="%s"
-		if [ -f "${PKGLUADIR}/0001-00_header-add-GRUB_COLOR_-variables.patch" ]; then
-			patch -Np1 -i "${PKGLUADIR}/0001-00_header-add-GRUB_COLOR_-variables.patch" || true
-		fi
-		if [ -f "${PKGLUADIR}/0002-10_linux-detect-parlex-initramfs.patch" ]; then
-			patch -Np1 -i "${PKGLUADIR}/0002-10_linux-detect-parlex-initramfs.patch" || true
-		fi
-		if [ -f "${PKGLUADIR}/0003-support-dropins-for-default-configuration.patch" ]; then
-			patch -Np1 -i "${PKGLUADIR}/0003-support-dropins-for-default-configuration.patch" || true
-		fi
-
-		sed -i 's|GNU/Linux|Linux|' util/grub.d/10_linux.in 2>/dev/null || true
+		fetch() {
+			for base in \
+				"https://gitlab.freedesktop.org/api/v4/projects/26558/packages/generic/source-assets/grub-$VER"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "grub-$VER.tar.xz"
+		fetch "grub-$VER.tar.xz.sig"
+		echo "$SHA512  grub-$VER.tar.xz" | sha512sum -c -
 	]],
-		version,
-		tar_url,
-		version,
-		version,
-		version,
-		pkgdir
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "grub-$VER.tar.xz"
+		cd "grub-$VER"
+		patch -Np1 -i "$PKGLUADIR/patches/0001-00_header-add-GRUB_COLOR_-variables.patch"
+		patch -Np1 -i "$PKGLUADIR/patches/0002-10_linux-detect-parlex-initramfs.patch"
+		patch -Np1 -i "$PKGLUADIR/patches/0003-support-dropins-for-default-configuration.patch"
+
+		sed -i 's|GNU/Linux|Linux|' util/grub.d/10_linux.in
+	]],
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "grub-%s"
+		cd "grub-$VER"
 
+		# The patches only touch scripts; keep make from regenerating the
+		# shipped build system.
 		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 
 		# x86_64-efi build
@@ -170,33 +174,27 @@ function build()
 
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
 		mkdir -p "$ROOT"/etc/default "$ROOT"/etc/grub.d "$ROOT"/boot/grub
-		make -C "grub-%s" DESTDIR="$ROOT" bashcompletiondir="/usr/share/bash-completion/completions" install
+		make -C "grub-$VER" DESTDIR="$ROOT" bashcompletiondir="/usr/share/bash-completion/completions" install
 
-		if [ -f "${PKGLUADIR}/grub.default" ]; then
-			install -m644 "${PKGLUADIR}/grub.default" "$ROOT"/etc/default/grub
-		fi
-		if [ -f "${PKGLUADIR}/sbat.csv" ]; then
-			mkdir -p "$ROOT"/usr/share/grub
-			install -m644 "${PKGLUADIR}/sbat.csv" "$ROOT"/usr/share/grub/sbat.csv
-		fi
+		install -m644 "${PKGLUADIR}/files/grub.default" "$ROOT"/etc/default/grub
+		mkdir -p "$ROOT"/usr/share/grub
+		install -m644 "${PKGLUADIR}/files/sbat.csv" "$ROOT"/usr/share/grub/sbat.csv
 	]],
-		root,
-		version
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("grub-" .. version .. "/COPYING")
+	-- files/grub.default and files/sbat.csv come from Arch Linux's grub
+	-- package, distributed under 0BSD.
+	zlicense("${pkgluadir}/files/LICENSE.0BSD", "LICENSE.0BSD")
 end
 
 function test()

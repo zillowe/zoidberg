@@ -1,5 +1,6 @@
 local version = ZOI.VERSION or "2.8.8"
-local sha512 = "cec6499d90540f6b7b118f12bd4f150d06d18465ca93e38d792e8e3f3c39882bb9f33c893ed92974a1dd52df4c59629c002cae045b0bfbb44ca468d346e8383f"
+local sha512 =
+	"cec6499d90540f6b7b118f12bd4f150d06d18465ca93e38d792e8e3f3c39882bb9f33c893ed92974a1dd52df4c59629c002cae045b0bfbb44ca468d346e8383f"
 -- Release signing key (Milan Broz), from upstream's published keys.
 local signing_key = "2A2918243FDE46648D0686F9D9B0577BD93E98FC"
 
@@ -7,7 +8,7 @@ metadata({
 	name = "cryptsetup",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Userspace setup tool for transparent encryption of block devices using dm-crypt",
 	website = "https://gitlab.com/cryptsetup/cryptsetup",
@@ -61,22 +62,12 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "cryptsetup-" .. version .. ".tar.xz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8" \
@@ -88,19 +79,21 @@ function prepare()
 		fetch "cryptsetup-$VER.tar.xz"
 		fetch "cryptsetup-$VER.tar.sign"
 		echo "$SHA512  cryptsetup-$VER.tar.xz" | sha512sum -c -
-	]])
-	-- kernel.org signs the uncompressed tar.
-	sh([[xz -dk "cryptsetup-$VER.tar.xz"]])
+	]],
+		opts
+	)
+	cmd([[xz -dk "cryptsetup-$VER.tar.xz"]], opts)
 	local tar = tarball:gsub("%.xz$", "")
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tar, tar .. ".sign", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "cryptsetup-$VER.tar.xz"]])
+	cmd([[tar -xf "cryptsetup-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "cryptsetup-$VER"
 		./configure \
 			--prefix=/usr \
@@ -109,17 +102,32 @@ function build()
 			--disable-ssh-token \
 			--disable-external-tokens
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "cryptsetup-$VER"
 		make DESTDIR="$ROOT" install
-		for f in COPYING COPYING.LGPL; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/cryptsetup/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	local src = "cryptsetup-" .. version
+	zlicense(src .. "/COPYING")
+	for _, f in ipairs({
+		"COPYING.GPL-2.0-or-later-WITH-cryptsetup-OpenSSL-exception",
+		"COPYING.LGPL-2.1-or-later-WITH-cryptsetup-OpenSSL-exception",
+		"COPYING.Apache-2.0",
+		"COPYING.CC-BY-SA-4.0",
+	}) do
+		zlicense(src .. "/docs/licenses/" .. f)
+	end
+	zdoc(src .. "/README.licensing")
+	zdoc(src .. "/FAQ.md")
+	zdoc(src .. "/docs/Keyring.txt")
+	zdoc(src .. "/docs/LUKS2-locking.txt")
 end

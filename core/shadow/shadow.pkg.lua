@@ -1,11 +1,14 @@
-local version = ZOI.VERSION or "4.20.0"
-local tar_url = string.format("https://github.com/shadow-maint/shadow/releases/download/%s/shadow-%s.tar.xz", version, version)
+local version = ZOI.VERSION or "4.20.4"
+local sha512 = "1796f860b229b6e2dbfeecc4bb26dcbe2558be71bddb207fe54be3665aea68dff9620bdc1eb9b749072d6f55a2535f33c0efd4fcb3e8ba3bffbecea9a17bbaec"
+-- Release signing key (Alejandro Colomar; signed by subkey
+-- 4BB26DF6EF466E6956003022EB89995CC290C2A9), matches Arch's validpgpkeys.
+local signing_key = "A9348594CE31283A826FBDD8D57633D441E25BB5"
 
 metadata({
 	name = "shadow",
 	repo = "core",
 	version = version,
-	revision = "10",
+	revision = "1",
 	debug = { sub_package = true },
 	description = "Password and account management tool suite with support for shadow files and PAM",
 	website = "https://github.com/shadow-maint/shadow",
@@ -72,7 +75,6 @@ dependencies({
 					"pacman:diffutils",
 					"pacman:docbook-xsl",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:itstool",
 					"pacman:libcap",
 					"pacman:libtool",
@@ -99,37 +101,49 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	local pkgdir = LOCATION.PKGLUADIR or "."
-
-	cmd(string.format(
+	local tarball = "shadow-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d "shadow-%s" ]; then
-			curl -sSfL "%s" -o "shadow-%s.tar.xz"
-			tar -xf "shadow-%s.tar.xz"
-		fi
-
-		cd "shadow-%s"
-		PKGLUADIR="%s"
-		if [ -f "${PKGLUADIR}/shadow.patch" ]; then
-			patch -Np1 -i "${PKGLUADIR}/shadow.patch" || true
-		fi
+		fetch() {
+			for base in \
+				"https://github.com/shadow-maint/shadow/releases/download/$VER"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "shadow-$VER.tar.xz"
+		fetch "shadow-$VER.tar.xz.asc"
+		echo "$SHA512  shadow-$VER.tar.xz" | sha512sum -c -
 	]],
-		version,
-		tar_url,
-		version,
-		version,
-		version,
-		pkgdir
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".asc", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "shadow-$VER.tar.xz"
+		cd "shadow-$VER"
+		patch -Np1 -i "$PKGLUADIR/patches/shadow.patch"
+	]],
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "shadow-%s"
+		cd "shadow-$VER"
 
+		# Keep the shipped generated files (no autoreconf). The Makefile.am
+		# hunks of shadow.patch therefore have no effect; package() removes
+		# the util-linux tools instead.
 		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
 
 		export CFLAGS="${CFLAGS} -DEXTRA_CHECK_HOME_DIR"
@@ -153,24 +167,20 @@ function build()
 			--without-selinux \
 			--without-su
 
-		sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool 2>/dev/null || true
+		sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		mkdir -p "$ROOT"/etc/default "$ROOT"/usr/share/licenses/shadow "$ROOT"/usr/lib/systemd/system
+		mkdir -p "$ROOT"/etc/default "$ROOT"/usr/lib/systemd/system
 
-		make -C "shadow-%s" DESTDIR="$ROOT" install
-		make -C "shadow-%s/man" DESTDIR="$ROOT" install 2>/dev/null || true
+		# With --enable-man the top-level install also installs man/.
+		make -C "shadow-$VER" DESTDIR="$ROOT" install
 
 		# util-linux provides these, as on Arch; shipping both is a file
 		# conflict between the two packages. shadow keeps vipw and vigr.
@@ -187,19 +197,15 @@ function package()
 			rmdir "$ROOT/usr/sbin"
 		fi
 
-		install -m644 "shadow-%s/COPYING" "$ROOT/usr/share/licenses/shadow/COPYING" 2>/dev/null || true
-		install -m600 "${PKGLUADIR}/useradd.defaults" "$ROOT/etc/default/useradd"
+		install -m600 "$PKGLUADIR/files/useradd.defaults" "$ROOT/etc/default/useradd"
 
-		install -m644 "${PKGLUADIR}/shadow.timer" "$ROOT/usr/lib/systemd/system/shadow.timer"
-		install -m644 "${PKGLUADIR}/shadow.service" "$ROOT/usr/lib/systemd/system/shadow.service"
+		install -m644 "$PKGLUADIR/files/shadow.timer" "$ROOT/usr/lib/systemd/system/shadow.timer"
+		install -m644 "$PKGLUADIR/files/shadow.service" "$ROOT/usr/lib/systemd/system/shadow.service"
 	]],
-		root,
-		version,
-		version,
-		version
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("shadow-" .. version .. "/COPYING")
 end
 
 function test()

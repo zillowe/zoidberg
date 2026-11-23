@@ -1,9 +1,10 @@
-local version = ZOI.VERSION or "2.6.0"
-local sha512 = "9039478656d9b670af2ff4cb67b6b1fa315821e59d2f82ba6247e988859ddc7e3d15fea159eccca161bf2890828bb62aa6ab4d6b7ff55f27a9d6bd9532eeee1b"
--- Upstream signs releases (key 7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A, Paul Moore),
--- but the key is only bound with SHA-1 self-signatures, which Zoi's
--- verifier rejects. The signature was checked with gpg when this hash was
--- recorded; the pinned hash is the trust anchor.
+local version = ZOI.VERSION or "2.6.2"
+local sha512 = "fffad60003ba2e098d0a3e7df6bf194eaf38fd597b0711c02c9c52e5263f680a1effbc34e11d9b200691b60784e911fc08c21f0b478f964cc185e8a1c86f9bd8"
+-- Release signing key (Tom Hromatka), listed in Arch Linux's validpgpkeys.
+-- Paul Moore (7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A) also signs releases,
+-- but his key is only bound with SHA-1 self-signatures, which Zoi's verifier
+-- rejects.
+local signing_key = "47A68FCE37C7D7024FD65E11356CE62C2B524099"
 
 metadata({
 	name = "libseccomp",
@@ -29,6 +30,8 @@ metadata({
 	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
+	sub_packages = { "main", "python" },
+	main_subs = { "main" },
 })
 
 dependencies({
@@ -38,9 +41,15 @@ dependencies({
 				required = {
 					"pacman:base-devel",
 					"pacman:curl",
+					"pacman:cython",
 					"pacman:gcc",
 					"pacman:gperf",
 					"pacman:make",
+					"pacman:python",
+					"pacman:python-build",
+					"pacman:python-installer",
+					"pacman:python-setuptools",
+					"pacman:python-wheel",
 				},
 			},
 		},
@@ -49,25 +58,32 @@ dependencies({
 		required = {
 			"zoi:@core/glibc",
 		},
+		sub_packages = {
+			main = {
+				required = {
+					"zoi:@core/glibc",
+				},
+			},
+			-- Python bindings, split like Arch Linux's python-libseccomp. The
+			-- extension links libseccomp statically.
+			python = {
+				required = {
+					"zoi:@core/glibc",
+					"zoi:@core/python",
+				},
+			},
+		},
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "libseccomp-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://github.com/seccomp/libseccomp/releases/download/v$VER"; do
@@ -76,27 +92,60 @@ function prepare()
 			return 1
 		}
 		fetch "libseccomp-$VER.tar.gz"
+		fetch "libseccomp-$VER.tar.gz.asc"
 		echo "$SHA512  libseccomp-$VER.tar.gz" | sha512sum -c -
-	]])
-	sh([[tar -xf "libseccomp-$VER.tar.gz"]])
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".asc", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "libseccomp-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "libseccomp-$VER"
-		./configure --prefix=/usr --disable-static
+		# The static library is built because the Python extension links
+		# ../.libs/libseccomp.a; it is not shipped.
+		./configure --prefix=/usr
 		make -j"$(nproc)"
-	]])
+
+		cd src/python
+		VERSION_RELEASE="$VER" CPPFLAGS="${CPPFLAGS:-} -I$PWD/../../include" \
+			python -m build --wheel --no-isolation
+	]],
+		opts
+	)
 end
 
-function package()
-	sh([[
-		mkdir -p "$ROOT"
-		cd "libseccomp-$VER"
-		make DESTDIR="$ROOT" install
-		for f in LICENSE; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/libseccomp/$(basename "$f")"
-		done
-		true
-	]])
+function package(args)
+	local sub = (args and args.sub) or "main"
+	local src = "libseccomp-" .. version
+
+	if sub == "main" or sub == "" then
+		cmd(
+			[[
+			cd "libseccomp-$VER"
+			make DESTDIR="$ROOT" install
+			rm -f "$ROOT"/usr/lib/libseccomp.a
+		]],
+			opts
+		)
+		zdoc(src .. "/CHANGELOG")
+		zdoc(src .. "/README.md")
+		zdoc(src .. "/SECURITY.md")
+	elseif sub == "python" then
+		cmd(
+			[[
+			cd "libseccomp-$VER/src/python"
+			VERSION_RELEASE="$VER" python -m installer --destdir="$ROOT" dist/*.whl
+		]],
+			opts
+		)
+	end
+
+	zlicense(src .. "/LICENSE")
 end

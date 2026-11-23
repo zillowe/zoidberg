@@ -1,12 +1,15 @@
 local version = ZOI.VERSION or "18"
-local tag = version
-local git_url = "https://github.com/rhboot/efibootmgr.git"
+local sha512 =
+	"59112a3da3bad782ae893e1390f5a371474392f9779a2769a9d56335760b611b5330fe57b46e8d858d237786230162a0947261769c02c960549be6c1f6a5f4a6"
+-- Upstream signs its git tags but not the release tarball. Its contents were
+-- checked to be identical to the tag archive (verified against Gentoo's
+-- Manifest), apart from the generated efibootmgr.spec.
 
 metadata({
 	name = "efibootmgr",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Linux user-space application to modify the EFI Boot Manager",
 	website = "https://github.com/rhboot/efibootmgr",
@@ -36,9 +39,9 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:curl",
 					"pacman:efivar",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:make",
 					"pacman:pkgconf",
 					"pacman:popt",
@@ -48,43 +51,51 @@ dependencies({
 	},
 	runtime = {
 		required = {
+			"zoi:@core/efivar",
 			"zoi:@core/glibc",
+			"zoi:@core/popt",
 		},
 	},
 })
 
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	cmd(
 		[[
-		if [ ! -d efibootmgr ]; then
-			git clone --depth 1 --branch "%s" "%s" efibootmgr
-		fi
+		curl -sSfL --retry 3 --retry-all-errors \
+			"https://github.com/rhboot/efibootmgr/releases/download/$VER/efibootmgr-$VER.tar.bz2" \
+			-o "efibootmgr-$VER.tar.bz2"
+		echo "$SHA512  efibootmgr-$VER.tar.bz2" | sha512sum -c -
+		tar -xf "efibootmgr-$VER.tar.bz2"
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
 end
 
 function build()
-	cmd([[
-		set -e
-		make libdir=/usr/lib sbindir=/usr/bin EFIDIR=parlex -C efibootmgr -j"$(nproc)"
-	]])
+	cmd(
+		[[
+		make libdir=/usr/lib sbindir=/usr/bin EFIDIR=parlex -C "efibootmgr-$VER" -j"$(nproc)"
+	]],
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		make DESTDIR="$ROOT" libdir=/usr/lib sbindir=/usr/bin EFIDIR=parlex install -C efibootmgr
+		make DESTDIR="$ROOT" libdir=/usr/lib sbindir=/usr/bin EFIDIR=parlex install -C "efibootmgr-$VER"
 	]],
-		root
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	local src = "efibootmgr-" .. version
+	zlicense(src .. "/COPYING")
+	zdoc(src .. "/AUTHORS")
+	zdoc(src .. "/README")
+	zdoc(src .. "/README.md")
+	zdoc(src .. "/TODO")
 end
 
 function test()

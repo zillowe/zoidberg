@@ -1,12 +1,13 @@
 local version = ZOI.VERSION or "34.3"
-local tag = "v" .. version
-local git_url = "https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git"
+local sha512 = "3d47d52443d685b35ecd379427b71c7def6253e9c3152229068ef84682348056cb32755e2c5ee1433617f0e3b90ce96c541fe38b2f7415ebe297e46bad5c97b0"
+-- Release signing key (Lucas De Marchi), matching Arch Linux's validpgpkeys.
+local signing_key = "EAB33C9690013C733916AC839BA2A5A630CBEA53"
 
 metadata({
 	name = "kmod",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "Linux kernel module management tools and library (modprobe, lsmod, depmod)",
 	website = "https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git",
@@ -41,9 +42,9 @@ dependencies({
 		types = {
 			source = {
 				required = {
+					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:meson",
 					"pacman:ninja",
 					"pacman:openssl",
@@ -67,23 +68,42 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	local tarball = "kmod-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d kmod ]; then
-			git clone --depth 1 --branch "%s" "%s" kmod
-		fi
+		fetch() {
+			for base in \
+				"https://www.kernel.org/pub/linux/utils/kernel/kmod" \
+				"https://mirrors.kernel.org/pub/linux/utils/kernel/kmod"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "kmod-$VER.tar.xz"
+		fetch "kmod-$VER.tar.sign"
+		echo "$SHA512  kmod-$VER.tar.xz" | sha512sum -c -
+		# kernel.org signs the uncompressed tar.
+		xz -dk "kmod-$VER.tar.xz"
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
+	local tar = tarball:gsub("%.xz$", "")
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tar, tar .. ".sign", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "kmod-$VER.tar.xz"]], opts)
 end
 
 function build()
-	cmd([[
-		set -e
-
-		meson setup kmod build \
+	cmd(
+		[[
+		meson setup "kmod-$VER" build \
 			--prefix=/usr \
 			--buildtype=release \
 			-Dbuild-tests=false \
@@ -94,28 +114,28 @@ function build()
 			-Dzstd=enabled
 
 		meson compile -C build -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
 		mkdir -p "$ROOT"/etc/depmod.d "$ROOT"/etc/modprobe.d "$ROOT"/usr/lib/depmod.d "$ROOT"/usr/lib/modprobe.d
 
 		DESTDIR="$ROOT" meson install -C build
 
-		install -m644 "${PKGLUADIR}/depmod-search.conf" "$ROOT/usr/lib/depmod.d/search.conf"
+		install -m644 "${PKGLUADIR}/files/depmod-search.conf" "$ROOT/usr/lib/depmod.d/search.conf"
 	]],
-		root
-	))
+		opts
+	)
 
 	zcp("${pkgluadir}/hooks/depmod.hook.yaml", "${pkgstore}/hooks/kmod-depmod.hook.yaml")
 
-	-- zlicense("LICENSE")
+	-- libkmod is LGPL-2.1 (COPYING), the tools are GPL-2.0 (tools/COPYING).
+	zlicense("kmod-" .. version .. "/COPYING")
+	zlicense("kmod-" .. version .. "/tools/COPYING", "COPYING.tools")
 end
 
 function test()

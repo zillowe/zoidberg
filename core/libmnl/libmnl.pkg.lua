@@ -7,7 +7,7 @@ metadata({
 	name = "libmnl",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Minimalistic user-space library oriented to Netlink developers",
 	website = "https://www.netfilter.org/projects/libmnl/",
@@ -48,22 +48,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "libmnl-" .. version .. ".tar.bz2"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://www.netfilter.org/projects/libmnl/files"; do
@@ -74,30 +66,35 @@ function prepare()
 		fetch "libmnl-$VER.tar.bz2"
 		fetch "libmnl-$VER.tar.bz2.sig"
 		echo "$SHA512  libmnl-$VER.tar.bz2" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".sig", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "libmnl-$VER.tar.bz2"]])
+	cmd([[tar -xf "libmnl-$VER.tar.bz2"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "libmnl-$VER"
 		./configure --prefix=/usr --disable-static
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "libmnl-$VER"
 		make DESTDIR="$ROOT" install
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/libmnl/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	zlicense("libmnl-" .. version .. "/COPYING")
 end

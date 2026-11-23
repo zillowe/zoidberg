@@ -1,4 +1,4 @@
 [tar]
-source = "git"
-git = "https://git.savannah.gnu.org/git/tar.git"
-prefix = "v"
+source = "regex"
+url = "https://mirrors.kernel.org/gnu/tar/"
+regex = 'tar-([\d.]+)\.tar\.xz"'

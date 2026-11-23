@@ -1,12 +1,13 @@
 local version = ZOI.VERSION or "5.8.4"
-local tag = "v" .. version
-local git_url = "https://github.com/tukaani-project/xz.git"
+local sha512 = "6ade85c1bcff651cdb9543d0b9e7d932c50c9a45e362ada3ef5edf173cd6fb18786f24bc73058db37440f3d92d2178a4e24448f725f4f22146c9a63ed15be432"
+-- Release signing key (Lasse Collin), from upstream's published keys.
+local signing_key = "3690C240CE51B4670D30AD1C38EE757D69184620"
 
 metadata({
 	name = "xz",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "Library and command line tools for XZ and LZMA compressed files",
 	website = "https://tukaani.org/xz/",
@@ -56,16 +57,11 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:autoconf",
-					"pacman:automake",
+					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:doxygen",
 					"pacman:gcc",
-					"pacman:gettext",
-					"pacman:git",
-					"pacman:libtool",
 					"pacman:make",
-					"pacman:po4a",
 				},
 			},
 		},
@@ -77,24 +73,38 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	local tarball = "xz-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d xz ]; then
-			git clone --depth 1 --branch %s %s xz
-		fi
-		cd xz
-		./autogen.sh
+		fetch() {
+			for base in \
+				"https://github.com/tukaani-project/xz/releases/download/v$VER"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "xz-$VER.tar.xz"
+		fetch "xz-$VER.tar.xz.sig"
+		echo "$SHA512  xz-$VER.tar.xz" | sha512sum -c -
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "xz-$VER.tar.xz"]], opts)
 end
 
 function build()
-	cmd([[
-		set -e
-		cd xz
+	cmd(
+		[[
+		cd "xz-$VER"
 
 		./configure \
 			--prefix=/usr \
@@ -103,29 +113,26 @@ function build()
 			--disable-werror
 
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
 		mkdir -p "$ROOT"
 
-		make -C xz DESTDIR="$ROOT" install
-
-		mkdir -p "$ROOT/usr/share/licenses/xz"
-		for file in "$ROOT"/usr/share/doc/xz/COPYING*; do
-			[ -f "$file" ] && ln -sf "/usr/share/doc/xz/$(basename "$file")" "$ROOT/usr/share/licenses/xz/"
-		done
+		make -C "xz-$VER" DESTDIR="$ROOT" install
 	]],
-		root
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	-- COPYING says which parts are under which license; the rest are the
+	-- license texts it refers to.
+	for _, f in ipairs({ "COPYING", "COPYING.0BSD", "COPYING.GPLv2", "COPYING.GPLv3", "COPYING.LGPLv2.1" }) do
+		zlicense("xz-" .. version .. "/" .. f)
+	end
 end
 
 function test()

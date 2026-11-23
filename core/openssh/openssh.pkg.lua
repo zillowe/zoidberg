@@ -1,11 +1,13 @@
-local version = ZOI.VERSION or "10.6p1"
-local tar_url = string.format("https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%s.tar.gz", version)
+local version = ZOI.VERSION or "10.6p2"
+local sha512 = "70696ed12bd1be04f67440415528f1ced1ef68c8ee7836e587395618d0992f3fd20c9498c44d46ad9f5806b9a73ce256fd6a2807f9c5c02e6496cf06816c749e"
+-- Release signing key (Damien Miller), matches Arch's validpgpkeys.
+local signing_key = "7168B983815A5EEF59A4ADFD2A3F414E736060BA"
 
 metadata({
 	name = "openssh",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "1",
 	debug = { sub_package = true },
 	description = "SSH protocol implementation for remote login, command execution and file transfer",
 	website = "https://www.openssh.com/portable.html",
@@ -52,7 +54,6 @@ dependencies({
 					"pacman:gcc",
 					"pacman:krb5",
 					"pacman:libedit",
-					"pacman:libfido2",
 					"pacman:libxcrypt",
 					"pacman:make",
 					"pacman:openssl",
@@ -65,40 +66,67 @@ dependencies({
 	},
 	runtime = {
 		required = {
+			-- findssl.sh and ssh-copy-id are shell scripts
+			"zoi:@core/bash",
 			"zoi:@core/glibc",
+			"zoi:@core/krb5",
+			"zoi:@core/libedit",
+			"zoi:@core/libxcrypt",
 			"zoi:@core/openssl",
+			"zoi:@core/pam",
 			"zoi:@core/zlib",
 		},
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		set -e
-		if [ ! -d "openssh-%s" ]; then
-			curl -fsSL --retry 5 -o openssh.tar.gz "%s"
-			tar -xzf openssh.tar.gz
-			rm -f openssh.tar.gz
-		fi
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
-		cd "openssh-%s"
-		sed -i '/^#.*\$.*\$$/d' ssh_config sshd_config 2>/dev/null || true
+function prepare()
+	local tarball = "openssh-" .. version .. ".tar.gz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable" \
+				"https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "openssh-$VER.tar.gz"
+		fetch "openssh-$VER.tar.gz.asc"
+		echo "$SHA512  openssh-$VER.tar.gz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".asc", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "openssh-$VER.tar.gz"
+		cd "openssh-$VER"
+		sed -i '/^#.*\$.*\$$/d' ssh_config sshd_config
 
 		printf "# Include drop-in configurations\nInclude /etc/ssh/sshd_config.d/*.conf\n" | cat - sshd_config > sshd_config.tmp && mv sshd_config.tmp sshd_config
 		printf "# Include drop-in configurations\nInclude /etc/ssh/ssh_config.d/*.conf\n" | cat - ssh_config > ssh_config.tmp && mv ssh_config.tmp ssh_config
 	]],
-		version,
-		tar_url,
-		version
-	))
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	-- Options as Arch (PAM, Kerberos 5/GSSAPI, libedit for sftp), except
+	-- FIDO/U2F: Zoidberg has no libfido2, so the built-in security-key
+	-- support Arch enables is disabled explicitly (configure would otherwise
+	-- pick up the build host's libfido2). Security keys still work through an
+	-- external SecurityKeyProvider middleware.
+	cmd(
 		[[
-		set -e
-		cd "openssh-%s"
+		cd "openssh-$VER"
 
 		touch -c aclocal.m4 configure Makefile.in
 
@@ -110,8 +138,12 @@ function build()
 			--disable-strip \
 			--disable-lastlog \
 			--with-pam \
+			--with-kerberos5=/usr \
 			--with-libedit \
-			--with-security-key-builtin \
+			--without-security-key-builtin \
+			--without-security-key-standalone \
+			--with-xauth=/usr/bin/xauth \
+			--without-zlib-version-check \
 			--with-privsep-user=nobody \
 			--with-privsep-path=/usr/share/empty.sshd \
 			--with-pid-dir=/run \
@@ -119,67 +151,39 @@ function build()
 
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		cd "openssh-%s"
+		cd "openssh-$VER"
 
 		make DESTDIR="$ROOT" install
 
 		mkdir -p "$ROOT"/etc/ssh/sshd_config.d "$ROOT"/etc/ssh/ssh_config.d "$ROOT"/etc/pam.d
-		mkdir -p "$ROOT"/usr/lib/systemd/system "$ROOT"/usr/lib/systemd/user "$ROOT"/usr/lib/tmpfiles.d
+		mkdir -p "$ROOT"/usr/lib/systemd/system "$ROOT"/usr/lib/systemd/user "$ROOT"/usr/lib/tmpfiles.d "$ROOT"/usr/share/man/man1
 
-		if [ -f "${PKGLUADIR}/99-parlex.conf" ]; then
-			install -m644 "${PKGLUADIR}/99-parlex.conf" "$ROOT"/etc/ssh/sshd_config.d/99-parlex.conf
-		fi
-		if [ -f "${PKGLUADIR}/sshd.pam" ]; then
-			install -m644 "${PKGLUADIR}/sshd.pam" "$ROOT"/etc/pam.d/sshd
-		fi
-		if [ -f "${PKGLUADIR}/sshdgenkeys.service" ]; then
-			install -m644 "${PKGLUADIR}/sshdgenkeys.service" "$ROOT"/usr/lib/systemd/system/
-		fi
-		if [ -f "${PKGLUADIR}/sshd.service" ]; then
-			install -m644 "${PKGLUADIR}/sshd.service" "$ROOT"/usr/lib/systemd/system/
-		fi
-		if [ -f "${PKGLUADIR}/sshd@.service" ]; then
-			install -m644 "${PKGLUADIR}/sshd@.service" "$ROOT"/usr/lib/systemd/system/
-		fi
-		if [ -f "${PKGLUADIR}/ssh-agent.service" ]; then
-			install -m644 "${PKGLUADIR}/ssh-agent.service" "$ROOT"/usr/lib/systemd/user/
-		fi
-		if [ -f "${PKGLUADIR}/ssh-agent.socket" ]; then
-			install -m644 "${PKGLUADIR}/ssh-agent.socket" "$ROOT"/usr/lib/systemd/user/
-		fi
-		if [ -f "${PKGLUADIR}/openssh.tmpfiles" ]; then
-			install -m644 "${PKGLUADIR}/openssh.tmpfiles" "$ROOT"/usr/lib/tmpfiles.d/openssh.conf
-		fi
+		install -m644 "$PKGLUADIR/files/99-parlex.conf" "$ROOT"/etc/ssh/sshd_config.d/99-parlex.conf
+		install -m644 "$PKGLUADIR/files/sshd.pam" "$ROOT"/etc/pam.d/sshd
+		install -m644 "$PKGLUADIR/files/sshdgenkeys.service" "$ROOT"/usr/lib/systemd/system/
+		install -m644 "$PKGLUADIR/files/sshd.service" "$ROOT"/usr/lib/systemd/system/
+		install -m644 "$PKGLUADIR/files/sshd@.service" "$ROOT"/usr/lib/systemd/system/
+		install -m644 "$PKGLUADIR/files/ssh-agent.service" "$ROOT"/usr/lib/systemd/user/
+		install -m644 "$PKGLUADIR/files/ssh-agent.socket" "$ROOT"/usr/lib/systemd/user/
+		install -m644 "$PKGLUADIR/files/openssh.tmpfiles" "$ROOT"/usr/lib/tmpfiles.d/openssh.conf
 
-		if [ -f contrib/findssl.sh ]; then
-			install -m755 contrib/findssl.sh "$ROOT"/usr/bin/
-		fi
-		if [ -f contrib/ssh-copy-id ]; then
-			install -m755 contrib/ssh-copy-id "$ROOT"/usr/bin/
-			if [ -f contrib/ssh-copy-id.1 ]; then
-				mkdir -p "$ROOT"/usr/share/man/man1
-				install -m644 contrib/ssh-copy-id.1 "$ROOT"/usr/share/man/man1/
-			fi
-		fi
+		install -m755 contrib/findssl.sh "$ROOT"/usr/bin/
+		install -m755 contrib/ssh-copy-id "$ROOT"/usr/bin/
+		install -m644 contrib/ssh-copy-id.1 "$ROOT"/usr/share/man/man1/
 	]],
-		root,
-		version
-	))
+		opts
+	)
 
 	zcp("${pkgluadir}/hooks/openssh-restart-sshd.hook.yaml", "${pkgstore}/hooks/openssh-restart-sshd.hook.yaml")
 
-	-- zlicense("LICENSE")
+	zlicense("openssh-" .. version .. "/LICENCE")
 end
 
 function test()

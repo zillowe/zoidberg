@@ -7,7 +7,7 @@ metadata({
 	name = "p11-kit",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Loads and enumerates PKCS#11 modules, and provides the system trust store",
 	website = "https://p11-glue.github.io/p11-glue/p11-kit.html",
@@ -55,22 +55,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "p11-kit-" .. version .. ".tar.xz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://github.com/p11-glue/p11-kit/releases/download/$VER"; do
@@ -81,16 +73,19 @@ function prepare()
 		fetch "p11-kit-$VER.tar.xz"
 		fetch "p11-kit-$VER.tar.xz.sig"
 		echo "$SHA512  p11-kit-$VER.tar.xz" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".sig", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "p11-kit-$VER.tar.xz"]])
+	cmd([[tar -xf "p11-kit-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "p11-kit-$VER"
 		meson setup _build \
 			--prefix=/usr \
@@ -105,18 +100,20 @@ function build()
 			-Dman=false \
 			-Dtest=false
 		meson compile -C _build
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "p11-kit-$VER"
 		meson install -C _build --destdir "$ROOT"
 		ln -sf ../../bin/update-ca-trust "$ROOT/usr/lib/p11-kit/trust-extract-compat"
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/p11-kit/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	zlicense("p11-kit-" .. version .. "/COPYING")
 end

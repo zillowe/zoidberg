@@ -1,12 +1,13 @@
 local version = ZOI.VERSION or "1.0"
-local tag = "v" .. version
-local tar_url = string.format("https://ftp.gnu.org/pub/gnu/gettext/gettext-%s.tar.gz", version)
+local sha512 = "fa657faf5685dae7121a9b0293d3308a3910a72b90943a7a493b88cf88e95f29c5758e1573320169fe9beac6f101ef76f4165a279a7f3294155d7a773e2fa09f"
+-- Release signing key (Bruno Haible), from the GNU keyring.
+local signing_key = "E0FFBD975397F77A32AB76ECB6301D9E1BBEAC08"
 
 metadata({
 	name = "gettext",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "GNU internationalization and localization system",
 	website = "https://www.gnu.org/software/gettext/",
@@ -76,9 +77,13 @@ dependencies({
 		required = {
 			"zoi:@core/acl",
 			"zoi:@core/attr",
+			"zoi:@core/bash",
 			"zoi:@core/curl",
+			"zoi:@core/gcc:libgcc",
 			"zoi:@core/gcc:libgomp",
+			"zoi:@core/gcc:libstdc++",
 			"zoi:@core/glibc",
+			"zoi:@core/gnulib-l10n",
 			"zoi:@core/json-c",
 			"zoi:@core/libunistring",
 			"zoi:@core/libxml2",
@@ -87,23 +92,40 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	local tarball = "gettext-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d "gettext-%s" ]; then
-			curl -sSL "%s" | tar -xz
-		fi
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/gettext" \
+				"https://ftp.gnu.org/gnu/gettext" \
+				"https://mirrors.kernel.org/gnu/gettext"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "gettext-$VER.tar.xz"
+		fetch "gettext-$VER.tar.xz.sig"
+		echo "$SHA512  gettext-$VER.tar.xz" | sha512sum -c -
 	]],
-		version,
-		tar_url
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "gettext-$VER.tar.xz"]], opts)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "gettext-%s"
+		cd "gettext-$VER"
 
 		touch -c aclocal.m4 configure Makefile.in
 
@@ -116,24 +138,30 @@ function build()
 
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		make -C "gettext-%s" DESTDIR="$ROOT" install
-	]],
-		root,
-		version
-	))
+		make -C "gettext-$VER" DESTDIR="$ROOT" install
 
-	-- zlicense("LICENSE")
+		# Licenses of the tree-sitter parsers built into xgettext, gathered
+		# under distinct names.
+		rm -rf licenses-tree-sitter
+		mkdir licenses-tree-sitter
+		for d in "gettext-$VER"/gettext-tools/tree-sitter-*/; do
+			name="$(basename "$d")"
+			install -m644 "$d/LICENSE" "licenses-tree-sitter/LICENSE.$name"
+		done
+	]],
+		opts
+	)
+
+	zlicense("gettext-" .. version .. "/COPYING")
+	zlicense("gettext-" .. version .. "/gettext-runtime/intl/COPYING.LIB")
+	zlicense("licenses-tree-sitter")
 end
 
 function test()

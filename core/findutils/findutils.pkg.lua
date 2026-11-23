@@ -1,11 +1,15 @@
 local version = ZOI.VERSION or "4.11.0"
-local tar_url = string.format("https://ftp.gnu.org/pub/gnu/findutils/findutils-%s.tar.xz", version)
+local sha512 = "1b667c5363b599135ceabab6b4b5388dbee6de4e7fa301f5dfefc854473e442fbfe7dda93a28a70505c026987acd375d13169f76d18da49d29c1fb2e09c83fef"
+-- Upstream signs releases (key 0CF4E8D871593224842832B888DD9E08C5DDACB9, James Youngman),
+-- but the key is only bound with SHA-1 self-signatures, which Zoi's
+-- verifier rejects. The signature was checked with gpg when this hash was
+-- recorded; the pinned hash is the trust anchor.
 
 metadata({
 	name = "findutils",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "GNU utilities to locate files (find, xargs)",
 	website = "https://www.gnu.org/software/findutils/",
@@ -32,8 +36,6 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:autoconf",
-					"pacman:automake",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
@@ -52,68 +54,55 @@ dependencies({
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		if [ ! -d "findutils-%s" ]; then
-			if ! curl -sSfL "%s" -o "findutils-%s.tar.xz"; then
-				echo "Tarball download failed, falling back to git clone..."
-				git clone --depth 1 --branch "v%s" https://git.savannah.gnu.org/git/findutils.git "findutils-%s"
-				cd "findutils-%s"
-				git clone --depth 1 https://git.savannah.gnu.org/git/gnulib.git gnulib
-				export GNULIB_SRCDIR="$(pwd)/gnulib"
-				./bootstrap --gnulib-srcdir="$(pwd)/gnulib"
-				cd ..
-			else
-				tar -xf "findutils-%s.tar.xz"
-			fi
-		fi
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
-		cd "findutils-%s"
-		sed -e '/^SUBDIRS/s/locate//' -e 's/frcode locate updatedb//' -i Makefile.in 2>/dev/null || true
+function prepare()
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/findutils" \
+				"https://mirrors.kernel.org/gnu/findutils" \
+				"https://ftp.gnu.org/gnu/findutils"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "findutils-$VER.tar.xz"
+		echo "$SHA512  findutils-$VER.tar.xz" | sha512sum -c -
 	]],
-		version,
-		tar_url,
-		version,
-		version,
-		version,
-		version,
-		version,
-		version
-	))
+		opts
+	)
+	cmd(
+		[[
+		tar -xf "findutils-$VER.tar.xz"
+		cd "findutils-$VER"
+		# Don't build or install locate (mlocate/plocate provide a secure one).
+		sed -e '/^SUBDIRS/s/locate//' -e 's/frcode locate updatedb//' -i Makefile.in
+	]],
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "findutils-%s"
-
-		find . -type f \( -name "config.hin" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
+		cd "findutils-$VER"
 		./configure --prefix=/usr
-		make -C locate dblocation.texi 2>/dev/null || true
+		# locate is not built, but the docs want this file from its directory.
+		make -C locate dblocation.texi
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	cmd([[make -C "findutils-$VER" DESTDIR="$ROOT" install]], opts)
 
-	cmd(string.format(
-		[[
-		set -e
-		ROOT="%s"
-		mkdir -p "$ROOT"
-
-		make -C "findutils-%s" DESTDIR="$ROOT" install
-	]],
-		root,
-		version
-	))
-
-	-- zlicense("LICENSE")
+	zlicense("findutils-" .. version .. "/COPYING")
 end
 
 function test()

@@ -7,7 +7,7 @@ metadata({
 	name = "libpipeline",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "A C library for manipulating pipelines of subprocesses",
 	website = "https://libpipeline.nongnu.org/",
@@ -48,22 +48,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "libpipeline-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://download.savannah.nongnu.org/releases/libpipeline" \
@@ -75,30 +67,36 @@ function prepare()
 		fetch "libpipeline-$VER.tar.gz"
 		fetch "libpipeline-$VER.tar.gz.asc"
 		echo "$SHA512  libpipeline-$VER.tar.gz" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".asc", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "libpipeline-$VER.tar.gz"]])
+	cmd([[tar -xf "libpipeline-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "libpipeline-$VER"
 		./configure --prefix=/usr --disable-static
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "libpipeline-$VER"
 		make DESTDIR="$ROOT" install
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/libpipeline/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	local src = "libpipeline-" .. version
+	zlicense(src .. "/COPYING")
 end

@@ -5,7 +5,7 @@ metadata({
 	repo = "zillowe",
 	type = "app",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "A Rust project template with the Zillowe conventions: rustfmt, .editorconfig, workspace lints, Justfile and CI.",
 	website = "https://zillowe.qzz.io",
 	maintainer = {
@@ -38,7 +38,6 @@ function package()
 	zcp("${pkgluadir}/template/renovate.json", "${createpkgdir}/renovate.json")
 	zcp("${pkgluadir}/template/README.md", "${createpkgdir}/README.md")
 	zcp("${pkgluadir}/template/LICENSE", "${createpkgdir}/LICENSE")
-	zcp("${pkgluadir}/template/LICENSE-MIT", "${createpkgdir}/LICENSE-MIT")
 
 	-- The crate itself.
 	zcp("${pkgluadir}/template/crates/app", "${createpkgdir}/crates/app")

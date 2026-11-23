@@ -1,4 +1,4 @@
 [iproute2]
-source = "git"
-git = "https://git.kernel.org/pub/scm/network/iproute2/iproute2.git"
-prefix = "v"
+source = "regex"
+url = "https://www.kernel.org/pub/linux/utils/net/iproute2/"
+regex = 'iproute2-(\d+\.\d+\.\d+)\.tar\.xz'

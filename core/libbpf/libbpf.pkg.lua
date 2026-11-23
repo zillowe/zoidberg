@@ -7,7 +7,7 @@ metadata({
 	name = "libbpf",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Library for loading eBPF programs and reading and manipulating eBPF objects from user-space",
 	website = "https://github.com/libbpf/libbpf",
@@ -53,43 +53,44 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "libbpf-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		curl -sSfL --retry 3 --retry-all-errors "https://github.com/libbpf/libbpf/archive/refs/tags/v$VER.tar.gz" -o "libbpf-$VER.tar.gz"
 		echo "$SHA512  libbpf-$VER.tar.gz" | sha512sum -c -
-	]])
-	sh([[tar -xf "libbpf-$VER.tar.gz"]])
+	]],
+		opts
+	)
+	cmd([[tar -xf "libbpf-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "libbpf-$VER"
 		make -C src -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "libbpf-$VER"
 		make -C src DESTDIR="$ROOT" LIBSUBDIR=lib install
-		for f in LICENSE LICENSE.BSD-2-Clause LICENSE.LGPL-2.1; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/libbpf/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	local src = "libbpf-" .. version
+	zlicense(src .. "/LICENSE")
+	zlicense(src .. "/LICENSE.BSD-2-Clause")
+	zlicense(src .. "/LICENSE.LGPL-2.1-only")
+	zdoc(src .. "/README.md")
 end

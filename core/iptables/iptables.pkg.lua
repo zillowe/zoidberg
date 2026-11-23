@@ -7,9 +7,9 @@ metadata({
 	name = "iptables",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
-	description = "Linux kernel packet control tool (legacy backend) and the libxtables library",
+	description = "Linux kernel packet control tool (using nft interface) and the libxtables library",
 	website = "https://www.netfilter.org/projects/iptables/",
 	license = "GPL-2.0-or-later",
 	maintainer = {
@@ -26,6 +26,13 @@ metadata({
 	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
+	backup = {
+		"${usrroot}/etc/arptables.conf",
+		"${usrroot}/etc/ebtables.conf",
+		"${usrroot}/etc/ethertypes",
+		"${usrroot}/etc/iptables/ip6tables.rules",
+		"${usrroot}/etc/iptables/iptables.rules",
+	},
 })
 
 dependencies({
@@ -36,8 +43,14 @@ dependencies({
 					"pacman:base-devel",
 					"pacman:curl",
 					"pacman:gcc",
+					"pacman:libmnl",
+					"pacman:libnetfilter_conntrack",
+					"pacman:libnfnetlink",
+					"pacman:libnftnl",
+					"pacman:libpcap",
 					"pacman:linux-api-headers",
 					"pacman:make",
+					"pacman:patch",
 					"pacman:pkgconf",
 				},
 			},
@@ -45,27 +58,28 @@ dependencies({
 	},
 	runtime = {
 		required = {
+			-- iptables-apply and the iptables-flush helper are bash scripts;
+			-- the flush helper calls nft.
+			"zoi:@core/bash",
 			"zoi:@core/glibc",
+			"zoi:@core/libmnl",
+			"zoi:@core/libnetfilter_conntrack",
+			"zoi:@core/libnfnetlink",
+			"zoi:@core/libnftnl",
+			"zoi:@core/libpcap",
+			"zoi:@core/nftables",
 		},
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "iptables-" .. version .. ".tar.xz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://www.netfilter.org/projects/iptables/files"; do
@@ -76,16 +90,32 @@ function prepare()
 		fetch "iptables-$VER.tar.xz"
 		fetch "iptables-$VER.tar.xz.sig"
 		echo "$SHA512  iptables-$VER.tar.xz" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".sig", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "iptables-$VER.tar.xz"]])
+	cmd(
+		[[
+		tar -xf "iptables-$VER.tar.xz"
+		cd "iptables-$VER"
+		# Use Arch Linux (and Zoidberg) paths in iptables-apply. Touches only
+		# the script and its man page source, so no autoreconf is needed.
+		patch -Np1 -i "$PKGLUADIR/patches/0001-fix-iptables-apply-FS-75401.patch"
+	]],
+		opts
+	)
 end
 
+-- Built like Arch's `iptables` package: the nftables backend
+-- (xtables-nft-multi) is the default `iptables`, `ip6tables`, `arptables`
+-- and `ebtables`; the legacy backend stays available as `iptables-legacy`,
+-- `ip6tables-legacy` and their -save/-restore variants (installed by make).
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "iptables-$VER"
 		./configure \
 			--prefix=/usr \
@@ -93,22 +123,49 @@ function build()
 			--sysconfdir=/etc \
 			--libexecdir=/usr/lib \
 			--disable-static \
-			--disable-nftables \
-			--disable-connlabel \
+			--enable-bpf-compiler \
+			--enable-devel \
+			--enable-libipq \
 			--enable-shared \
-			--enable-devel
+			--enable-nftables \
+			--enable-connlabel \
+			--disable-nfsynproxy
+		sed -e 's/ -shared / -Wl,-O1,--as-needed\0/g' -i libtool
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "iptables-$VER"
 		make DESTDIR="$ROOT" install
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/iptables/$(basename "$f")"
+
+		# Point the default names at the nft backend, as Arch does.
+		for x in arptables arptables-restore arptables-save \
+			ebtables ebtables-restore ebtables-save \
+			iptables iptables-restore iptables-save \
+			ip6tables ip6tables-restore ip6tables-save \
+			iptables-xml; do
+			ln -sf xtables-nft-multi "$ROOT/usr/bin/$x"
 		done
-		true
-	]])
+
+		install -Dt "$ROOT/usr/lib/systemd/system" -m644 \
+			"$PKGLUADIR/files/iptables.service" "$PKGLUADIR/files/ip6tables.service" \
+			"$PKGLUADIR/files/arptables.service" "$PKGLUADIR/files/ebtables.service"
+		install -D "$PKGLUADIR/files/iptables-nft-flush" "$ROOT/usr/lib/systemd/scripts/iptables-flush"
+
+		install -Dm644 "$PKGLUADIR/files/empty.rules" "$ROOT/etc/iptables/iptables.rules"
+		install -Dm644 "$PKGLUADIR/files/empty.rules" "$ROOT/etc/iptables/ip6tables.rules"
+		install -Dt "$ROOT/usr/share/iptables" -m644 "$PKGLUADIR"/files/*.rules
+		ln -srt "$ROOT/etc/iptables" \
+			"$ROOT/usr/share/iptables/empty.rules" \
+			"$ROOT/usr/share/iptables/simple_firewall.rules"
+		touch "$ROOT/etc/arptables.conf" "$ROOT/etc/ebtables.conf"
+	]],
+		opts
+	)
+	zlicense("iptables-" .. version .. "/COPYING")
 end

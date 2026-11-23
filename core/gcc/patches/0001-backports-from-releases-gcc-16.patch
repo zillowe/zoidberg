@@ -1,0 +1,1892 @@
+Backports from the releases/gcc-16 stable branch.
+
+This is `git diff releases/gcc-16.2.0..d564253eb6c859e266d3cae18e82fb4db9a88316` of https://forge.sourceware.org/gcc/gcc:
+the 23 commits on top of the releases/gcc-16.2.0 release tag
+(commit 78d4ac73dd391005b895a6148cd9831e28e1208b) up to commit d564253eb6c859e266d3cae18e82fb4db9a88316.
+
+Commits:
+  ff7909eb0eb9 Bump BASE-VER
+  046f8f3134c2 mips: Fix up creation of MD builtins with 0 arguments [PR126484]
+  ce9e59eb8cfd testsuite: Add testcase for already fixed PR [PR126576]
+  ad7082fb5a1b testsuite: Add yet another testcase for float range inverse ops [PR126547]
+  925574f378c7 range-op-float: Remove inappropriate frange_drop_infs call [PR126549]
+  24699eedf51a phiopt: Fix up spaceship_replacement [PR126564]
+  13a6f9865aa6 widening_mul: Fix up ICE in maybe_optimize_guarding_check [PR126601]
+  53f44e2c5fcc testsuite: Fix up gcc.dg/torture/bitint-100.c test [PR124948]
+  0b0209ca1aff testsuite: Fix up gcc.dg/pr126464.c test [PR126464]
+  d2abcdc5727d libcpp: Fix up ICE with __VA_OPT__ [PR125048]
+  742ca4610d51 testsuite: Clarify the std module export plugin diagnostics [PR125200]
+  c40ebe81cd41 c++: Fix structured binding pack instantiation ICE [PR125591]
+  31c151da46e7 c++: Fix up constexpr handling of break in expansion statements [PR125601]
+  141139e43d5d c++: Mangling fix for type alias reflections [PR125680]
+  fac66e827216 c++: Fix mangling of empty anon union/struct unnamed NSDMs [PR125541]
+  fcfd9dd65b9f Fortran: Auto deallocate coarrays, allocated in team blocks [PR126205]
+  887a62fd0fd7 s390: Fix ICE in usubc5 [PR126667]
+  8dd8b219eb20 Daily bump.
+  7f2626bd5319 Fortran: Fix scalar class to derived select type entities. [PR125263]
+  643129fbd5a2 Daily bump.
+  1d4809920d33 Daily bump.
+  01c7083b70a6 x86: Check DECL_INCOMING_RTL for argument passing check
+  d564253eb6c8 c++: ICE on on systems without mmap support [PR124806]
+
+---
+diff --git a/gcc/BASE-VER b/gcc/BASE-VER
+index fd1bd70b7ea..38321081459 100644
+--- a/gcc/BASE-VER
++++ b/gcc/BASE-VER
+@@ -1 +1 @@
+-16.2.0
++16.2.1
+diff --git a/gcc/ChangeLog b/gcc/ChangeLog
+index 218a8c65b7b..4a6a61d90e0 100644
+--- a/gcc/ChangeLog
++++ b/gcc/ChangeLog
+@@ -1,3 +1,56 @@
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	PR target/126667
++	* config/s390/s390.md (usubc<mode>5): If operands[4] is
++	an immediate operand other than const0_rtx, force it into reg
++	before using it in xor<mode>3 insn.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-04  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126601
++	* tree-ssa-math-opts.cc (maybe_optimize_guarding_check): Use safe_push
++	on mul_stmts rather than quick_push.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-04  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126564
++	* tree-ssa-phiopt.cc (spaceship_replacement): Fix up condition
++	when to punt because of redundant cmp1 with cmp2, xor in
++	lhs1 == lhs2 with difference of cmp2 from cmp1 (ignoring
++	LT_EXPR vs. LE_EXPR and GT_EXPR vs. GE_EXPR differences) and
++	1 if cond2_phi_edge is EDGE_FALSE_VALUE.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-04  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126549
++	* range-op-float.cc (operator_cast::fold_range): Don't call
++	frange_drop_infs.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-03  Jakub Jelinek  <jakub@redhat.com>
++
++	PR target/126484
++	* config/mips/mips-ftypes.def (MIPS_SI_FTYPE_VOID,
++	MIPS_USI_FTYPE_VOID): Use DEF_MIPS_FTYPE with 0 as
++	first argument rather than 1 and leave out ", VOID" from
++	second argument.
++	* config/mips/mips.cc (MIPS_FTYPE_NAME0): Define.
++	(MIPS_FTYPE_ATYPES0): Define.
++
+ 2026-08-07  Release Manager
+ 
+ 	* GCC 16.2.0 released.
+diff --git a/gcc/DATESTAMP b/gcc/DATESTAMP
+index 4d4df8e5573..6c93e5aba5c 100644
+--- a/gcc/DATESTAMP
++++ b/gcc/DATESTAMP
+@@ -1 +1 @@
+-20260807
++20260810
+diff --git a/gcc/config/i386/i386.cc b/gcc/config/i386/i386.cc
+index 4dfb90acf3f..bf2a3bdfbea 100644
+--- a/gcc/config/i386/i386.cc
++++ b/gcc/config/i386/i386.cc
+@@ -8625,42 +8625,10 @@ struct stack_access_data
+   unsigned int *stack_alignment;
+ };
+ 
+-/* SET stores into OP, a MEM linked to parameter BASE.  Return true if
+-   SET stores BASE's argument register into OP.  This is a spill: the
+-   callee saves its own register argument to the stack.  It is not a
+-   stack argument set up by the caller:
+-
+-     (set (mem/c:V2DI (plus:DI (reg/f:DI 7 sp)
+-		(const_int -16 [0xfffffffffffffff0])) [4 a1+0 S16 A128])
+-	  (reg:V2DI 20 xmm0 [ a1 ]))
+- */
++/* Return true if OP is a stack argument set up by the caller.  */
+ 
+ static bool
+-ix86_spill_register_argument_p (const_rtx set, const_rtx op, tree base)
+-{
+-  rtx src = SET_SRC (set);
+-
+-  /* Not a hard register store, so not a spill.  */
+-  if (!REG_P (src) || !HARD_REGISTER_P (src))
+-    return false;
+-
+-  rtx dest = SET_DEST (set);
+-  tree reg_expr = REG_EXPR (src);
+-
+-  /* If spilling an SSA_NAME into OP, the argument-linked memory is
+-     also used to store a local variable.  */
+-  return dest == op && (reg_expr == base
+-			|| (reg_expr
+-			    && TREE_CODE (reg_expr) == SSA_NAME));
+-}
+-
+-/* Return true if OP, found in PAT, is a stack argument set up by the
+-   caller.  Return false if OP is a register argument that the callee
+-   spilled to its own stack frame.  Both cases share the same MEM_EXPR,
+-   so we must check PAT to tell them apart.  */
+-
+-static bool
+-ix86_argument_passed_on_stack_p (const_rtx op, const_rtx pat)
++ix86_argument_passed_on_stack_p (const_rtx op)
+ {
+   tree mem_expr = MEM_EXPR (op);
+   if (!mem_expr)
+@@ -8670,12 +8638,10 @@ ix86_argument_passed_on_stack_p (const_rtx op, const_rtx pat)
+   if (TREE_CODE (var) != PARM_DECL)
+     return false;
+ 
+-  /* PAT is always a single SET here: note_stores splits PARALLEL
+-     patterns into separate SETs before calling this function.  */
+-  if (GET_CODE (pat) == SET)
+-    return !ix86_spill_register_argument_p (pat, op, var);
+-
+-  return true;
++  /* For PARM_DECL, DECL_INCOMING_RTL holds an RTL for the stack slot
++     or register where the data was actually passed.  Return true if
++     OP is passed in memory.  */
++  return DECL_INCOMING_RTL (var) && MEM_P (DECL_INCOMING_RTL (var));
+ }
+ 
+ /* Update the maximum stack slot alignment from memory alignment in PAT.  */
+@@ -8697,7 +8663,7 @@ ix86_update_stack_alignment (rtx, const_rtx pat, void *data)
+ 	     responsible to align the outgoing stack for arguments
+ 	     passed on stack.  */
+ 	  if (reg_mentioned_p (p->reg, XEXP (op, 0))
+-	      && !ix86_argument_passed_on_stack_p (op, pat))
++	      && !ix86_argument_passed_on_stack_p (op))
+ 	    {
+ 	      unsigned int alignment = MEM_ALIGN (op);
+ 
+diff --git a/gcc/config/mips/mips-ftypes.def b/gcc/config/mips/mips-ftypes.def
+index fb72661c682..94f5c5ddf0e 100644
+--- a/gcc/config/mips/mips-ftypes.def
++++ b/gcc/config/mips/mips-ftypes.def
+@@ -75,7 +75,7 @@ DEF_MIPS_FTYPE (1, (SI, V4QI))
+ DEF_MIPS_FTYPE (2, (SI, V4QI, V4QI))
+ DEF_MIPS_FTYPE (2, (SI, V4SI, UQI))
+ DEF_MIPS_FTYPE (2, (SI, V8HI, UQI))
+-DEF_MIPS_FTYPE (1, (SI, VOID))
++DEF_MIPS_FTYPE (0, (SI))
+ 
+ DEF_MIPS_FTYPE (2, (UDI, UDI, UDI))
+ DEF_MIPS_FTYPE (2, (UDI, UV2SI, UV2SI))
+@@ -84,7 +84,7 @@ DEF_MIPS_FTYPE (2, (UDI, V2DI, UQI))
+ DEF_MIPS_FTYPE (2, (USI, V16QI, UQI))
+ DEF_MIPS_FTYPE (2, (USI, V4SI, UQI))
+ DEF_MIPS_FTYPE (2, (USI, V8HI, UQI))
+-DEF_MIPS_FTYPE (1, (USI, VOID))
++DEF_MIPS_FTYPE (0, (USI))
+ 
+ DEF_MIPS_FTYPE (2, (UV16QI, UV16QI, UQI))
+ DEF_MIPS_FTYPE (2, (UV16QI, UV16QI, UV16QI))
+diff --git a/gcc/config/mips/mips.cc b/gcc/config/mips/mips.cc
+index cc45a195b89..76543a23248 100644
+--- a/gcc/config/mips/mips.cc
++++ b/gcc/config/mips/mips.cc
+@@ -211,6 +211,7 @@ enum mips_ucbranch_type
+ };
+ 
+ /* Macros to create an enumeration identifier for a function prototype.  */
++#define MIPS_FTYPE_NAME0(A) MIPS_##A##_FTYPE_VOID
+ #define MIPS_FTYPE_NAME1(A, B) MIPS_##A##_FTYPE_##B
+ #define MIPS_FTYPE_NAME2(A, B, C) MIPS_##A##_FTYPE_##B##_##C
+ #define MIPS_FTYPE_NAME3(A, B, C, D) MIPS_##A##_FTYPE_##B##_##C##_##D
+@@ -17137,6 +17138,9 @@ mips_build_cvpointer_type (void)
+ 
+ /* MIPS_FTYPE_ATYPESN takes N MIPS_FTYPES-like type codes and lists
+    their associated MIPS_ATYPEs.  */
++#define MIPS_FTYPE_ATYPES0(A) \
++  MIPS_ATYPE_##A
++
+ #define MIPS_FTYPE_ATYPES1(A, B) \
+   MIPS_ATYPE_##A, MIPS_ATYPE_##B
+ 
+diff --git a/gcc/config/s390/s390.md b/gcc/config/s390/s390.md
+index 52e9014e416..0343007d9b1 100644
+--- a/gcc/config/s390/s390.md
++++ b/gcc/config/s390/s390.md
+@@ -7329,7 +7329,9 @@
+   else
+     {
+       rtx tmp = gen_reg_rtx (<MODE>mode);
+-      emit_insn (gen_xor<mode>3 (tmp, operands[4], const1_rtx));
++      emit_insn (gen_xor<mode>3 (tmp, CONSTANT_P (operands[4])
++				      ? force_reg (<MODE>mode, operands[4])
++				      : operands[4], const1_rtx));
+       rtx slb_cond = s390_emit_compare (<MODE>mode, LEU, tmp, const0_rtx);
+       emit_insn (gen_sub<mode>3_slb_borrow1_cc (operands[0], operands[2], operands[3], slb_cond));
+     }
+diff --git a/gcc/cp/ChangeLog b/gcc/cp/ChangeLog
+index a4e20508e5d..27dc1111f09 100644
+--- a/gcc/cp/ChangeLog
++++ b/gcc/cp/ChangeLog
+@@ -1,3 +1,43 @@
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR c++/125541
++	* mangle.cc (write_reflection): Mangle empty anonymous union/struct
++	data members as "da" rather than "dm" and use index of such a data
++	member instead of name.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR c++/125680
++	* mangle.cc (write_reflection): For type aliases use maybe_write_module
++	and write_source_name instead of write_unqualified_name.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR c++/125601
++	* pt.cc (finish_expansion_stmt): If break; was seen in any of the
++	expansion stmt bodies, wrap all the bodies in an artificial
++	do ... while (0); stmt.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR c++/125591
++	* pt.cc (tsubst_pack_expansion): Don't require
++	retrieve_local_specialization on structured binding to
++	always return structured binding, instead handle if it returns
++	ARGUMENT_PACK_SELECT.
++
+ 2026-08-07  Release Manager
+ 
+ 	* GCC 16.2.0 released.
+diff --git a/gcc/cp/mangle.cc b/gcc/cp/mangle.cc
+index 6ac54c81fc5..6da1484affa 100644
+--- a/gcc/cp/mangle.cc
++++ b/gcc/cp/mangle.cc
+@@ -4186,6 +4186,8 @@ write_expression (tree expr)
+ 		      [ <alias template-args> ] _ <type> # type alias
+ 		  ::= ty <type>				# type
+ 		  ::= dm <prefix> <unqualified-name>	# ns data member
++		  ::= da <prefix> [ <nonnegative number> ] _ # empty anon union
++							     # data member
+ 		  ::= un <prefix> [ <nonnegative number> ] _ # unnamed bitfld
+ 		  ::= ct [ <prefix> ] <unqualified-name> # class template
+ 		  ::= ft [ <prefix> ] <unqualified-name> # function template
+@@ -4207,6 +4209,11 @@ write_reflection (tree refl)
+ {
+   char prefix[3];
+   tree arg = reflection_mangle_prefix (refl, prefix);
++  if (strcmp (prefix, "dm") == 0
++      && DECL_NAME (arg) == NULL_TREE
++      && ANON_AGGR_TYPE_P (TREE_TYPE (arg))
++      && anon_aggr_naming_decl (TREE_TYPE (arg)) == NULL_TREE)
++    strcpy (prefix, "da");
+   write_string (prefix);
+   /* If there is no argument, nothing further needs to be mangled.  */
+   if (arg == NULL_TREE)
+@@ -4240,7 +4247,9 @@ write_reflection (tree refl)
+ 	 write_template_args, it shouldn't be
+ 	 remembered among substitutions.  */
+       write_prefix (decl_mangling_context (arg));
+-      write_unqualified_name (arg);
++      if (modules_p ())
++	maybe_write_module (arg);
++      write_source_name (DECL_NAME (arg));
+       tree template_info = maybe_template_info (arg);
+       if (template_info)
+ 	write_template_args (TI_ARGS (template_info));
+@@ -4257,6 +4266,21 @@ write_reflection (tree refl)
+       write_prefix (ctx);
+       write_unqualified_name (arg);
+     }
++  else if (strcmp (prefix, "da") == 0)
++    {
++      int idx = 0;
++      tree ctx = decl_mangling_context (arg);
++      for (tree f = TYPE_FIELDS (ctx); f; f = DECL_CHAIN (f))
++	if (f == arg)
++	  break;
++	else if (TREE_CODE (f) == FIELD_DECL
++		 && DECL_NAME (f) == NULL_TREE
++		 && ANON_AGGR_TYPE_P (TREE_TYPE (f))
++		 && anon_aggr_naming_decl (TREE_TYPE (f)) == NULL_TREE)
++	  ++idx;
++      write_prefix (ctx);
++      write_compact_number (idx);
++    }
+   else if (strcmp (prefix, "un") == 0)
+     {
+       tree ctx = DECL_CONTEXT (arg);
+diff --git a/gcc/cp/module.cc b/gcc/cp/module.cc
+index dcd8e772416..83d3929415c 100644
+--- a/gcc/cp/module.cc
++++ b/gcc/cp/module.cc
+@@ -1506,6 +1506,7 @@ class elf_out : public elf, public data::allocator {
+ private:
+   ptr_int_hash_map identtab;	/* Map of IDENTIFIERS to strtab offsets. */
+   unsigned pos;			/* Write position in file.  */
++  bool began;			/* True if begin initialized output state.  */
+ #if MAPPED_WRITING
+   unsigned offset;		/* Offset of the mapping.  */
+   unsigned extent;		/* Length of mapping.  */
+@@ -1514,7 +1515,7 @@ private:
+ 
+ public:
+   elf_out (int fd, int e)
+-    :parent (fd, e), identtab (500), pos (0)
++    :parent (fd, e), identtab (500), pos (0), began (false)
+   {
+ #if MAPPED_WRITING
+     offset = extent = 0;
+@@ -2226,7 +2227,10 @@ elf_out::begin ()
+   memset (h, 0, sizeof (header));
+   hdr.pos = hdr.size;
+   write (hdr);
+-  return !get_error ();
++  if (get_error ())
++    return false;
++  began = true;
++  return true;
+ }
+ 
+ /* Finish writing the file.  Write out the string & section tables.
+@@ -2235,7 +2239,7 @@ elf_out::begin ()
+ bool
+ elf_out::end ()
+ {
+-  if (fd >= 0)
++  if (fd >= 0 && began)
+     {
+       /* Write the string table.  */
+       unsigned strnam = name (".strtab");
+diff --git a/gcc/cp/pt.cc b/gcc/cp/pt.cc
+index 4359ae8e556..ab3ae922ac5 100644
+--- a/gcc/cp/pt.cc
++++ b/gcc/cp/pt.cc
+@@ -14254,33 +14254,40 @@ tsubst_pack_expansion (tree t, tree args, tsubst_flags_t complain,
+       else if (DECL_DECOMPOSITION_P (parm_pack))
+ 	{
+ 	  orig_arg = retrieve_local_specialization (parm_pack);
+-	expand_sb_pack:
+-	  gcc_assert (DECL_DECOMPOSITION_P (orig_arg));
+-	  if (TREE_TYPE (orig_arg) == error_mark_node)
+-	    return error_mark_node;
+-	  gcc_assert (DECL_HAS_VALUE_EXPR_P (orig_arg));
+-	  arg_pack = DECL_VALUE_EXPR (orig_arg);
+-	  if (TREE_CODE (arg_pack) != ARRAY_REF)
++	  if (DECL_DECOMPOSITION_P (orig_arg))
+ 	    {
+-	      /* Structured binding packs when initializer is non-dependent
+-		 should have their DECL_VALUE_EXPR set to a TREE_VEC.  See
+-		 cp_finish_decomp comment above the packv variable for
+-		 details.  */
+-	      tree vec = make_tree_vec (TREE_VEC_LENGTH (arg_pack) - 2);
+-	      if (TREE_VEC_LENGTH (vec))
+-		memcpy (TREE_VEC_BEGIN (vec), &TREE_VEC_ELT (arg_pack, 2),
+-			TREE_VEC_LENGTH (vec) * sizeof (tree));
+-	      arg_pack = make_node (NONTYPE_ARGUMENT_PACK);
+-	      ARGUMENT_PACK_ARGS (arg_pack) = vec;
++	    expand_sb_pack:
++	      if (TREE_TYPE (orig_arg) == error_mark_node)
++		return error_mark_node;
++	      gcc_assert (DECL_HAS_VALUE_EXPR_P (orig_arg));
++	      arg_pack = DECL_VALUE_EXPR (orig_arg);
++	      if (TREE_CODE (arg_pack) != ARRAY_REF)
++		{
++		  /* Structured binding packs when initializer is non-dependent
++		     should have their DECL_VALUE_EXPR set to a TREE_VEC.  See
++		     cp_finish_decomp comment above the packv variable for
++		     details.  */
++		  tree vec = make_tree_vec (TREE_VEC_LENGTH (arg_pack) - 2);
++		  if (TREE_VEC_LENGTH (vec))
++		    memcpy (TREE_VEC_BEGIN (vec), &TREE_VEC_ELT (arg_pack, 2),
++			    TREE_VEC_LENGTH (vec) * sizeof (tree));
++		  arg_pack = make_node (NONTYPE_ARGUMENT_PACK);
++		  ARGUMENT_PACK_ARGS (arg_pack) = vec;
++		}
++	      else
++		{
++		  /* If the structured binding pack has type dependent
++		     base, we can't expand it yet.  */
++		  tree base = TREE_OPERAND (arg_pack, 0);
++		  gcc_assert (VAR_P (base)
++			      && type_dependent_expression_p (base));
++		  arg_pack = NULL_TREE;
++		}
+ 	    }
+ 	  else
+ 	    {
+-	      /* If the structured binding pack has type dependent
+-		 base, we can't expand it yet.  */
+-	      tree base = TREE_OPERAND (arg_pack, 0);
+-	      gcc_assert (VAR_P (base)
+-			  && type_dependent_expression_p (base));
+-	      arg_pack = NULL_TREE;
++	      gcc_assert (TREE_CODE (orig_arg) == ARGUMENT_PACK_SELECT);
++	      arg_pack = orig_arg;
+ 	    }
+ 	}
+       else
+@@ -33652,6 +33659,7 @@ finish_expansion_stmt (tree expansion_stmt, tree args,
+       DECL_NAME (decl) = NULL_TREE;
+     }
+ 
++  tree stmt_list = push_stmt_list ();
+   expansion_stmt_bc bc_data = { NULL_TREE, NULL_TREE, NULL, loc, false };
+ 
+   for (unsigned HOST_WIDE_INT i = 0; i < n; ++i)
+@@ -33851,7 +33859,19 @@ finish_expansion_stmt (tree expansion_stmt, tree args,
+ 	}
+     }
+   if (bc_data.break_label)
+-    add_stmt (build1 (LABEL_EXPR, void_type_node, bc_data.break_label));
++    {
++      /* If break; is seen, wrap all the expansion stmt bodies in
++	 a single artificial do ... while (0); statement, so that
++	 constant evaluation handles break; correctly.  */
++      tree do_stmt
++	= build_stmt (loc, DO_STMT, NULL_TREE, NULL_TREE, NULL_TREE);
++      DO_COND (do_stmt) = boolean_false_node;
++      DO_BODY (do_stmt) = pop_stmt_list (stmt_list);
++      add_stmt (do_stmt);
++      add_stmt (build1 (LABEL_EXPR, void_type_node, bc_data.break_label));
++    }
++  else
++    add_stmt (pop_stmt_list (stmt_list));
+   if (args == NULL_TREE)
+     {
+       TREE_TYPE (range_decl) = error_mark_node;
+diff --git a/gcc/fortran/ChangeLog b/gcc/fortran/ChangeLog
+index 28f2102d0a1..3503f486c84 100644
+--- a/gcc/fortran/ChangeLog
++++ b/gcc/fortran/ChangeLog
+@@ -1,3 +1,31 @@
++2026-08-08  Paul Thomas  <pault@gcc.gnu.org>
++
++	Backported from master:
++	2026-05-23  Paul Thomas  <pault@gcc.gnu.org>
++
++	PR fortran/125263
++	* trans-expr.cc (gfc_trans_assignment_1): Pass scalar class to
++	derived type assignment expressions to gfc_trans_scalar_assign.
++
++2026-08-07  Paul Thomas  <pault@gcc.gnu.org>
++
++	Backported from master:
++	2026-07-31  Paul Thomas  <pault@gcc.gnu.org>
++
++	PR fortran/126205
++	* gfortran.h: Add prototype for deallocate_allocated_coarrays.
++	hash_map team_allocated_coarrays, vector team_context_stack and
++	prototype for get_current_team_context.
++	* match.cc (gfc_match_allocate): Capture allocate expressions
++	of allocatable coarrays and stash in team_allocated_coarrays.
++	* parse.cc (parse_change_team): Push team context. When end is
++	seen, create the code to deallocate allocated coarrays in this
++	context, using deallocate_allocated_coarrays.
++	* st.cc (get_guarded_dealloc): Generate code to produce
++	IF (ALLOCATED (expr)) DEALLOCATE (expr).
++	(deallocate_allocated_coarrays): Modify the final array ref of
++	the allocate expressions and call get_guarded_dealloc.
++
+ 2026-08-07  Release Manager
+ 
+ 	* GCC 16.2.0 released.
+diff --git a/gcc/fortran/gfortran.h b/gcc/fortran/gfortran.h
+index b0ce54e1c21..e4a368bb58f 100644
+--- a/gcc/fortran/gfortran.h
++++ b/gcc/fortran/gfortran.h
+@@ -4052,13 +4052,13 @@ bool has_parameterized_comps (gfc_symbol *);
+ 
+ /* st.cc */
+ extern gfc_code new_st;
+-
+ void gfc_clear_new_st (void);
+ gfc_code *gfc_get_code (gfc_exec_op);
+ gfc_code *gfc_append_code (gfc_code *, gfc_code *);
+ void gfc_free_statement (gfc_code *);
+ void gfc_free_statements (gfc_code *);
+ void gfc_free_association_list (gfc_association_list *);
++void deallocate_allocated_coarrays (vec<gfc_expr *> *);
+ 
+ /* resolve.cc */
+ void gfc_resolve_symbol (gfc_symbol *);
+@@ -4234,6 +4234,9 @@ void gfc_global_used (gfc_gsymbol *, locus *);
+ gfc_namespace* gfc_build_block_ns (gfc_namespace *);
+ gfc_statement match_omp_directive (void);
+ bool is_omp_declarative_stmt (gfc_statement);
++extern hash_map<gfc_namespace *, vec<gfc_expr *>> team_allocated_coarrays;
++extern vec<gfc_namespace *> team_context_stack;
++gfc_namespace *get_current_team_context (void);
+ 
+ /* dependency.cc */
+ int gfc_dep_compare_functions (gfc_expr *, gfc_expr *, bool);
+diff --git a/gcc/fortran/match.cc b/gcc/fortran/match.cc
+index 07555536051..da7a6e78958 100644
+--- a/gcc/fortran/match.cc
++++ b/gcc/fortran/match.cc
+@@ -5433,6 +5433,23 @@ gfc_match_allocate (void)
+ 	  goto cleanup;
+ 	}
+ 
++      /* F2018(11.1.5.2): Track coarrays allocated in team blocks.  */
++      gfc_namespace *team_ns = get_current_team_context ();
++      bool codim = tail->expr->symtree->n.sym->attr.codimension
++		   || (tail->expr->symtree->n.sym->as
++		       && tail->expr->symtree->n.sym->as->corank);
++      for (gfc_ref *r = tail->expr->ref; r; r = r->next)
++	if (r->type == REF_COMPONENT && r->u.c.component)
++	  codim = r->u.c.component->attr.codimension
++		  || (r->u.c.component->as && r->u.c.component->as->corank);
++
++      if (flag_coarray == GFC_FCOARRAY_LIB && team_ns && codim)
++	{
++	  gfc_expr *e = gfc_copy_expr (tail->expr);
++	  vec<gfc_expr *> &allocated = team_allocated_coarrays.get_or_insert (team_ns);
++	  allocated.safe_push (e);
++	}
++
+       if (gfc_match_char (',') != MATCH_YES)
+ 	break;
+ 
+diff --git a/gcc/fortran/parse.cc b/gcc/fortran/parse.cc
+index 82cd85851c8..7c0119938fe 100644
+--- a/gcc/fortran/parse.cc
++++ b/gcc/fortran/parse.cc
+@@ -5526,12 +5526,28 @@ loop:
+   pop_state ();
+ }
+ 
++
++/* F2018(11.1.5.2): Track coarrays allocated within CHANGE TEAM blocks.
++   Map from team namespace to vector of allocated coarray symbols.  */
++hash_map<gfc_namespace *, vec<gfc_expr *>> team_allocated_coarrays;
++
++/* Stack to track current CHANGE TEAM context.  */
++vec<gfc_namespace *> team_context_stack;
++
++gfc_namespace *
++get_current_team_context (void)
++{
++  return team_context_stack.is_empty () ? NULL : team_context_stack.last ();
++}
++
++
+ static void
+ parse_change_team (void)
+ {
+   gfc_namespace *my_ns;
+   gfc_state_data s;
+   gfc_statement st;
++  vec<gfc_expr *> *team_allocs;
+ 
+   gfc_notify_std (GFC_STD_F2018, "CHANGE TEAM construct at %C");
+ 
+@@ -5549,6 +5565,9 @@ parse_change_team (void)
+   accept_statement (ST_CHANGE_TEAM);
+   push_state (&s, COMP_CHANGE_TEAM, my_ns->proc_name);
+ 
++  /* Push team context for tracking coarrays allocated in a team block.  */
++  team_context_stack.safe_push (gfc_current_ns);
++
+ loop:
+   st = parse_executable (ST_NONE);
+   switch (st)
+@@ -5559,6 +5578,13 @@ loop:
+     case_end:
+       accept_statement (st);
+       my_ns->code = gfc_state_stack->head;
++      /* F2018(11.1.5.2): Deallocate coarray expressions allocated in this
++	 team block,  */
++      team_allocs = team_allocated_coarrays.get (gfc_current_ns);
++      if (team_allocs)
++	deallocate_allocated_coarrays (team_allocs);
++      /* Pop team context.  */
++      team_context_stack.pop ();
+       break;
+ 
+     default:
+diff --git a/gcc/fortran/st.cc b/gcc/fortran/st.cc
+index ce4fcad884f..04c3cdd4f61 100644
+--- a/gcc/fortran/st.cc
++++ b/gcc/fortran/st.cc
+@@ -366,3 +366,100 @@ gfc_free_association_list (gfc_association_list* assoc)
+   gfc_free_association_list (assoc->next);
+   free (assoc);
+ }
++
++
++/* Function to generate IF (ALLOCATED(expr)) DEALLOCATE(expr)  */
++
++static gfc_code *
++get_guarded_dealloc (gfc_namespace *ns, gfc_expr *expr)
++{
++  gfc_code *dealloc = gfc_get_code (EXEC_IF);
++  dealloc->block = gfc_get_code (EXEC_IF);
++#define ALLOCATED dealloc->block->expr1
++  ALLOCATED = gfc_get_expr ();
++  ALLOCATED->expr_type = EXPR_FUNCTION;
++  ALLOCATED->where = gfc_current_locus;
++  gfc_find_sym_tree ("allocated", ns, 1, &ALLOCATED->symtree);
++  if (!ALLOCATED->symtree)
++    {
++      gfc_get_sym_tree ("allocated", ns, &ALLOCATED->symtree, false);
++      gfc_commit_symbol (ALLOCATED->symtree->n.sym);
++    }
++  ALLOCATED->symtree->n.sym->attr.flavor = FL_PROCEDURE;
++  ALLOCATED->symtree->n.sym->attr.intrinsic = 1;
++  ALLOCATED->symtree->n.sym->result = ALLOCATED->symtree->n.sym;
++  ALLOCATED->ts.type = BT_LOGICAL;
++  ALLOCATED->ts.kind = gfc_default_logical_kind;
++  ALLOCATED->value.function.isym
++			= gfc_intrinsic_function_by_id (GFC_ISYM_ALLOCATED);
++  ALLOCATED->value.function.actual = gfc_get_actual_arglist ();
++  ALLOCATED->value.function.actual->expr = gfc_copy_expr (expr);
++#undef ALLOCATED
++  dealloc->block->next = gfc_get_code (EXEC_DEALLOCATE);
++  dealloc->block->next->ext.alloc.list = gfc_get_alloc ();
++  dealloc->block->next->ext.alloc.list->expr = gfc_copy_expr (expr);
++  return dealloc;
++}
++
++
++/* F2018(11.1.5.2): Insert code to deallocate coarrays, allocated within a team
++   block. This uses the previous function to effect a guarded deallocation of
++   allocated coarray expressions. These are gathered in gfc_match_allocate and
++   stashed in team_allocs.  */
++
++void
++deallocate_allocated_coarrays (vec<gfc_expr *> *team_allocs)
++{
++  gfc_code *dealloc, *last_stmt;
++  gfc_ref *ref, *aref = NULL;
++  int i;
++
++  for (gfc_expr *e : *team_allocs)
++    {
++      if (!e)
++	continue;
++
++      /* Get the last array_ref right.  */
++      for (ref = e->ref; ref; ref = ref->next)
++	if (ref->type == REF_ARRAY)
++	  aref = ref;
++
++      if (aref->u.ar.as->rank)
++	{
++	  aref->u.ar.type = AR_FULL;
++	  aref->u.ar.dimen = aref->u.ar.as->rank;
++	  for (i = 0; i < aref->u.ar.dimen; i++)
++	    {
++	      aref->u.ar.dimen_type[i] = DIMEN_RANGE;
++
++	      if (aref->u.ar.start[i]) gfc_free_expr (aref->u.ar.start[i]);
++	      if (aref->u.ar.end[i]) gfc_free_expr (aref->u.ar.end[i]);
++	      if (aref->u.ar.stride[i]) gfc_free_expr (aref->u.ar.stride[i]);
++	      aref->u.ar.start[i] = aref->u.ar.end[i] = aref->u.ar.stride[i] = NULL;
++	    }
++	}
++
++      for (i = aref->u.ar.as->rank;
++	   i < aref->u.ar.as->rank + aref->u.ar.as->corank; i++)
++	 aref->u.ar.dimen_type[i] = DIMEN_THIS_IMAGE;
++
++      /* Insert the deallocation code before the END TEAM statement.  */
++      last_stmt = gfc_current_ns->code;
++      while (last_stmt)
++	{
++	  last_stmt = last_stmt->next;
++	  if (last_stmt->next->op == EXEC_END_TEAM || !last_stmt->next)
++	    {
++	      dealloc = get_guarded_dealloc (gfc_current_ns, e);
++	      if (dealloc)
++		{
++		  dealloc->next = last_stmt->next;
++		  last_stmt->next = dealloc;
++		  break;
++		}
++	    }
++	}
++      gfc_free_expr (e);
++      e = NULL;
++    }
++}
+diff --git a/gcc/fortran/trans-expr.cc b/gcc/fortran/trans-expr.cc
+index 0dbf0e4be9f..b8c50114396 100644
+--- a/gcc/fortran/trans-expr.cc
++++ b/gcc/fortran/trans-expr.cc
+@@ -13305,13 +13305,19 @@ gfc_trans_assignment_1 (gfc_expr * expr1, gfc_expr * expr2, bool init_flag,
+        && !CLASS_DATA (expr2)->attr.class_pointer
+        && !CLASS_DATA (expr2)->attr.allocatable);
+ 
++  /* What can be sent to trans_class_assignment includes all the obvious
++     candidates but scalar assignment of a class expression to a derived type
++     must be done using gfc_trans_scalar_assign; partly because it is simpler
++     and partly because some cases fail, eg. class assignment to derived_type
++     select type temporaries.  */
+   is_poly_assign
+     = (use_vptr_copy
+        || ((lhs_attr.pointer || lhs_attr.allocatable) && !lhs_attr.dimension))
+       && (expr1->ts.type == BT_CLASS || gfc_is_class_array_ref (expr1, NULL)
+ 	  || gfc_is_class_scalar_expr (expr1)
+ 	  || gfc_is_class_array_ref (expr2, NULL)
+-	  || gfc_is_class_scalar_expr (expr2))
++	  || (gfc_is_class_scalar_expr (expr2)
++	      && !(expr1->ts.type == BT_DERIVED && !lhs_attr.dimension)))
+       && lhs_attr.flavor != FL_PROCEDURE;
+ 
+   assoc_assign = is_assoc_assign (expr1, expr2);
+diff --git a/gcc/range-op-float.cc b/gcc/range-op-float.cc
+index 821e55b325f..e3633565680 100644
+--- a/gcc/range-op-float.cc
++++ b/gcc/range-op-float.cc
+@@ -3139,7 +3139,6 @@ operator_cast::fold_range (frange &r, tree type, const irange &op1,
+ 	frange_nextafter (mode, ub, dconstinf);
+     }
+   r.set (type, lb, ub, nan_state (false));
+-  frange_drop_infs (r, type);
+   if (r.undefined_p ())
+     r.set_varying (type);
+   return true;
+diff --git a/gcc/testsuite/ChangeLog b/gcc/testsuite/ChangeLog
+index c8897f6d4f6..fe8ea028d1d 100644
+--- a/gcc/testsuite/ChangeLog
++++ b/gcc/testsuite/ChangeLog
+@@ -1,3 +1,146 @@
++2026-08-08  Paul Thomas  <pault@gcc.gnu.org>
++
++	Backported from master:
++	2026-05-23  Paul Thomas  <pault@gcc.gnu.org>
++
++	PR fortran/125263
++	* gfortran.dg/pr125263.f90: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	PR target/126667
++	* gcc.dg/pr126667.c: New test.
++	* gcc.target/s390/pr126667.c: New test.
++
++2026-08-07  Paul Thomas  <pault@gcc.gnu.org>
++
++	Backported from master:
++	2026-07-31  Paul Thomas  <pault@gcc.gnu.org>
++
++	PR fortran/126205
++	* gfortran.dg/coarray/team_allocated_coarrays.f90: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR c++/125541
++	* g++.dg/reflect/mangle1.C: Add further 2 tests.
++	* g++.dg/reflect/mangle9.C: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR c++/125680
++	* g++.dg/reflect/mangle8.C: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR c++/125601
++	* g++.dg/cpp26/expansion-stmt45.C: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR c++/125591
++	* g++.dg/cpp26/decomp31.C: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR libstdc++/125200
++	* g++.dg/plugin/std_module_exports_plugin.cc (plugin_dump_decl): Use
++	%< and %>.  Clarify the error message and add a note.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR preprocessor/125048
++	* c-c++-common/cpp/va-opt-11.c: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-04  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126464
++	* gcc.dg/pr126464.c: Guard uses of 1e300 with
++	__DBL_MAX_10_EXP__ >= 301 and uses of 1e4000L with
++	__LDBL_MAX_10_EXP__ >= 4001.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-04  Jakub Jelinek  <jakub@redhat.com>
++
++	PR target/124948
++	* gcc.dg/torture/bitint-100.c: Require also sync_int_long effective
++	target.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-04  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126601
++	* gcc.dg/tree-ssa/pr126601.c: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-04  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126564
++	* gcc.dg/torture/pr126564.c: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-04  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126549
++	* gcc.dg/torture/pr126549.c: New test.
++	* gcc.dg/torture/bitint-107.c: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-03  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126547
++	* gcc.dg/torture/pr126547.c: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-03  Jakub Jelinek  <jakub@redhat.com>
++
++	PR tree-optimization/126576
++	* gcc.dg/torture/pr126576.c: New test.
++
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-03  Jakub Jelinek  <jakub@redhat.com>
++
++	PR target/126484
++	* g++.target/mips/pr126484.C: New test.
++
+ 2026-08-07  Release Manager
+ 
+ 	* GCC 16.2.0 released.
+diff --git a/gcc/testsuite/c-c++-common/cpp/va-opt-11.c b/gcc/testsuite/c-c++-common/cpp/va-opt-11.c
+new file mode 100644
+index 00000000000..68cf55817ed
+--- /dev/null
++++ b/gcc/testsuite/c-c++-common/cpp/va-opt-11.c
+@@ -0,0 +1,13 @@
++/* PR preprocessor/125048 */
++/* { dg-do preprocess } */
++/* { dg-options "-std=c23" { target c } } */
++/* { dg-options "-std=c++20" { target c++ } } */
++
++#define A(...)B(B(B(B(__VA_ARGS__##__VA_OPT__()))))
++#define B(...)C(C(C(C(__VA_ARGS__##__VA_OPT__()))))
++#define C(...)D(D(D(D(__VA_ARGS__##__VA_OPT__()))))
++#define D(...)E(E(E(E(__VA_ARGS__##__VA_OPT__()))))
++#define E(...)__VA_ARGS__
++#define F
++A(F)
++/* { dg-final { scan-file va-opt-11.i "D\\\(D\\\(D\\\(C\\\(C\\\(C\\\(B\\\(B\\\(B\\\(\\\)\\\)\\\)\\\)\\\)\\\)\\\)\\\)\\\)" } } */
+diff --git a/gcc/testsuite/g++.dg/cpp26/decomp31.C b/gcc/testsuite/g++.dg/cpp26/decomp31.C
+new file mode 100644
+index 00000000000..f9657a9ca6c
+--- /dev/null
++++ b/gcc/testsuite/g++.dg/cpp26/decomp31.C
+@@ -0,0 +1,19 @@
++// PR c++/125591
++// { dg-do compile { target c++20 } }
++// { dg-options "" }
++
++template <typename T, typename U>
++concept is_same_v = __is_same (T, U);
++
++struct A { int x, y, z; };
++struct B { int x; long y; };
++
++template <class V>
++consteval bool
++foo ()
++{
++  constexpr auto [...Ms] = V {};		// { dg-warning "structured binding packs only available with" "" { target c++23_down } }
++						// { dg-warning "structured binding declaration can be 'constexpr' only with" "" { target c++23_down } .-1 }
++  using T = decltype (Ms...[0]);		// { dg-warning "pack indexing only available with" "" { target c++23_down } }
++  return (is_same_v<decltype(Ms), T> && ...);
++}
+diff --git a/gcc/testsuite/g++.dg/cpp26/expansion-stmt45.C b/gcc/testsuite/g++.dg/cpp26/expansion-stmt45.C
+new file mode 100644
+index 00000000000..eeaf9981455
+--- /dev/null
++++ b/gcc/testsuite/g++.dg/cpp26/expansion-stmt45.C
+@@ -0,0 +1,64 @@
++// PR c++/125601
++// { dg-do run { target c++14 } }
++// { dg-options "-O2" }
++
++constexpr int
++foo (int x)
++{
++  int a = 0, b = 3;
++  while (b > 0)
++    {
++      ++a;
++      --b;
++      template for (constexpr int value : { 10, 20, 30 })	// { dg-warning "'template for' only available with" "" { target c++23_down } }
++        {
++          a += value;
++	  if (x == 0)
++	    break;
++	  else if (x == 1)
++	    continue;
++	  a += 42;
++        }
++    }
++  return a;
++}
++
++constexpr int
++bar (int x)
++{
++  int a = 0;
++  template for (constexpr int value : { 10, 20, 30 })		// { dg-warning "'template for' only available with" "" { target c++23_down } }
++    {
++      a += value;
++      if (x == 0)
++	break;
++      else if (x == 1)
++	continue;
++      a += 42;
++    }
++  return a;
++}
++
++static_assert (foo (0) == 3 * (1 + 10), "");
++static_assert (foo (1) == 3 * (1 + 10 + 20 + 30), "");
++static_assert (foo (2) == 3 * (1 + 10 + 20 + 30 + 3 * 42), "");
++static_assert (bar (0) == 10, "");
++static_assert (bar (1) == 10 + 20 + 30, "");
++static_assert (bar (2) == 10 + 20 + 30 + 3 * 42, "");
++
++int
++main ()
++{
++  if (foo (0) != 3 * (1 + 10))
++    __builtin_abort ();
++  if (foo (1) != 3 * (1 + 10 + 20 + 30))
++    __builtin_abort ();
++  if (foo (2) != 3 * (1 + 10 + 20 + 30 + 3 * 42))
++    __builtin_abort ();
++  if (bar (0) != 10)
++    __builtin_abort ();
++  if (bar (1) != 10 + 20 + 30)
++    __builtin_abort ();
++  if (bar (2) != 10 + 20 + 30 + 3 * 42)
++    __builtin_abort ();
++}
+diff --git a/gcc/testsuite/g++.dg/plugin/std_module_exports_plugin.cc b/gcc/testsuite/g++.dg/plugin/std_module_exports_plugin.cc
+index e81eb6d3fb6..21a765041f6 100644
+--- a/gcc/testsuite/g++.dg/plugin/std_module_exports_plugin.cc
++++ b/gcc/testsuite/g++.dg/plugin/std_module_exports_plugin.cc
+@@ -106,13 +106,19 @@ plugin_dump_decl (tree decl, char *scope, hash_set<tree> **exported_usings)
+ 	if (((int) whitelist[i].enabled_in & (int) this_std) != 0)
+ 	  {
+ 	    inform (DECL_SOURCE_LOCATION (decl),
+-		    "missing using %s%D; whitelisted", scope, name);
++		    "missing %<using %s%D;%> whitelisted", scope, name);
+ 	    return;
+ 	  }
+ 	break;
+       }
+ 
+-  error_at (DECL_SOURCE_LOCATION (decl), "missing using %s%D;", scope, name);
++  auto_diagnostic_group d;
++  error_at (DECL_SOURCE_LOCATION (decl),
++	    "missing %<using %s%D;%> in libstdc++-v3/src/c++23/std*.cc.in",
++	    scope, name);
++  inform (DECL_SOURCE_LOCATION (decl),
++	  "%<%s%D%> found in std namespace but not exported from std module",
++	  scope, name);
+ }
+ 
+ void
+diff --git a/gcc/testsuite/g++.dg/reflect/mangle1.C b/gcc/testsuite/g++.dg/reflect/mangle1.C
+index e0e60994312..e0232837e66 100644
+--- a/gcc/testsuite/g++.dg/reflect/mangle1.C
++++ b/gcc/testsuite/g++.dg/reflect/mangle1.C
+@@ -15,6 +15,7 @@ struct S : B {
+   int : 0;
+   static int var;
+ };
++struct W { union {}; union {}; union {}; union {}; };
+ template <auto> struct TCls {};
+ template <auto> void TFn ();
+ template <auto> int TVar;
+@@ -172,6 +173,8 @@ baz (int x)
+ 							    std::meta::reflect_constant (43L),
+ 							    std::meta::reflect_constant (NS2::AA { 1, 2 }) } })> (); // data member description
+   bar <340, ^^NS2::X::~X> (); // function
++  bar <350, members_of (^^W, ctx)[1]> (); // empty anon union non-static data member
++  bar <351, members_of (^^W, ctx)[7]> (); // empty anon union non-static data member
+ }
+ 
+ // { dg-final { scan-assembler "_Z3fooILi1EDmEvv" } }
+@@ -258,3 +261,5 @@ baz (int x)
+ // { dg-final { scan-assembler "_Z3barILi334ELDmdsi___0_EEvv" } }
+ // { dg-final { scan-assembler "_Z3barILi335ELDmdsi_1____Li42ELl43EXtlN3NS22AAELi1ELi2EEEEEvv" } }
+ // { dg-final { scan-assembler "_Z3barILi340ELDmfnN3NS21XD4EvEEvv" } }
++// { dg-final { scan-assembler "_Z3barILi350ELDmda1W_EEvv" } }
++// { dg-final { scan-assembler "_Z3barILi351ELDmda1W2_EEvv" } }
+diff --git a/gcc/testsuite/g++.dg/reflect/mangle8.C b/gcc/testsuite/g++.dg/reflect/mangle8.C
+new file mode 100644
+index 00000000000..0266aa2d0da
+--- /dev/null
++++ b/gcc/testsuite/g++.dg/reflect/mangle8.C
+@@ -0,0 +1,32 @@
++// PR c++/125680
++// { dg-do compile { target c++26 } }
++// { dg-additional-options "-freflection" }
++
++#include <meta>
++
++struct A { struct { int b; } a[4]; };
++
++template <std::meta::info I>
++struct B
++{
++  consteval static std::meta::info
++  foo ()
++  {
++    if constexpr (is_array_type (I))
++      {
++	using C = typename [: remove_extent (I) :];
++	return ^^C;
++      }
++    else
++      {
++        constexpr auto c = type_of (nonstatic_data_members_of (I, std::meta::access_context::current ())[0]);
++        using C = typename [: c :];
++        return ^^C;
++      }
++  }
++  constexpr static std::meta::info b = foo ();
++};
++
++constexpr auto a = B <^^A>::b;
++constexpr auto b = B <a>::b;
++constexpr auto c = B <b>::b;
+diff --git a/gcc/testsuite/g++.dg/reflect/mangle9.C b/gcc/testsuite/g++.dg/reflect/mangle9.C
+new file mode 100644
+index 00000000000..1f78daa6dd5
+--- /dev/null
++++ b/gcc/testsuite/g++.dg/reflect/mangle9.C
+@@ -0,0 +1,31 @@
++// { dg-do compile { target c++26 } }
++// { dg-options "-freflection -O0" }
++
++#include <meta>
++
++struct W { union { union {}; union {}; union {}; union {}; };
++	   union { union {}; union {}; union {}; union {}; }; };
++
++constexpr auto ctx = std::meta::access_context::current ();
++
++template <int N, std::meta::info I>
++void
++bar ()
++{
++}
++
++void
++baz (int x)
++{
++  constexpr auto a = members_of (^^W, ctx)[0];
++  bar <10, members_of (a, ctx)[1]> (); // empty anon union non-static data member
++  bar <11, members_of (a, ctx)[7]> (); // empty anon union non-static data member
++  constexpr auto b = members_of (^^W, ctx)[2];
++  bar <12, members_of (b, ctx)[1]> (); // empty anon union non-static data member
++  bar <13, members_of (b, ctx)[7]> (); // empty anon union non-static data member
++}
++
++// { dg-final { scan-assembler "_Z3barILi10ELDmda1WUt__EEvv" } }
++// { dg-final { scan-assembler "_Z3barILi11ELDmda1WUt_2_EEvv" } }
++// { dg-final { scan-assembler "_Z3barILi12ELDmda1WUt0__EEvv" } }
++// { dg-final { scan-assembler "_Z3barILi13ELDmda1WUt0_2_EEvv" } }
+diff --git a/gcc/testsuite/g++.target/mips/pr126484.C b/gcc/testsuite/g++.target/mips/pr126484.C
+new file mode 100644
+index 00000000000..2d55cb939c0
+--- /dev/null
++++ b/gcc/testsuite/g++.target/mips/pr126484.C
+@@ -0,0 +1,8 @@
++// PR target/126484
++// { dg-do compile }
++
++int
++foo ()
++{
++  return __builtin_mips_get_fcsr ();
++}
+diff --git a/gcc/testsuite/gcc.dg/pr126464.c b/gcc/testsuite/gcc.dg/pr126464.c
+index b6eb1320dec..620b9b42f62 100644
+--- a/gcc/testsuite/gcc.dg/pr126464.c
++++ b/gcc/testsuite/gcc.dg/pr126464.c
+@@ -47,15 +47,19 @@ qux (long double x)
+ int
+ main ()
+ {
++#if __DBL_MAX_10_EXP__ >= 301
+   if (!__builtin_isinf ((double) 1e300)
+       && __builtin_isinf ((float) 1e300)
+       && (foo (-1e300) != -5e299
+ 	  || baz (1e300) != 5e299))
+     __builtin_abort ();
++#endif
+ 
++#if __LDBL_MAX_10_EXP__ >= 4001
+   if (!__builtin_isinf ((long double) 1e4000L)
+       && __builtin_isinf ((double) 1e4000L)
+       && (bar (1e4000L) != 5e3999L
+ 	  || qux (-1e4000L) != -5e3999L))
+     __builtin_abort ();
++#endif
+ }
+diff --git a/gcc/testsuite/gcc.dg/pr126667.c b/gcc/testsuite/gcc.dg/pr126667.c
+new file mode 100644
+index 00000000000..f9e4a2120ad
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/pr126667.c
+@@ -0,0 +1,9 @@
++/* PR target/126667 */
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++
++unsigned long
++foo (unsigned long x, unsigned long y, unsigned long *p)
++{
++  return __builtin_subcl (x, y, 1UL, p);
++}
+diff --git a/gcc/testsuite/gcc.dg/torture/bitint-100.c b/gcc/testsuite/gcc.dg/torture/bitint-100.c
+index 4c6e781777c..b9a75db67aa 100644
+--- a/gcc/testsuite/gcc.dg/torture/bitint-100.c
++++ b/gcc/testsuite/gcc.dg/torture/bitint-100.c
+@@ -1,5 +1,5 @@
+ /* PR target/124948 */
+-/* { dg-do run { target bitint } } */
++/* { dg-do run { target { bitint && sync_int_long } } } */
+ /* { dg-options "-std=c23 -pedantic-errors" } */
+ /* { dg-skip-if "" { ! run_expensive_tests }  { "*" } { "-O0" "-O2" } } */
+ /* { dg-skip-if "" { ! run_expensive_tests } { "-flto" } { "" } } */
+diff --git a/gcc/testsuite/gcc.dg/torture/bitint-107.c b/gcc/testsuite/gcc.dg/torture/bitint-107.c
+new file mode 100644
+index 00000000000..93a37bafe31
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/torture/bitint-107.c
+@@ -0,0 +1,18 @@
++/* PR tree-optimization/126549 */
++/* { dg-do run { target { float32 && bitint575 } } } */
++/* { dg-add-options float32 } */
++
++[[gnu::noipa]] int
++foo (unsigned _BitInt(133) a)
++{
++  unsigned _BitInt(133) u = a % 5444517870735015415413993718908291383300uwb;
++  _Float32 h = (_Float32) u;
++  return h > __FLT32_MAX__;
++}
++
++int
++main ()
++{
++  if (foo (5444517870735015415413993718908291383295uwb) != 1)
++    __builtin_abort ();
++}
+diff --git a/gcc/testsuite/gcc.dg/torture/pr126547.c b/gcc/testsuite/gcc.dg/torture/pr126547.c
+new file mode 100644
+index 00000000000..c1066a2cfa9
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/torture/pr126547.c
+@@ -0,0 +1,31 @@
++/* PR tree-optimization/126547 */
++/* { dg-do run } */
++
++#if __LDBL_HAS_INFINITY__
++[[gnu::noipa]] static int
++foo (long double a1, long double a2)
++{
++  if (a1 >= 1.0 && a1 <= 8.0)
++    {
++      long double d = a1 / a2;
++      int n = 0;
++      if (d >= __builtin_infl ())
++	n += 1;
++      if (a2 > 0.0L)
++	n += 2;
++      return n;
++    }
++  else
++    return -1;
++}
++#endif
++
++int
++main ()
++{
++#if __LDBL_HAS_INFINITY__
++  if (__builtin_isinf (1.0 / __LDBL_DENORM_MIN__)
++      && foo (1.0, __LDBL_DENORM_MIN__) != 3)
++    __builtin_abort ();
++#endif
++}
+diff --git a/gcc/testsuite/gcc.dg/torture/pr126549.c b/gcc/testsuite/gcc.dg/torture/pr126549.c
+new file mode 100644
+index 00000000000..e87610a1717
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/torture/pr126549.c
+@@ -0,0 +1,18 @@
++/* PR tree-optimization/126549 */
++/* { dg-do run { target float16 } } */
++/* { dg-add-options float16 } */
++
++[[gnu::noipa]] int
++foo (unsigned a)
++{
++  unsigned u = a % 100001U;
++  _Float16 h = (_Float16) u;
++  return h > 65504.0f16;
++}
++
++int
++main ()
++{
++  if (foo (70000U) != 1)
++    __builtin_abort ();
++}
+diff --git a/gcc/testsuite/gcc.dg/torture/pr126564.c b/gcc/testsuite/gcc.dg/torture/pr126564.c
+new file mode 100644
+index 00000000000..31077dbebe6
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/torture/pr126564.c
+@@ -0,0 +1,25 @@
++/* PR tree-optimization/126564 */
++/* { dg-do run } */
++
++[[gnu::noipa]] int
++foo (int x, int y)
++{
++  int c = -128;
++  if (x == y)
++    c = 0;
++  else if (x < y)
++    c = -1;
++  else if (x <= y)
++    c = 1;
++  return c > 0;
++}
++
++int
++main ()
++{
++  int i, j;
++  for (i = -3; i <= 3; i++)
++    for (j = -3; j <= 3; j++)
++      if (foo (i, j) != 0)
++	__builtin_abort ();
++}
+diff --git a/gcc/testsuite/gcc.dg/torture/pr126576.c b/gcc/testsuite/gcc.dg/torture/pr126576.c
+new file mode 100644
+index 00000000000..c94c7437035
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/torture/pr126576.c
+@@ -0,0 +1,43 @@
++/* PR tree-optimization/126576 */
++/* { dg-do run } */
++
++#if __DBL_MANT_DIG__ == 53 && __DBL_MAX_10_EXP__ == 308 \
++    && __DBL_HAS_INFINITY__ && __FLT_EVAL_METHOD__ == 0
++int v;
++
++[[gnu::noipa]] void
++bar (int x)
++{
++  v |= x;
++}
++
++[[gnu::noipa]] double
++foo (double x)
++{
++  double a = x * x;
++  if (__builtin_isinf (a) && !__builtin_isinf (x))
++    bar (1);
++  double b = a * 3.0;
++  if (__builtin_isinf (b) && !__builtin_isinf (a))
++    bar (2);
++  return b;
++}
++#endif
++
++int
++main ()
++{
++#if __DBL_MANT_DIG__ == 53 && __DBL_MAX_10_EXP__ == 308 \
++    && __DBL_HAS_INFINITY__ && __FLT_EVAL_METHOD__ == 0
++  foo (1e154);
++  if (v != 2)
++    __builtin_abort ();
++  v = 0;
++  foo (1e152);
++  if (v != 0)
++    __builtin_abort ();
++  foo (1e155);
++  if (v != 1)
++    __builtin_abort ();
++#endif    
++}
+diff --git a/gcc/testsuite/gcc.dg/tree-ssa/pr126601.c b/gcc/testsuite/gcc.dg/tree-ssa/pr126601.c
+new file mode 100644
+index 00000000000..971ccba5e18
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/tree-ssa/pr126601.c
+@@ -0,0 +1,29 @@
++/* PR tree-optimization/126601 */
++/* { dg-do compile } */
++/* { dg-options "-Os" } */
++
++volatile int c[16];
++
++[[gnu::noipa]] int
++foo (unsigned x, unsigned y)
++{
++  unsigned r = x * y;
++  int t = 0;
++  if (c[0]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[1]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[2]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[3]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[4]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[5]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[6]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[7]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[8]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[9]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[10]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[11]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[12]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[13]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[14]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  if (c[15]) { int u = 0; if (x != 0) u = (r / x != y); t += u; }
++  return t;
++}
+diff --git a/gcc/testsuite/gcc.target/i386/pr126529-1.c b/gcc/testsuite/gcc.target/i386/pr126529-1.c
+new file mode 100644
+index 00000000000..aa53283e5e3
+--- /dev/null
++++ b/gcc/testsuite/gcc.target/i386/pr126529-1.c
+@@ -0,0 +1,39 @@
++/* { dg-do run } */
++/* { dg-options "-O2 -march=x86-64" } */
++
++typedef signed char A[[gnu::vector_size (2)]];
++typedef short B[[gnu::vector_size (16)]];
++int a, b, c, d;
++B e;
++[[gnu::vector_size(8 * sizeof (int))]] int f;
++_Bool g;
++
++__attribute__((noipa, noinline, target("avx2")))
++void *
++foo (long long x, _Bool y, int z, B w)
++{
++  A h = {};
++  short i = h[z];
++  f = 0 % f;
++  w = e;
++  d = w[g];
++  h = ((union { short s; A t; }) { i }).t;
++  b = 3 / x;
++  h = __builtin_shufflevector (h, h, 3, 2);
++lab:
++  c = h[0];
++  if (y)
++    return 0;
++  y = 1;
++  h = ~h;
++  goto lab;
++}
++
++int
++main (void)
++{
++ if (__builtin_cpu_supports ("avx2"))
++   foo (3355934481768670720LL, 0, a, e);
++
++  return 0;
++}
+diff --git a/gcc/testsuite/gcc.target/i386/pr126529-2.c b/gcc/testsuite/gcc.target/i386/pr126529-2.c
+new file mode 100644
+index 00000000000..d37c0bf5997
+--- /dev/null
++++ b/gcc/testsuite/gcc.target/i386/pr126529-2.c
+@@ -0,0 +1,40 @@
++/* { dg-do run } */
++/* { dg-options "-O2 -march=x86-64" } */
++
++typedef signed char A[[gnu::vector_size (2)]];
++typedef short B[[gnu::vector_size (16)]];
++int a, b, c, d;
++B e;
++[[gnu::vector_size(8 * sizeof (int))]] int f;
++_Bool g;
++
++__attribute__((noipa, noinline, target("avx2")))
++void *
++foo (float f1, float f2, float f3, float f4, float f5, float f6, float f7,
++     float f8, long long x, _Bool y, int z, B w)
++{
++  A h = {};
++  short i = h[z];
++  f = 0 % f;
++  w = e;
++  d = w[g];
++  h = ((union { short s; A t; }) { i }).t;
++  b = 3 / x;
++  h = __builtin_shufflevector (h, h, 3, 2);
++lab:
++  c = h[0];
++  if (y)
++    return 0;
++  y = 1;
++  h = ~h;
++  goto lab;
++}
++
++int
++main (void)
++{
++ if (__builtin_cpu_supports ("avx2"))
++   foo (1, 2, 3, 4, 5, 6, 7, 8, 3355934481768670720LL, 0, a, e);
++
++  return 0;
++}
+diff --git a/gcc/testsuite/gcc.target/i386/pr126529-3.c b/gcc/testsuite/gcc.target/i386/pr126529-3.c
+new file mode 100644
+index 00000000000..740b21b1b28
+--- /dev/null
++++ b/gcc/testsuite/gcc.target/i386/pr126529-3.c
+@@ -0,0 +1,32 @@
++/* { dg-do compile { target *-*-linux* } } */
++/* { dg-options "-O2 -march=x86-64-v3" } */
++/* { dg-final { scan-assembler "and\[lq\]?\[\\t \]+\\$-32,\[\\t \]*%\[re\]?sp" } } */
++/* { dg-final { scan-assembler "vmovdqa\[\\t \]+%ymm" } } */
++
++typedef signed char A[[gnu::vector_size (2)]];
++typedef short B[[gnu::vector_size (32)]];
++int a, b, c, d;
++B e;
++[[gnu::vector_size(8 * sizeof (int))]] int f;
++_Bool g;
++
++[[gnu::noipa]] void *
++foo (float f1, float f2, float f3, float f4, float f5, float f6, float f7,
++     long long x, _Bool y, int z, B w)
++{
++  A h = {};
++  short i = h[z];
++  f = 0 % f;
++  w = e;
++  d = w[g];
++  h = ((union { short s; A t; }) { i }).t;
++  b = 3 / x;
++  h = __builtin_shufflevector (h, h, 3, 2);
++lab:
++  c = h[0];
++  if (y)
++    return 0;
++  y = 1;
++  h = ~h;
++  goto lab;
++}
+diff --git a/gcc/testsuite/gcc.target/i386/pr126529-4.c b/gcc/testsuite/gcc.target/i386/pr126529-4.c
+new file mode 100644
+index 00000000000..2c08d56ca23
+--- /dev/null
++++ b/gcc/testsuite/gcc.target/i386/pr126529-4.c
+@@ -0,0 +1,33 @@
++/* { dg-do compile { target *-*-linux* } } */
++/* { dg-options "-O2 -march=x86-64-v3" } */
++/* { dg-final { scan-assembler "and\[lq\]?\[\\t \]+\\$-32,\[\\t \]*%\[re\]?sp" { target ia32 } } } */
++/* { dg-final { scan-assembler-not "and\[lq\]?\[\\t \]+\\$-32,\[\\t \]*%\[re\]?sp" { target { ! ia32 } } } } */
++/* { dg-final { scan-assembler "vmovdqa\[\\t \]+%ymm" } } */
++
++typedef signed char A[[gnu::vector_size (2)]];
++typedef short B[[gnu::vector_size (32)]];
++int a, b, c, d;
++B e;
++[[gnu::vector_size(8 * sizeof (int))]] int f;
++_Bool g;
++
++[[gnu::noipa]] void *
++foo (float f1, float f2, float f3, float f4, float f5, float f6, float f7,
++     float f8, long long x, _Bool y, int z, B w)
++{
++  A h = {};
++  short i = h[z];
++  f = 0 % f;
++  w = e;
++  d = w[g];
++  h = ((union { short s; A t; }) { i }).t;
++  b = 3 / x;
++  h = __builtin_shufflevector (h, h, 3, 2);
++lab:
++  c = h[0];
++  if (y)
++    return 0;
++  y = 1;
++  h = ~h;
++  goto lab;
++}
+diff --git a/gcc/testsuite/gcc.target/s390/pr126667.c b/gcc/testsuite/gcc.target/s390/pr126667.c
+new file mode 100644
+index 00000000000..0e6cd1467a2
+--- /dev/null
++++ b/gcc/testsuite/gcc.target/s390/pr126667.c
+@@ -0,0 +1,9 @@
++/* PR target/126667 */
++/* { dg-do compile } */
++/* { dg-options "-O2 -march=z14" } */
++
++unsigned long
++foo (unsigned long x, unsigned long y, unsigned long *p)
++{
++  return __builtin_subcl (x, y, 1UL, p);
++}
+diff --git a/gcc/testsuite/gfortran.dg/coarray/team_allocated_coarrays.f90 b/gcc/testsuite/gfortran.dg/coarray/team_allocated_coarrays.f90
+new file mode 100644
+index 00000000000..4ecee7bbff4
+--- /dev/null
++++ b/gcc/testsuite/gfortran.dg/coarray/team_allocated_coarrays.f90
+@@ -0,0 +1,104 @@
++! { dg-do run }
++!
++! F2018(11.1.5.2): Test auto-deallocation of allocatable coarrays that are
++! allocated within a team block.
++!
++program test_nested_teams
++  use iso_fortran_env, only: team_type
++  implicit none
++  type(team_type) :: team1, team2
++  integer, allocatable :: a[:]
++  integer, allocatable :: b[:]
++  integer, allocatable :: outer[:]
++  integer, allocatable :: inner(:)[:] ! Rank and corank
++  logical :: image1
++  integer :: me
++
++  type :: mytype
++    integer, allocatable :: i[:]
++  end type
++  type(mytype) :: dt_a, dt_b, dt_outer, dt_inner
++
++  image1 = this_image () == 1
++  me = this_image ()
++
++  ! Test 1: Simple allocation in single team block
++  form team(1, team1)
++  change team(team1)
++    allocate(a[*])
++    a = 1
++    allocate(dt_a%i[*], source = me)
++  end team
++  if (image1 .and. allocated(a)) stop 1
++  if (image1 .and. allocated(dt_a%i)) stop 2
++
++  ! Test 2: Multiple allocations in single team block
++  form team(1, team1)
++  change team(team1)
++    allocate(a[*], b[*])
++    a = 1
++    b = 2
++    allocate(dt_a%i[*], dt_b%i[*], source = me)
++  end team
++  if (image1 .and. allocated(a)) stop 3
++  if (image1 .and. allocated(b)) stop 4
++  if (image1 .and. allocated(dt_a%i)) stop 5
++  if (image1 .and. allocated(dt_b%i)) stop 6
++
++  ! Test 3: Nested team blocks - allocation in outer team only
++  form team(1, team1)
++  change team(team1)
++    allocate(outer[*])
++    allocate(dt_outer%i[*], source = me)
++    outer = 10
++
++    ! Nested team with no allocations
++    form team(1, team2)
++    change team(team2)
++    end team
++
++    ! Make sure that auto-deallocation occurs in right context
++    if (image1 .and. .not.allocated(outer)) stop 7
++    if (image1 .and. .not.allocated(dt_outer%i)) stop 8
++
++  end team
++  if (image1 .and. allocated(outer)) stop 9
++  if (image1 .and. allocated(dt_outer%i)) stop 10
++
++  ! Test 4: Nested team blocks - allocation in inner team only
++  form team(1, team1)
++  change team(team1)
++
++    form team(1, team2)
++    change team(team2)
++      allocate(inner(4)[*])
++      inner = 20
++      allocate(dt_inner%i[*])
++    end team
++
++    if (image1 .and. allocated(inner)) stop 11
++    if (image1 .and. allocated(dt_inner%i)) stop 12
++  end team
++
++  ! Test 5: Nested team blocks - allocations in both levels
++  form team(1, team1)
++  change team(team1)
++    allocate(outer[*])
++    outer = 30
++    allocate(dt_outer%i[*], source = me)
++
++    form team(1, team2)
++    change team(team2)
++      allocate(inner(2)[*])
++      inner = 40
++      allocate(dt_inner%i[*], source = me)
++    end team
++
++    if (image1 .and. allocated(inner)) stop 13
++    if (image1 .and. allocated(dt_inner%i)) stop 14
++
++  end team
++  if (image1 .and. allocated(outer)) stop 15
++  if (image1 .and. allocated(dt_outer%i)) stop 16
++
++end program test_nested_teams
+diff --git a/gcc/testsuite/gfortran.dg/pr125263.f90 b/gcc/testsuite/gfortran.dg/pr125263.f90
+new file mode 100644
+index 00000000000..9d8d4d08987
+--- /dev/null
++++ b/gcc/testsuite/gfortran.dg/pr125263.f90
+@@ -0,0 +1,71 @@
++! { dg-do run }
++!
++! Test the fix for pr125263, in which the selector expressions were not
++! correctly set after the first two ASSOCIATE constructs below.
++!
++! Conributed by Bastiaan Braams  <b.j.braams@cwi.nl>
++!
++program Main
++  implicit none (type, external)
++  type :: Foo_Type
++     integer, allocatable :: x(:)
++  end type Foo_Type
++  class (Foo_Type), allocatable :: fv(:), f, g
++  integer :: nx = 2, nf = 3, i
++
++  ! Create fv(:) with all component vectors initialized to 0.
++  allocate (Foo_Type::fv(0:nf-1))
++  do i = 0, nf-1
++     allocate (fv(i)%x(0:nx-1))
++     fv(i)%x(:) = 0
++  end do
++
++  ! Create f with f%x(:) equal to 1 and g with g%x(:) equal to 2.
++  allocate (Foo_Type::f, g)
++  allocate (f%x(0:nx-1),g%x(0:nx-1))
++  f%x(:) = 1
++  g%x(:) = 2
++
++  ! Use intrinsic assignment to copy f to fv(0).
++  associate (ft => fv(0))
++    select type (ft => fv(0))
++    type is (Foo_Type)
++       ft = f
++       ft%x = [2,3,4]
++    class default
++       error stop 'select type (ft): type error'
++    end select
++  end associate
++
++  ! Verify the copy on the element x(0) and that f is not overwritten.
++  if (any (fv(0)%x /= [2,3,4])) stop 1
++  if (any (f%x /= [1,1])) stop 2
++
++  ! All scalar selector-exprs have the same problem, not just array elements.
++  f%x(:) = 1
++  associate (ft => g)
++    select type (ft)
++    type is (Foo_Type)
++       ft = f
++       ft%x = [4,5,6]
++    class default
++       error stop 'select type (ft): type error'
++    end select
++  end associate
++  ! Verify the copy on g and that f is not overwritten.
++  if (any (g%x /= [4,5,6])) stop 3
++  if (any (f%x /= [1,1])) stop 4
++
++  ! Assignment to an element of an array associate name was OK.
++  fv(0)%x(:) = [0,0,0]
++  select type (ft => fv)
++  type is (Foo_Type)
++    ft = f
++    ft(0)%x = [2,3,4]
++  class default
++    error stop 'select type (ft): type error'
++  end select
++  if (any (fv(0)%x /= [2,3,4])) stop 5
++  if (any (f%x /= [1,1])) stop 6
++
++end program Main
+diff --git a/gcc/tree-ssa-math-opts.cc b/gcc/tree-ssa-math-opts.cc
+index cd3fd2fc8fb..63e7f714f7e 100644
+--- a/gcc/tree-ssa-math-opts.cc
++++ b/gcc/tree-ssa-math-opts.cc
+@@ -3762,7 +3762,7 @@ maybe_optimize_guarding_check (vec<gimple *> &mul_stmts, gimple *cond_stmt,
+ 	return;
+     }
+   gimple_stmt_iterator gsi = gsi_after_labels (bb);
+-  mul_stmts.quick_push (div_stmt);
++  mul_stmts.safe_push (div_stmt);
+   if (is_gimple_debug (gsi_stmt (gsi)))
+     gsi_next_nondebug (&gsi);
+   unsigned cast_count = 0;
+diff --git a/gcc/tree-ssa-phiopt.cc b/gcc/tree-ssa-phiopt.cc
+index ebbb5e2f1d8..2a8bb852981 100644
+--- a/gcc/tree-ssa-phiopt.cc
++++ b/gcc/tree-ssa-phiopt.cc
+@@ -2159,15 +2159,9 @@ spaceship_replacement (basic_block cond_bb, basic_block middle_bb,
+ 	 must be different for non-swapped operands and same for swapped
+ 	 operands.  */
+       if ((lhs2 == lhs1)
+-	  ^ (HONOR_NANS (TREE_TYPE (lhs1))
+-	     ? ((cmp2 == LT_EXPR || cmp2 == LE_EXPR)
+-		!= (cmp1 == LT_EXPR || cmp1 == LE_EXPR))
+-	     : (((cond2_phi_edge->flags
+-		  & ((cmp2 == LT_EXPR || cmp2 == LE_EXPR)
+-		     ? EDGE_TRUE_VALUE : EDGE_FALSE_VALUE)) != 0)
+-		!= ((e1->flags
+-		     & ((cmp1 == LT_EXPR || cmp1 == LE_EXPR)
+-			 ? EDGE_TRUE_VALUE : EDGE_FALSE_VALUE)) != 0))))
++	  ^ ((cmp2 == LT_EXPR || cmp2 == LE_EXPR)
++	     != (cmp1 == LT_EXPR || cmp1 == LE_EXPR))
++	  ^ ((cond2_phi_edge->flags & EDGE_FALSE_VALUE) != 0))
+ 	return false;
+       if (!single_pred_p (cond2_bb) || !cond_only_block_p (cond2_bb))
+ 	return false;
+diff --git a/libcpp/ChangeLog b/libcpp/ChangeLog
+index 7d1a22193c2..89936bf6e27 100644
+--- a/libcpp/ChangeLog
++++ b/libcpp/ChangeLog
+@@ -1,3 +1,14 @@
++2026-08-07  Jakub Jelinek  <jakub@redhat.com>
++
++	Backported from master:
++	2026-08-06  Jakub Jelinek  <jakub@redhat.com>
++
++	PR preprocessor/125048
++	* macro.cc (replace_args): Remember the position of map
++	in the pfile->line_table->info_macro.maps array and if vostate
++	is DROP, recompute map pointer as expand_arg call could have
++	reallocated the pfile->line_table->info_macro.maps array.
++
+ 2026-08-07  Release Manager
+ 
+ 	* GCC 16.2.0 released.
+diff --git a/libcpp/macro.cc b/libcpp/macro.cc
+index c29a34302b6..15260a21b58 100644
+--- a/libcpp/macro.cc
++++ b/libcpp/macro.cc
+@@ -1995,6 +1995,7 @@ replace_args (cpp_reader *pfile, cpp_hashnode *node, cpp_macro *macro,
+   location_t *virt_locs = NULL;
+   unsigned int exp_count;
+   const line_map_macro *map = NULL;
++  size_t map_idx = 0;
+   int track_macro_exp;
+ 
+   /* First, fully macro-expand arguments, calculating the number of
+@@ -2105,6 +2106,7 @@ replace_args (cpp_reader *pfile, cpp_hashnode *node, cpp_macro *macro,
+       map = linemap_enter_macro (pfile->line_table, node,
+ 				 expansion_point_loc,
+ 				 num_macro_tokens);
++      map_idx = map - pfile->line_table->info_macro.maps;
+     }
+   i = 0;
+   vaopt_state vaopt_tracker (pfile, macro->variadic, &args[macro->paramc - 1]);
+@@ -2226,6 +2228,11 @@ replace_args (cpp_reader *pfile, cpp_hashnode *node, cpp_macro *macro,
+ 					 NULL, 0);
+ 		}
+ 	    }
++	  else if (vostate == vaopt_state::DROP && map)
++	    /* For the DROP case vaopt_tracker.update (src) can call
++	       expand_arg and that can reallocate the maps, so need to
++	       update the map pointer.  */
++	    map = pfile->line_table->info_macro.maps + map_idx;
+ 	  continue;
+ 	}
+ 

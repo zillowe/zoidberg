@@ -1,12 +1,15 @@
 local version = ZOI.VERSION or "262.1"
-local tag = "v" .. version
-local git_url = "https://github.com/systemd/systemd.git"
+local sha512 = "a4d696dc03d096b815b6780f910fab4e79e01b8414b26529a8585b437b27a50b10c1082e534f1cdcb8bbec330a2af0f98fdcacf189e75f64a157c8bbc4774976"
+-- systemd publishes no release tarball (only signed git tags), so this is
+-- GitHub's archive of the v<version> tag; stable point releases are tagged
+-- in systemd/systemd itself. The hash matches the one Gentoo records for the
+-- same archive (sys-apps/systemd Manifest).
 
 metadata({
 	name = "systemd",
 	repo = "core",
 	version = version,
-	revision = "9",
+	revision = "10",
 	debug = { sub_package = true },
 	description = "System and service manager for Linux",
 	website = "https://systemd.io",
@@ -99,8 +102,8 @@ dependencies({
 			source = {
 				required = {
 					"pacman:acl",
-					"pacman:apparmor",
 					"pacman:audit",
+					"pacman:bzip2",
 					"pacman:bash-completion",
 					"pacman:bpf",
 					"pacman:clang",
@@ -108,7 +111,6 @@ dependencies({
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:docbook-xsl",
-					"pacman:git",
 					"pacman:gnutls",
 					"pacman:gperf",
 					"pacman:intltool",
@@ -118,14 +120,12 @@ dependencies({
 					"pacman:libarchive",
 					"pacman:libbpf",
 					"pacman:libelf",
-					"pacman:libfido2",
 					"pacman:libgcrypt",
+					"pacman:libgpg-error",
 					"pacman:libidn2",
 					"pacman:libmicrohttpd",
-					"pacman:libpwquality",
 					"pacman:libseccomp",
 					"pacman:libxcrypt",
-					"pacman:libxkbcommon",
 					"pacman:libxslt",
 					"pacman:linux-api-headers",
 					"pacman:linux-headers",
@@ -141,13 +141,11 @@ dependencies({
 					"pacman:python-lxml",
 					"pacman:python-pefile",
 					"pacman:python-pyelftools",
-					"pacman:qrencode",
 					"pacman:quota-tools",
 					"pacman:rsync",
 					"pacman:rust",
 					"pacman:rust-bindgen",
 					"pacman:shadow",
-					"pacman:tpm2-tss",
 					"pacman:util-linux",
 					"pacman:xz",
 					"pacman:zlib",
@@ -159,21 +157,56 @@ dependencies({
 	runtime = {
 		-- No shared top-level list: it applies to every sub-package, which made
 		-- systemd:libs depend on itself and on util-linux, kmod and hwdata.
+		-- Most libraries are dlopen()ed by systemd, so a missing one does not
+		-- fail at load time but silently disables the feature: every library
+		-- of an enabled meson feature (see build()) is listed here.
 		sub_packages = {
 			main = {
 				required = {
-					"zoi:@core/glibc",
-					"zoi:@core/systemd:libs",
+					"zoi:@core/acl",
+					"zoi:@core/audit",
 					"zoi:@core/bash",
-					"zoi:@core/kmod",
+					"zoi:@core/bzip2",
+					"zoi:@core/cryptsetup",
+					"zoi:@core/curl",
+					"zoi:@core/dbus",
+					-- dbus-units: dbus.service (Arch: dbus-broker-units)
+					"zoi:@core/dbus-broker",
+					"zoi:@core/elfutils:libelf",
+					"zoi:@core/gcc:libgcc",
+					"zoi:@core/glibc",
+					"zoi:@core/gnutls",
 					"zoi:@core/hwdata",
+					"zoi:@core/kbd",
+					"zoi:@core/kmod",
+					"zoi:@core/libarchive",
+					"zoi:@core/libbpf",
+					"zoi:@core/libgcrypt",
+					"zoi:@core/libgpg-error",
+					"zoi:@core/libidn2",
+					"zoi:@core/libmicrohttpd",
+					"zoi:@core/libseccomp",
+					"zoi:@core/libxcrypt",
+					"zoi:@core/lz4",
+					"zoi:@core/openssl",
+					"zoi:@core/p11-kit",
+					"zoi:@core/pam",
+					"zoi:@core/pcre2",
+					"zoi:@core/systemd:libs",
 					"zoi:@core/util-linux",
+					"zoi:@core/util-linux:libs",
 					"zoi:@core/xz",
+					"zoi:@core/zlib",
+					"zoi:@core/zstd",
 				},
 			},
 			libs = {
 				required = {
+					"zoi:@core/gcc:libgcc",
 					"zoi:@core/glibc",
+					"zoi:@core/libgcrypt",
+					"zoi:@core/libgpg-error",
+					"zoi:@core/lz4",
 					"zoi:@core/xz",
 					"zoi:@core/zstd",
 				},
@@ -190,6 +223,10 @@ dependencies({
 			},
 			ukify = {
 				required = {
+					"zoi:@core/binutils",
+					"zoi:@core/python",
+					"zoi:@core/python-cryptography",
+					"zoi:@core/python-pefile",
 					"zoi:@core/systemd",
 				},
 			},
@@ -220,34 +257,76 @@ hooks({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	cmd(
 		[[
-		if [ ! -d systemd ]; then
-			git clone --depth 1 --branch "%s" "%s" systemd
-			rm -rf systemd/.git
-		fi
+		curl -sSfL --retry 3 --retry-all-errors \
+			"https://github.com/systemd/systemd/archive/refs/tags/v$VER.tar.gz" \
+			-o "systemd-$VER.tar.gz"
+		echo "$SHA512  systemd-$VER.tar.gz" | sha512sum -c -
+		tar -xf "systemd-$VER.tar.gz"
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
 end
 
 function build()
-	cmd([[
-		set -e
-
-		git config --global --add safe.directory '*' 2>/dev/null || true
-
-		meson setup systemd build \
+	-- Every library feature is set explicitly, so meson never picks up a
+	-- library just because it is on the build host. Enabled: as Arch, each
+	-- with its runtime dependency declared above. Disabled: libraries
+	-- Zoidberg does not package (AppArmor, libfido2, tpm2-tss, qrencode,
+	-- libpwquality/passwdqc, libxkbcommon, polkit, SELinux, Xen); dbus and
+	-- glib are only used by the test suite.
+	cmd(
+		[[
+		meson setup "systemd-$VER" build \
 			--prefix=/usr \
 			--buildtype=release \
-			-Dversion-tag="]] .. version .. [[-parlex" \
+			-Dversion-tag="$VER-parlex" \
 			-Dvcs-tag=false \
 			-Dmode=release \
 			-Dtests=false \
 			-Dfuzz-tests=false \
-			-Dapparmor=enabled \
+			-Dacl=enabled \
+			-Daudit=enabled \
+			-Dblkid=enabled \
+			-Dbzip2=enabled \
+			-Delfutils=enabled \
+			-Dfdisk=enabled \
+			-Dgcrypt=enabled \
+			-Dgnutls=enabled \
+			-Dkmod=enabled \
+			-Dlibarchive=enabled \
+			-Dlibcrypt=enabled \
+			-Dlibcryptsetup=enabled \
+			-Dlibcryptsetup-plugins=enabled \
+			-Dlibcurl=enabled \
+			-Dlibmount=enabled \
+			-Dmicrohttpd=enabled \
+			-Dopenssl=enabled \
+			-Dp11kit=enabled \
+			-Dpam=enabled \
+			-Dpcre2=enabled \
+			-Dremote=enabled \
+			-Dseccomp=enabled \
+			-Dukify=enabled \
+			-Dxz=enabled \
+			-Dzlib=enabled \
+			-Dzstd=enabled \
+			-Dapparmor=disabled \
+			-Ddbus=disabled \
+			-Dglib=disabled \
+			-Dlibfido2=disabled \
+			-Dpasswdqc=disabled \
+			-Dpolkit=disabled \
+			-Dpwquality=disabled \
+			-Dqrencode=disabled \
+			-Dtpm2=disabled \
+			-Dxkbcommon=disabled \
 			-Dbootloader=enabled \
 			-Dxenctrl=disabled \
 			-Dbpf-framework=enabled \
@@ -271,18 +350,17 @@ function build()
 			-Drpmmacrosdir=no
 
 		meson compile -C build -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package(args)
 	local sub = (args and args.sub) or "main"
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
 
 	if sub == "main" or sub == "" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			DESTDIR="$ROOT" meson install -C build --quiet
 
 			# Runtime libraries moved to systemd-libs
@@ -323,27 +401,27 @@ function package(args)
 
 			# Bootctl examples
 			mkdir -p "$ROOT"/usr/share/systemd/bootctl
-			if [ -f "${PKGLUADIR}/parlex.conf" ]; then
-				install -m644 "${PKGLUADIR}/parlex.conf" "$ROOT"/usr/share/systemd/bootctl/
+			if [ -f "${PKGLUADIR}/files/parlex.conf" ]; then
+				install -m644 "${PKGLUADIR}/files/parlex.conf" "$ROOT"/usr/share/systemd/bootctl/
 			fi
-			if [ -f "${PKGLUADIR}/loader.conf" ]; then
-				install -m644 "${PKGLUADIR}/loader.conf" "$ROOT"/usr/share/systemd/bootctl/
+			if [ -f "${PKGLUADIR}/files/loader.conf" ]; then
+				install -m644 "${PKGLUADIR}/files/loader.conf" "$ROOT"/usr/share/systemd/bootctl/
 			fi
-			if [ -f "${PKGLUADIR}/splash-parlex.bmp" ]; then
-				install -m644 "${PKGLUADIR}/splash-parlex.bmp" "$ROOT"/usr/share/systemd/bootctl/
+			if [ -f "${PKGLUADIR}/files/splash-parlex.bmp" ]; then
+				install -m644 "${PKGLUADIR}/files/splash-parlex.bmp" "$ROOT"/usr/share/systemd/bootctl/
 			fi
 
 			# Hook runner script
-			if [ -f "${PKGLUADIR}/systemd-hook" ]; then
+			if [ -f "${PKGLUADIR}/files/systemd-hook" ]; then
 				mkdir -p "$ROOT"/usr/lib/systemd "$ROOT"/usr/share/libalpm/scripts
-				install -m755 "${PKGLUADIR}/systemd-hook" "$ROOT"/usr/lib/systemd/systemd-hook
+				install -m755 "${PKGLUADIR}/files/systemd-hook" "$ROOT"/usr/lib/systemd/systemd-hook
 				ln -sf /usr/lib/systemd/systemd-hook "$ROOT"/usr/share/libalpm/scripts/systemd-hook
 			fi
 
 			# PAM config
-			if [ -f "${PKGLUADIR}/systemd-user.pam" ]; then
+			if [ -f "${PKGLUADIR}/files/systemd-user.pam" ]; then
 				mkdir -p "$ROOT"/usr/lib/pam.d
-				install -m644 "${PKGLUADIR}/systemd-user.pam" "$ROOT"/usr/lib/pam.d/systemd-user
+				install -m644 "${PKGLUADIR}/files/systemd-user.pam" "$ROOT"/usr/lib/pam.d/systemd-user
 			fi
 
 			mkdir -p "$ROOT"/etc/cryptsetup-keys.d
@@ -352,8 +430,8 @@ function package(args)
 			# Kernel install symlink
 			ln -sf kernel-install "$ROOT"/usr/bin/installkernel
 		]],
-			root
-		))
+			opts
+		)
 
 		-- Transaction hooks bundled into package store
 		zcp("${pkgluadir}/hooks/systemd-sysusers.hook.yaml", "${pkgstore}/hooks/systemd-sysusers.hook.yaml")
@@ -375,43 +453,36 @@ function package(args)
 		zcp("${pkgluadir}/hooks/systemd-update.hook.yaml", "${pkgstore}/hooks/systemd-update.hook.yaml")
 		zcp("${pkgluadir}/hooks/systemd-modules-load.hook.yaml", "${pkgstore}/hooks/systemd-modules-load.hook.yaml")
 
-		-- zlicense("LICENSE")
 	elseif sub == "libs" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT"/usr/lib "$ROOT"/usr/include "$ROOT"/usr/share/man/man3 "$ROOT"/usr/share/man/man8
 
 			TMP_DIR="$(mktemp -d)"
 			DESTDIR="$TMP_DIR" meson install -C build --quiet
 
-			cp -a "$TMP_DIR"/usr/lib/lib{nss,systemd,udev}*.so* "$ROOT"/usr/lib/ 2>/dev/null || true
-			cp -a "$TMP_DIR"/usr/lib/pkgconfig "$ROOT"/usr/lib/ 2>/dev/null || true
-			cp -a "$TMP_DIR"/usr/include/* "$ROOT"/usr/include/ 2>/dev/null || true
-			cp -a "$TMP_DIR"/usr/share/man/man3/* "$ROOT"/usr/share/man/man3/ 2>/dev/null || true
-			cp -a "$TMP_DIR"/usr/share/man/man8/*nss* "$ROOT"/usr/share/man/man8/ 2>/dev/null || true
+			cp -a "$TMP_DIR"/usr/lib/lib{nss,systemd,udev}*.so* "$ROOT"/usr/lib/
+			cp -a "$TMP_DIR"/usr/lib/pkgconfig "$ROOT"/usr/lib/
+			cp -a "$TMP_DIR"/usr/include/* "$ROOT"/usr/include/
+			cp -a "$TMP_DIR"/usr/share/man/man3/* "$ROOT"/usr/share/man/man3/
+			cp -a "$TMP_DIR"/usr/share/man/man8/*nss* "$ROOT"/usr/share/man/man8/
 
 			rm -rf "$TMP_DIR"
 		]],
-			root
-		))
+			opts
+		)
 	elseif sub == "resolvconf" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT"/usr/bin "$ROOT"/usr/share/man/man1
 			ln -sf resolvectl "$ROOT"/usr/bin/resolvconf
 			ln -sf resolvectl.1.gz "$ROOT"/usr/share/man/man1/resolvconf.1.gz 2>/dev/null || ln -sf resolvectl.1 "$ROOT"/usr/share/man/man1/resolvconf.1
 		]],
-			root
-		))
+			opts
+		)
 	elseif sub == "sysvcompat" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT"/usr/bin "$ROOT"/usr/share/man/man1 "$ROOT"/usr/share/man/man8
 			ln -sf ../lib/systemd/systemd "$ROOT"/usr/bin/init
 			for tool in halt poweroff reboot shutdown; do
@@ -427,28 +498,35 @@ function package(args)
 				fi
 			done
 		]],
-			root
-		))
+			opts
+		)
 	elseif sub == "ukify" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT"/usr/bin "$ROOT"/usr/lib/systemd "$ROOT"/usr/share/man/man1 "$ROOT"/usr/lib/kernel/install.d
 
 			TMP_DIR="$(mktemp -d)"
 			DESTDIR="$TMP_DIR" meson install -C build --quiet
 
-			[ -f "$TMP_DIR"/usr/bin/ukify ] && cp -a "$TMP_DIR"/usr/bin/ukify "$ROOT"/usr/bin/
-			[ -d "$TMP_DIR"/usr/lib/systemd/ukify ] && cp -a "$TMP_DIR"/usr/lib/systemd/ukify "$ROOT"/usr/lib/systemd/
-			cp -a "$TMP_DIR"/usr/share/man/man1/ukify.1* "$ROOT"/usr/share/man/man1/ 2>/dev/null || true
-			[ -f "$TMP_DIR"/usr/lib/kernel/install.d/60-ukify.install ] && cp -a "$TMP_DIR"/usr/lib/kernel/install.d/60-ukify.install "$ROOT"/usr/lib/kernel/install.d/
+			# ukify is built unconditionally (-Dukify=enabled).
+			cp -a "$TMP_DIR"/usr/bin/ukify "$ROOT"/usr/bin/
+			cp -a "$TMP_DIR"/usr/lib/systemd/ukify "$ROOT"/usr/lib/systemd/
+			cp -a "$TMP_DIR"/usr/share/man/man1/ukify.1* "$ROOT"/usr/share/man/man1/
+			cp -a "$TMP_DIR"/usr/lib/kernel/install.d/60-ukify.install "$ROOT"/usr/lib/kernel/install.d/
 
 			rm -rf "$TMP_DIR"
 		]],
-			root
-		))
+			opts
+		)
 	end
+
+	-- Every sub-package carries the license texts (LGPL-2.1-or-later for
+	-- the libraries, GPL-2.0-or-later for udev, plus the minor licenses in
+	-- LICENSES/ such as MIT-0 and CC0-1.0).
+	local src = "systemd-" .. version
+	zlicense(src .. "/LICENSE.GPL2")
+	zlicense(src .. "/LICENSE.LGPL2.1")
+	zlicense(src .. "/LICENSES")
 end
 
 function test()

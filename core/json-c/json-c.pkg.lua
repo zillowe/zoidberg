@@ -8,7 +8,7 @@ metadata({
 	name = "json-c",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "JSON implementation in C",
 	website = "https://github.com/json-c/json-c",
@@ -50,22 +50,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "json-c-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://s3.amazonaws.com/json-c_releases/releases"; do
@@ -75,12 +67,15 @@ function prepare()
 		}
 		fetch "json-c-$VER.tar.gz"
 		echo "$SHA512  json-c-$VER.tar.gz" | sha512sum -c -
-	]])
-	sh([[tar -xf "json-c-$VER.tar.gz"]])
+	]],
+		opts
+	)
+	cmd([[tar -xf "json-c-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "json-c-$VER"
 		cmake -S . -B _build -G Ninja \
 			-DCMAKE_BUILD_TYPE=None \
@@ -90,17 +85,19 @@ function build()
 			-DENABLE_RDRAND=OFF \
 			-DENABLE_THREADING=ON
 		cmake --build _build
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "json-c-$VER"
 		DESTDIR="$ROOT" cmake --install _build
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/json-c/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	zlicense("json-c-" .. version .. "/COPYING")
 end

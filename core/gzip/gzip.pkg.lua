@@ -1,11 +1,13 @@
 local version = ZOI.VERSION or "1.15"
-local tar_url = string.format("https://ftp.gnu.org/pub/gnu/gzip/gzip-%s.tar.xz", version)
+local sha512 = "4a2ff92df8a49e1bbcbf65c3a70434660ad02f084d1b453f7dcaa8ee84f248cc4bb06f62bd8e57fea1e05ba1275c7c584ce97a58856e4ca6105f6417c8efbc3c"
+-- Release signing key (Jim Meyering), listed in the GNU keyring.
+local signing_key = "155D3FC500C834486D1EEA677FD9FCCB000BEEEE"
 
 metadata({
 	name = "gzip",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	debug = { sub_package = true },
 	description = "GNU compression utility",
 	website = "https://www.gnu.org/software/gzip/",
@@ -47,8 +49,6 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:autoconf",
-					"pacman:automake",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
@@ -66,67 +66,53 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	local tarball = "gzip-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d "gzip-%s" ]; then
-			if ! curl -sSfL "%s" -o "gzip-%s.tar.xz"; then
-				echo "Tarball download failed, falling back to git clone..."
-				git clone --depth 1 --branch "v%s" https://git.savannah.gnu.org/git/gzip.git "gzip-%s"
-				cd "gzip-%s"
-				git clone --depth 1 https://git.savannah.gnu.org/git/gnulib.git gnulib
-				export GNULIB_SRCDIR="$(pwd)/gnulib"
-				./bootstrap --gnulib-srcdir="$(pwd)/gnulib"
-				cd ..
-			else
-				tar -xf "gzip-%s.tar.xz"
-			fi
-		fi
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/gzip" \
+				"https://mirrors.kernel.org/gnu/gzip" \
+				"https://ftp.gnu.org/gnu/gzip"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "gzip-$VER.tar.xz"
+		fetch "gzip-$VER.tar.xz.sig"
+		echo "$SHA512  gzip-$VER.tar.xz" | sha512sum -c -
 	]],
-		version,
-		tar_url,
-		version,
-		version,
-		version,
-		version,
-		version
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "gzip-$VER.tar.xz"]], opts)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "gzip-%s"
-
-		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
-
+		cd "gzip-$VER"
 		./configure \
 			--prefix=/usr \
 			--disable-gcc-warnings
-
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	cmd([[make -C "gzip-$VER" DESTDIR="$ROOT" install]], opts)
 
-	cmd(string.format(
-		[[
-		set -e
-		ROOT="%s"
-		mkdir -p "$ROOT"
-
-		make -C "gzip-%s" DESTDIR="$ROOT" install
-	]],
-		root,
-		version
-	))
-
-	-- zlicense("LICENSE")
+	zlicense("gzip-" .. version .. "/COPYING")
 end
 
 function test()

@@ -4,7 +4,7 @@ metadata({
 	name = "filesystem",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	description = "Base Parlex Linux files",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "0BSD",
@@ -167,8 +167,8 @@ function package()
 		["etc/parlex-release"] = { "parlex-release", "0644", "root", "root" },
 		["usr/lib/os-release"] = { "os-release", "0644", "root", "root" },
 		["usr/lib/sysctl.d/15-parlex.conf"] = { "sysctl", "0644", "root", "root" },
-		["usr/lib/sysusers.d/parlex.conf"] = { "sysusers", "0644", "root", "root" },
-		["usr/lib/tmpfiles.d/parlex.conf"] = { "tmpfiles", "0644", "root", "root" },
+		["usr/lib/sysusers.d/parlex.conf"] = { "filesystem.sysusers", "0644", "root", "root" },
+		["usr/lib/tmpfiles.d/parlex.conf"] = { "filesystem.tmpfiles", "0644", "root", "root" },
 		["usr/lib/systemd/system-environment-generators/10-parlex"] = { "env-generator", "0755", "root", "root" },
 	}
 
@@ -205,7 +205,7 @@ function package()
 	for dest, info in pairs(files) do
 		local src, mode, user, group = info[1], info[2], info[3], info[4]
 		local final_dest = "${usrroot}/" .. dest
-		zcp("${pkgluadir}/" .. src, final_dest)
+		zcp("${pkgluadir}/files/" .. src, final_dest)
 		zchmod(final_dest, tonumber(mode, 8))
 		zchown(final_dest, user, group)
 	end
@@ -219,16 +219,33 @@ function package()
 	}
 	for _, logo in ipairs(logos) do
 		local dest = "${usrroot}/usr/share/pixmaps/" .. logo:gsub("parlexlinux", "parlex")
-		zcp("${pkgluadir}/" .. logo, dest)
+		zcp("${pkgluadir}/files/" .. logo, dest)
 		zchmod(dest, "0644")
 		zchown(dest, "root", "root")
 	end
 
-	-- zlicense("${pkgluadir}/LICENSE")
+	-- The files are written for this package (largely after Arch Linux's
+	-- filesystem package), so there is no upstream license file: ship the
+	-- 0BSD text Arch's filesystem package uses.
+	zlicense("${pkgluadir}/files/LICENSE.0BSD", "LICENSE")
 end
 
 function test()
-	cmd([[
-		test -d /etc && test -d /usr/bin || true
-	]])
+	-- zcp/zln operations are staged after package() returns, so check the
+	-- files this package ships rather than the staged root.
+	cmd(
+		[[
+		cd "$PKGLUADIR/files"
+		for f in crypttab fstab group gshadow host.conf hosts issue ld.so.conf \
+			nsswitch.conf passwd profile resolv.conf securetty shadow shells \
+			subgid subuid parlex-release os-release locale.sh sysctl \
+			filesystem.sysusers filesystem.tmpfiles env-generator; do
+			test -f "$f"
+		done
+		grep -q '^root:x:0:0:' passwd
+		grep -q '^ID=' os-release
+	]],
+		{ check = true }
+	)
+	return true
 end

@@ -1,6 +1,4 @@
 [git]
-source = "github"
-github = "git/git"
-use_max_tag = true
-include_regex = '^v[\d.]+$'
-prefix = "v"
+source = "regex"
+url = "https://www.kernel.org/pub/software/scm/git/"
+regex = 'git-(\d+\.\d+\.\d+)\.tar\.xz'

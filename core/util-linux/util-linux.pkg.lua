@@ -1,12 +1,13 @@
 local version = ZOI.VERSION or "2.42.4"
-local tag = "v" .. version
-local git_url = "https://github.com/util-linux/util-linux.git"
+local sha512 = "3aea9ebd835b353e0c73356f0e4543ba4c3ad448e4f50a386c35cfaac81cbf45425b1a6c7552ed5673580acf2b58f8af2792f5b3019ffe478edd77c7ebf444dc"
+-- Release signing key (Karel Zak), from upstream's published keys.
+local signing_key = "B0C64D14301CC6EFAEDF60E4E4B71D5EEC39C284"
 
 metadata({
 	name = "util-linux",
 	repo = "core",
 	version = version,
-	revision = "9",
+	revision = "10",
 	debug = { sub_package = true },
 	description = "Miscellaneous system utilities for Linux",
 	website = "https://github.com/util-linux/util-linux",
@@ -137,7 +138,7 @@ metadata({
 	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
-	sub_packages = { "main", "libs" },
+	sub_packages = { "main", "libs", "python" },
 	main_subs = { "main" },
 	backup = {
 		"${usrroot}/etc/pam.d/chfn",
@@ -158,12 +159,12 @@ dependencies({
 				required = {
 					"pacman:asciidoctor",
 					"pacman:bison",
+					"pacman:curl",
 					"pacman:cryptsetup",
 					"pacman:diffutils",
 					"pacman:file",
 					"pacman:flex",
 					"pacman:gcc",
-					"pacman:git",
 					"pacman:libcap-ng",
 					"pacman:libxcrypt",
 					"pacman:meson",
@@ -196,8 +197,10 @@ dependencies({
 					"zoi:@core/ncurses",
 					"zoi:@core/pam",
 					"zoi:@core/readline",
+					"zoi:@core/gcc:libgcc",
 					"zoi:@core/systemd:libs",
 					"zoi:@core/util-linux:libs",
+					"zoi:@core/zlib",
 				},
 			},
 			libs = {
@@ -206,30 +209,61 @@ dependencies({
 					"zoi:@core/sqlite",
 				},
 			},
+			-- pylibmount links libpython (meson `embed: true`). Arch ships it
+			-- in util-linux-libs with python optional; it is split out here so
+			-- libs (which python itself needs for libuuid) does not depend on
+			-- python.
+			python = {
+				required = {
+					"zoi:@core/glibc",
+					"zoi:@core/python",
+					"zoi:@core/util-linux:libs",
+				},
+			},
 		},
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		if [ ! -d util-linux ]; then
-			git clone --depth 1 --branch "%s" "%s" util-linux
-		fi
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = {
+	check = true,
+	env = { VER = version, SHA512 = sha512, SERIES = version:match("^(%d+%.%d+)") },
+}
 
-		cd util-linux
-		sed -i '/dirty=/c dirty=' tools/git-version-gen 2>/dev/null || true
+function prepare()
+	local tarball = "util-linux-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://cdn.kernel.org/pub/linux/utils/util-linux/v$SERIES" \
+				"https://www.kernel.org/pub/linux/utils/util-linux/v$SERIES" \
+				"https://mirrors.kernel.org/pub/linux/utils/util-linux/v$SERIES"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "util-linux-$VER.tar.xz"
+		fetch "util-linux-$VER.tar.sign"
+		echo "$SHA512  util-linux-$VER.tar.xz" | sha512sum -c -
 	]],
-		tag,
-		git_url
-	))
+		opts
+	)
+	-- kernel.org signs the uncompressed tar.
+	cmd([[xz -dk "util-linux-$VER.tar.xz"]], opts)
+	local tar = tarball:gsub("%.xz$", "")
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tar, tar .. ".sign", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "util-linux-$VER.tar.xz"]], opts)
 end
 
 function build()
-	cmd([[
-		set -e
-
-		meson setup util-linux build \
+	cmd(
+		[[
+		meson setup "util-linux-$VER" build \
 			--prefix=/usr \
 			--buildtype=release \
 			-Dfs-search-path=/usr/bin:/usr/local/bin \
@@ -245,21 +279,21 @@ function build()
 			-Dbuild-mesg=enabled \
 			-Dbuild-newgrp=enabled \
 			-Dbuild-vipw=disabled \
-			-Dbuild-write=enabled
+			-Dbuild-write=enabled \
+			-Dbuild-python=enabled
 
 		meson compile -C build -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package(args)
 	local sub = (args and args.sub) or "main"
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
 
 	if sub == "main" or sub == "" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT"/etc/pam.d "$ROOT"/usr/lib/{sysusers.d,udev/rules.d,systemd/system}
 
 			DESTDIR="$ROOT" meson install -C build
@@ -275,49 +309,68 @@ function package(args)
 				rmdir "$ROOT/usr/sbin"
 			fi
 
-			# Stash runtime libraries for the libs subpackage
-			mkdir -p split_libs/lib split_libs/include split_libs/man3
-			mv "$ROOT"/usr/lib/lib*.so* split_libs/lib/ 2>/dev/null || true
-			mv "$ROOT"/usr/lib/pkgconfig split_libs/lib/ 2>/dev/null || true
-			mv "$ROOT"/usr/include split_libs/ 2>/dev/null || true
-			mv "$ROOT"/usr/share/man/man3 split_libs/ 2>/dev/null || true
+			# Runtime libraries and headers go to the libs subpackage, the
+			# libmount Python bindings to the python subpackage
+			rm -rf "$ROOT"/usr/lib/lib*.so* "$ROOT"/usr/lib/pkgconfig "$ROOT"/usr/include "$ROOT"/usr/share/man/man3
+			rm -rf "$ROOT"/usr/lib/python3*
 
 			# Install PAM configurations
-			install -m644 "${PKGLUADIR}/common.pam" "$ROOT/etc/pam.d/chfn"
-			install -m644 "${PKGLUADIR}/common.pam" "$ROOT/etc/pam.d/chsh"
-			install -m644 "${PKGLUADIR}/login.pam" "$ROOT/etc/pam.d/login"
-			install -m644 "${PKGLUADIR}/remote.pam" "$ROOT/etc/pam.d/remote"
-			install -m644 "${PKGLUADIR}/runuser.pam" "$ROOT/etc/pam.d/runuser"
-			install -m644 "${PKGLUADIR}/runuser.pam" "$ROOT/etc/pam.d/runuser-l"
-			install -m644 "${PKGLUADIR}/su.pam" "$ROOT/etc/pam.d/su"
-			install -m644 "${PKGLUADIR}/su.pam" "$ROOT/etc/pam.d/su-l"
+			install -m644 "${PKGLUADIR}/files/common.pam" "$ROOT/etc/pam.d/chfn"
+			install -m644 "${PKGLUADIR}/files/common.pam" "$ROOT/etc/pam.d/chsh"
+			install -m644 "${PKGLUADIR}/files/login.pam" "$ROOT/etc/pam.d/login"
+			install -m644 "${PKGLUADIR}/files/remote.pam" "$ROOT/etc/pam.d/remote"
+			install -m644 "${PKGLUADIR}/files/runuser.pam" "$ROOT/etc/pam.d/runuser"
+			install -m644 "${PKGLUADIR}/files/runuser.pam" "$ROOT/etc/pam.d/runuser-l"
+			install -m644 "${PKGLUADIR}/files/su.pam" "$ROOT/etc/pam.d/su"
+			install -m644 "${PKGLUADIR}/files/su.pam" "$ROOT/etc/pam.d/su-l"
 
 			# System integration files
-			install -m644 "${PKGLUADIR}/util-linux.sysusers" "$ROOT/usr/lib/sysusers.d/util-linux.conf"
-			install -m644 "${PKGLUADIR}/60-rfkill.rules" "$ROOT/usr/lib/udev/rules.d/60-rfkill.rules"
-			install -m644 "${PKGLUADIR}/rfkill-unblock_.service" "$ROOT/usr/lib/systemd/system/rfkill-unblock@.service"
-			install -m644 "${PKGLUADIR}/rfkill-block_.service" "$ROOT/usr/lib/systemd/system/rfkill-block@.service"
+			install -m644 "${PKGLUADIR}/files/util-linux.sysusers" "$ROOT/usr/lib/sysusers.d/util-linux.conf"
+			install -m644 "${PKGLUADIR}/files/60-rfkill.rules" "$ROOT/usr/lib/udev/rules.d/60-rfkill.rules"
+			install -m644 "${PKGLUADIR}/files/rfkill-unblock_.service" "$ROOT/usr/lib/systemd/system/rfkill-unblock@.service"
+			install -m644 "${PKGLUADIR}/files/rfkill-block_.service" "$ROOT/usr/lib/systemd/system/rfkill-block@.service"
 		]],
-			root
-		))
+			opts
+		)
 	elseif sub == "libs" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT"/usr/lib "$ROOT"/usr/share/man
 
-			if [ -d split_libs ]; then
-				cp -a split_libs/lib/* "$ROOT"/usr/lib/ 2>/dev/null || true
-				cp -a split_libs/include "$ROOT"/usr/ 2>/dev/null || true
-				cp -a split_libs/man3 "$ROOT"/usr/share/man/ 2>/dev/null || true
+			# Install into a scratch root and keep only the libraries, so this
+			# does not depend on the main sub-package having been built first.
+			TMP_DIR="$(mktemp -d)"
+			DESTDIR="$TMP_DIR" meson install -C build --quiet
+			cp -a "$TMP_DIR"/usr/lib/lib*.so* "$ROOT"/usr/lib/
+			cp -a "$TMP_DIR"/usr/lib/pkgconfig "$ROOT"/usr/lib/
+			cp -a "$TMP_DIR"/usr/include "$ROOT"/usr/
+			if [ -d "$TMP_DIR"/usr/share/man/man3 ]; then
+				cp -a "$TMP_DIR"/usr/share/man/man3 "$ROOT"/usr/share/man/
 			fi
+			rm -rf "$TMP_DIR"
 		]],
-			root
-		))
+			opts
+		)
+	elseif sub == "python" then
+		cmd(
+			[[
+			mkdir -p "$ROOT"/usr/lib
+
+			# Install into a scratch root and keep only the libmount bindings.
+			TMP_DIR="$(mktemp -d)"
+			DESTDIR="$TMP_DIR" meson install -C build --quiet
+			cp -a "$TMP_DIR"/usr/lib/python3* "$ROOT"/usr/lib/
+			rm -rf "$TMP_DIR"
+		]],
+			opts
+		)
 	end
 
-	-- zlicense("LICENSE")
+	-- Every sub-package carries the upstream license texts.
+	local src = "util-linux-" .. version
+	zlicense(src .. "/COPYING")
+	zlicense(src .. "/README.licensing")
+	zlicense(src .. "/Documentation/licenses")
 end
 
 function test()

@@ -1,11 +1,15 @@
 local version = ZOI.VERSION or "1.0.8"
-local tar_url = string.format("https://sourceware.org/pub/bzip2/bzip2-%s.tar.gz", version)
+local sha512 =
+	"083f5e675d73f3233c7930ebe20425a533feedeaaa9d8cc86831312a6581cefbe6ed0d08d2fa89be81082f2a5abdabca8b3c080bf97218a1bd59dc118a30b9f3"
+-- Release signing key (Mark Wielaard; signed by subkey
+-- 12768A96795990107A0D2FDFFC57E3CCACD99A78), matches Arch's validpgpkeys.
+local signing_key = "EC3CFE88F6CA0788774F5C1D1AA44BE649DE760A"
 
 metadata({
 	name = "bzip2",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "A high-quality data compression program",
 	website = "https://sourceware.org/bzip2/",
@@ -48,52 +52,59 @@ dependencies({
 	},
 })
 
-function prepare()
-	cmd(string.format(
-		[[
-		if [ ! -d "bzip2-%s" ]; then
-			curl -sSL "%s" -o "bzip2-%s.tar.gz"
-			tar -xf "bzip2-%s.tar.gz"
-		fi
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
-		cd "bzip2-%s"
-		cp "${PKGLUADIR}/bzip2.pc" bzip2.pc
-		sed "s|@VERSION@|%s|" -i bzip2.pc
+function prepare()
+	local tarball = "bzip2-" .. version .. ".tar.gz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://mirrors.kernel.org/sourceware/bzip2" \
+				"https://sourceware.org/pub/bzip2"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "bzip2-$VER.tar.gz"
+		fetch "bzip2-$VER.tar.gz.sig"
+		echo "$SHA512  bzip2-$VER.tar.gz" | sha512sum -c -
 	]],
-		version,
-		tar_url,
-		version,
-		version,
-		version,
-		version
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "bzip2-$VER.tar.gz"
+		cd "bzip2-$VER"
+		cp "$PKGLUADIR/files/bzip2.pc" bzip2.pc
+		sed "s|@VERSION@|$VER|" -i bzip2.pc
+	]],
+		opts
+	)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "bzip2-%s"
+		cd "bzip2-$VER"
 
 		make -f Makefile-libbz2_so CC="gcc $CFLAGS $CPPFLAGS $LDFLAGS"
 		make bzip2 bzip2recover CC="gcc $CFLAGS $CPPFLAGS $LDFLAGS"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-	local pkgdir = LOCATION.PKGLUADIR or "."
-
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		ROOT="%s"
-		PKGLUADIR="%s"
-		mkdir -p "$ROOT"/usr/{bin,lib,include,share/man/man1,lib/pkgconfig}
+		mkdir -p "$ROOT"/usr/bin "$ROOT"/usr/lib/pkgconfig "$ROOT"/usr/include "$ROOT"/usr/share/man/man1
 
-		cd "bzip2-%s"
+		cd "bzip2-$VER"
 
 		install -m755 bzip2-shared "$ROOT"/usr/bin/bzip2
 		install -m755 bzip2recover bzdiff bzgrep bzmore "$ROOT"/usr/bin/
@@ -101,8 +112,8 @@ function package()
 		ln -sf bzip2 "$ROOT"/usr/bin/bzcat
 
 		cp -a libbz2.so* "$ROOT"/usr/lib/
-		ln -sf "libbz2.so.%s" "$ROOT"/usr/lib/libbz2.so
-		ln -sf "libbz2.so.%s" "$ROOT"/usr/lib/libbz2.so.1
+		ln -sf "libbz2.so.$VER" "$ROOT"/usr/lib/libbz2.so
+		ln -sf "libbz2.so.$VER" "$ROOT"/usr/lib/libbz2.so.1
 
 		install -m644 bzlib.h "$ROOT"/usr/include/
 
@@ -111,17 +122,12 @@ function package()
 		ln -sf bzip2.1 "$ROOT"/usr/share/man/man1/bzcat.1
 		ln -sf bzip2.1 "$ROOT"/usr/share/man/man1/bzip2recover.1
 
-		sed "s|@VERSION@|%s|" "$PKGLUADIR/bzip2.pc" > "$ROOT"/usr/lib/pkgconfig/bzip2.pc
+		sed "s|@VERSION@|$VER|" "$PKGLUADIR/files/bzip2.pc" > "$ROOT"/usr/lib/pkgconfig/bzip2.pc
 	]],
-		root,
-		pkgdir,
-		version,
-		version,
-		version,
-		version
-	))
+		opts
+	)
 
-	-- zlicense("LICENSE")
+	zlicense("bzip2-" .. version .. "/LICENSE")
 end
 
 function test()

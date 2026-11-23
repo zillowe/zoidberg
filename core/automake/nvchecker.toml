@@ -1,4 +1,4 @@
 [automake]
-source = "git"
-git = "https://git.savannah.gnu.org/git/automake.git"
-prefix = "v"
+source = "regex"
+url = "https://ftp.gnu.org/gnu/automake/"
+regex = 'automake-([\d.]+)\.tar\.xz'

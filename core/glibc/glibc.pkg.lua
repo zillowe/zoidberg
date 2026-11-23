@@ -1,12 +1,15 @@
-local version = ZOI.VERSION or "2.44+r50+g1848099f063e"
-local commit = "1848099f063e99d4ffecbd7667766d54862398b9"
-local git_url = "https://forge.sourceware.org/glibc/glibc-mirror"
+local version = ZOI.VERSION or "2.44"
+local sha512 = "963dc0275f7738653379909b64ee32e28f13cca77440f2cf9bd0ab82cb183f6cd1f7376d25cc5442de69b972713bd81bf0e38dbcca9b2a4d6649843e76fd50a5"
+-- Release signing key (Andreas K. Huettel, glibc release manager), from
+-- upstream's published location https://www.akhuettel.de/key-atwork.txt (the
+-- key Gentoo's sec-keys/openpgp-keys-glibc verifies releases with).
+local signing_key = "35B17DF5752577CA0C541CEB94BFDF4484AD142F"
 
 metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "1",
 	-- The dynamic loader, libc and libthread_db keep their symbols and debug
 	-- info: valgrind needs the loader's symbols and gdb needs libthread_db's
 	-- to debug threads.
@@ -66,8 +69,7 @@ dependencies({
 		types = {
 			source = {
 				required = {
-					"pacman:gd",
-					"pacman:git",
+					"pacman:curl",
 					"pacman:python",
 					"pacman:gcc",
 					"pacman:make",
@@ -103,26 +105,53 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	local tarball = "glibc-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d glibc ]; then
-			git clone %s glibc
-			cd glibc
-			git checkout %s
-			cd ..
-		fi
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/glibc" \
+				"https://mirrors.kernel.org/gnu/glibc" \
+				"https://ftp.gnu.org/gnu/glibc"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "glibc-$VER.tar.xz"
+		fetch "glibc-$VER.tar.xz.sig"
+		echo "$SHA512  glibc-$VER.tar.xz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd(
+		[[
+		tar -xf "glibc-$VER.tar.xz"
+		cd "glibc-$VER"
+		# Fixes from the release/2.44/master branch made after the release
+		patch -Np1 -i "$PKGLUADIR/patches/0001-backports-from-release-2.44-master.patch"
+		# The patch updates these configure scripts together with their
+		# configure.ac; keep the scripts newer so make never reruns autoconf.
+		touch sysdeps/ieee754/ldbl-opt/configure \
+			sysdeps/unix/sysv/linux/powerpc/configure
+		cd ..
 		mkdir -p glibc-build lib32-glibc-build locales
 	]],
-		git_url,
-		commit
-	))
+		opts
+	)
 end
 
 function build()
-	cmd([[
-		set -e
-
+	cmd(
+		[[
 		_configure_flags=(
 			--prefix=/usr
 			--with-headers=/usr/include
@@ -136,6 +165,8 @@ function build()
 			--disable-nscd
 			--disable-profile
 			--disable-werror
+			# memusagestat would link libgd/libpng, which ZoiOS does not ship.
+			--without-gd
 		)
 
 		CFLAGS="${CFLAGS/-Wp,-D_FORTIFY_SOURCE=3/}"
@@ -147,7 +178,7 @@ function build()
 		echo "sbindir=/usr/bin" >> configparms
 		echo "rootsbindir=/usr/bin" >> configparms
 
-		../glibc/configure \
+		../glibc-$VER/configure \
 			--libdir=/usr/lib \
 			--libexecdir=/usr/lib \
 			--enable-cet \
@@ -170,7 +201,7 @@ function build()
 			echo "sbindir=/usr/bin" >> configparms
 			echo "rootsbindir=/usr/bin" >> configparms
 
-			../glibc/configure \
+			../glibc-$VER/configure \
 				--host=i686-pc-linux-gnu \
 				--libdir=/usr/lib32 \
 				--libexecdir=/usr/lib32 \
@@ -181,22 +212,19 @@ function build()
 		fi
 
 		# Pregenerate locales
-		make -C glibc/localedata objdir="$(pwd)/glibc-build" \
+		make -C "glibc-$VER/localedata" objdir="$(pwd)/glibc-build" \
 			DESTDIR="$(pwd)/locales" install-locale-files
-	]])
+	]],
+		opts
+	)
 end
 
 function package(args)
 	local sub = (args and args.sub) or "main"
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
-	local pkgdir = LOCATION.PKGLUADIR or "."
 
 	if sub == "main" or sub == "" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
-			PKGLUADIR="%s"
 			mkdir -p "$ROOT"
 
 			make -C glibc-build DESTDIR="$ROOT" install
@@ -208,28 +236,28 @@ function package(args)
 			mkdir -p "$ROOT/usr/lib/locale" "$ROOT/etc/tunables.conf.d" "$ROOT/usr/share/i18n" "$ROOT/usr/include/sys"
 
 			# Gai configuration
-			install -m644 glibc/posix/gai.conf "$ROOT/etc/gai.conf"
+			install -m644 "glibc-$VER/posix/gai.conf" "$ROOT/etc/gai.conf"
 
 			# locale-gen utility and locale.gen definition
-			install -m755 "${PKGLUADIR}/locale-gen" "$ROOT/usr/bin/locale-gen"
-			install -m644 "${PKGLUADIR}/locale.gen.txt" "$ROOT/etc/locale.gen"
+			install -m755 "${PKGLUADIR}/files/locale-gen" "$ROOT/usr/bin/locale-gen"
+			install -m644 "${PKGLUADIR}/files/locale.gen.txt" "$ROOT/etc/locale.gen"
 			sed -e '1,3d' -e 's|/| |g' -e 's|\\| |g' -e 's|^|#|g' \
-				glibc/localedata/SUPPORTED >> "$ROOT/etc/locale.gen"
+				"glibc-$VER/localedata/SUPPORTED" >> "$ROOT/etc/locale.gen"
 
 			sed -e '1,3d' -e 's|/| |g' -e 's| \\||g' \
-				glibc/localedata/SUPPORTED > "$ROOT/usr/share/i18n/SUPPORTED"
+				"glibc-$VER/localedata/SUPPORTED" > "$ROOT/usr/share/i18n/SUPPORTED"
 
 			# Always include C.utf8
 			cp -r locales/usr/lib/locale/C.utf8 "$ROOT/usr/lib/locale/C.utf8"
 			sed -i '/#C\.UTF-8 /d' "$ROOT/etc/locale.gen"
 
 			# SDT tracing headers
-			install -m644 "${PKGLUADIR}/sdt.h" "$ROOT/usr/include/sys/sdt.h"
-			install -m644 "${PKGLUADIR}/sdt-config.h" "$ROOT/usr/include/sys/sdt-config.h"
+			install -m644 "${PKGLUADIR}/files/sdt.h" "$ROOT/usr/include/sys/sdt.h"
+			install -m644 "${PKGLUADIR}/files/sdt-config.h" "$ROOT/usr/include/sys/sdt-config.h"
 
 			# Tunables
-			install -m644 "${PKGLUADIR}/tunables.conf" "$ROOT/etc/tunables.conf"
-			install -m644 "${PKGLUADIR}/shstk.conf" "$ROOT/etc/tunables.conf.d/shstk.conf"
+			install -m644 "${PKGLUADIR}/files/tunables.conf" "$ROOT/etc/tunables.conf"
+			install -m644 "${PKGLUADIR}/files/shstk.conf" "$ROOT/etc/tunables.conf.d/shstk.conf"
 
 			# No lib64/ here: @core/filesystem makes /lib64 a symlink to usr/lib,
 			# so /lib64/ld-linux-x86-64.so.2 already resolves to the real loader.
@@ -237,9 +265,8 @@ function package(args)
 			# symlink through /lib64 onto the loader itself, breaking every
 			# program in the system.
 		]],
-			root,
-			pkgdir
-		))
+			opts
+		)
 
 		zcp("${pkgluadir}/hooks/locale-gen.hook.yaml", "${pkgstore}/hooks/glibc-locale-gen.hook.yaml")
 		zcp(
@@ -257,13 +284,9 @@ function package(args)
 			"${pkgstore}/hooks/glibc-remove-iconvconfig-cache.hook.yaml"
 		)
 
-		-- zlicense("LICENSE")
 	elseif sub == "lib32" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
-			PKGLUADIR="%s"
 			mkdir -p "$ROOT"
 
 			if [ -d lib32-glibc-build ]; then
@@ -277,16 +300,15 @@ function package(args)
 				# 32-bit dynamic linker symlink
 				mkdir -p "$ROOT/usr/lib" "$ROOT/etc/ld.so.conf.d"
 				ln -sf ../lib32/ld-linux.so.2 "$ROOT/usr/lib/ld-linux.so.2"
-				install -m644 "${PKGLUADIR}/lib32-glibc.conf" "$ROOT/etc/ld.so.conf.d/lib32-glibc.conf"
+				install -m644 "${PKGLUADIR}/files/lib32-glibc.conf" "$ROOT/etc/ld.so.conf.d/lib32-glibc.conf"
 
 				# Locale symlink to /usr/lib/locale
 				mkdir -p "$ROOT/usr/lib32"
 				ln -sf ../lib/locale "$ROOT/usr/lib32/locale"
 			fi
 		]],
-			root,
-			pkgdir
-		))
+			opts
+		)
 
 		zcp("${pkgluadir}/hooks/lib32-iconvconfig.hook.yaml", "${pkgstore}/hooks/lib32-glibc-iconvconfig.hook.yaml")
 		zcp(
@@ -294,10 +316,8 @@ function package(args)
 			"${pkgstore}/hooks/lib32-glibc-remove-iconvconfig-cache.hook.yaml"
 		)
 	elseif sub == "locales" then
-		cmd(string.format(
+		cmd(
 			[[
-			set -e
-			ROOT="%s"
 			mkdir -p "$ROOT/usr/lib/locale"
 
 			if [ -d locales/usr/lib/locale ]; then
@@ -305,10 +325,18 @@ function package(args)
 				rm -rf "$ROOT/usr/lib/locale/C.utf8"
 			fi
 		]],
-			root,
-			pkgdir
-		))
+			opts
+		)
 	end
+
+	-- Every sub-package gets its own copy (sub-packages never share files).
+	-- LICENSES holds the notices for the parts under other licenses.
+	local src = "glibc-" .. version
+	zlicense(src .. "/COPYINGv2")
+	zlicense(src .. "/COPYINGv3")
+	zlicense(src .. "/COPYING.LIB")
+	zlicense(src .. "/COPYING.LESSERv2")
+	zlicense(src .. "/LICENSES")
 end
 
 function test()

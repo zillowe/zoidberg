@@ -1,11 +1,13 @@
 local version = ZOI.VERSION or "4.10"
-local tar_url = string.format("https://ftp.gnu.org/gnu/sed/sed-%s.tar.gz", version)
+local sha512 = "20224df834b363ca1357024234bb93df3929c252c40c7ef3d23e78fc05177c7986e3145a5049d63db746a4dc2c97befb0324a87ea081507292ff6cd5383ee9db"
+-- Release signing key (Jim Meyering), listed in the GNU keyring.
+local signing_key = "155D3FC500C834486D1EEA677FD9FCCB000BEEEE"
 
 metadata({
 	name = "sed",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	debug = { sub_package = true },
 	description = "GNU stream editor",
 	website = "https://www.gnu.org/software/sed/",
@@ -34,12 +36,9 @@ dependencies({
 				required = {
 					"pacman:acl",
 					"pacman:attr",
-					"pacman:autoconf",
-					"pacman:automake",
 					"pacman:curl",
 					"pacman:diffutils",
 					"pacman:gcc",
-					"pacman:gettext",
 					"pacman:make",
 					"pacman:tar",
 					"pacman:xz",
@@ -56,66 +55,52 @@ dependencies({
 	},
 })
 
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
+
 function prepare()
-	cmd(string.format(
+	local tarball = "sed-" .. version .. ".tar.xz"
+	cmd(
 		[[
-		if [ ! -d "sed-%s" ]; then
-			if ! curl -sSfL "%s" -o "sed-%s.tar.gz"; then
-				echo "Tarball download failed, falling back to git clone..."
-				git clone --depth 1 --branch "v%s" https://git.savannah.gnu.org/git/sed.git "sed-%s"
-				cd "sed-%s"
-				git clone --depth 1 https://git.savannah.gnu.org/git/gnulib.git gnulib
-				export GNULIB_SRCDIR="$(pwd)/gnulib"
-				./bootstrap --skip-po --gnulib-srcdir="$(pwd)/gnulib"
-				cd ..
-			else
-				tar -xf "sed-%s.tar.gz"
-			fi
-		fi
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/sed" \
+				"https://mirrors.kernel.org/gnu/sed" \
+				"https://ftp.gnu.org/gnu/sed"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "sed-$VER.tar.xz"
+		fetch "sed-$VER.tar.xz.sig"
+		echo "$SHA512  sed-$VER.tar.xz" | sha512sum -c -
 	]],
-		version,
-		tar_url,
-		version,
-		version,
-		version,
-		version,
-		version
-	))
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "sed-$VER.tar.xz"]], opts)
 end
 
 function build()
-	cmd(string.format(
+	cmd(
 		[[
-		set -e
-		cd "sed-%s"
-
-		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
-
+		cd "sed-$VER"
 		./configure \
 			--prefix=/usr
-
 		make -j"$(nproc)"
 	]],
-		version
-	))
+		opts
+	)
 end
 
 function package()
-	local root = LOCATION.ROOT or (STAGING_DIR .. "/usrroot")
+	cmd([[make -C "sed-$VER" DESTDIR="$ROOT" install]], opts)
 
-	cmd(string.format(
-		[[
-		set -e
-		ROOT="%s"
-		mkdir -p "$ROOT"
-
-		make -C "sed-%s" DESTDIR="$ROOT" install
-	]],
-		root,
-		version
-	))
-
-	-- zlicense("LICENSE")
+	zlicense("sed-" .. version .. "/COPYING")
 end
 
 function test()

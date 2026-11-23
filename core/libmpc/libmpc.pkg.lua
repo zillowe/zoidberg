@@ -1,10 +1,13 @@
 local version = ZOI.VERSION or "1.4.1"
+local sha512 = "cdfbe64e80e30df64dbd536e8104a6bb10471582415d5b45a1dd30eb2a312781b38389a9531243413c14e0f88866a35159b20e77900718f28c1030253a1305b9"
+-- Release signing key (Andreas Enge), as listed on multiprecision.org.
+local signing_key = "AD17A21EF8AED8F1CC02DBD9F7D5C9BF765C61E3"
 
 metadata({
 	name = "libmpc",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	debug = { sub_package = true },
 	description = "Library for the arithmetic of complex numbers with arbitrarily high precision",
 	website = "https://www.multiprecision.org/",
@@ -50,42 +53,57 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	sh([[
-		if [ ! -d "mpc-$VER" ]; then
-			curl -sSfL "https://ftp.gnu.org/gnu/mpc/mpc-$VER.tar.xz" -o "mpc-$VER.tar.xz"
-			echo "91204cd32f164bd3b7c992d4a6a8ce6519511aadab30f78b6982d0bf8d73e931  mpc-$VER.tar.xz" | sha256sum -c -
-			tar -xf "mpc-$VER.tar.xz"
-		fi
-	]])
+	local tarball = "mpc-" .. version .. ".tar.xz"
+	cmd(
+		[[
+		fetch() {
+			for base in \
+				"https://ftpmirror.gnu.org/gnu/mpc" \
+				"https://mirrors.kernel.org/gnu/mpc" \
+				"https://ftp.gnu.org/gnu/mpc"; do
+				curl -sSfL --retry 3 --retry-all-errors "$base/$1" -o "$1" && return 0
+			done
+			return 1
+		}
+		fetch "mpc-$VER.tar.xz"
+		fetch "mpc-$VER.tar.xz.sig"
+		echo "$SHA512  mpc-$VER.tar.xz" | sha512sum -c -
+	]],
+		opts
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".sig", key) then
+		error("bad upstream signature on " .. tarball)
+	end
+	cmd([[tar -xf "mpc-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "mpc-$VER"
 		./configure --prefix=/usr
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		make -C "mpc-$VER" DESTDIR="$ROOT" install
 		mv "$ROOT/usr/share/info/mpc.info" "$ROOT/usr/share/info/libmpc.info"
-	]])
+	]],
+		opts
+	)
+
+	zlicense("mpc-" .. version .. "/COPYING.LESSER")
 end
 
 function test()

@@ -4,7 +4,7 @@ metadata({
 	name = "git-cliff",
 	repo = "extra",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "A highly customizable changelog generator",
 	git = "https://github.com/orhun/git-cliff",
 	website = "https://git-cliff.org",
@@ -61,6 +61,7 @@ function package()
 
 	zdoc("source/README.md")
 	zlicense("source/LICENSE-MIT")
+	zlicense("source/LICENSE-APACHE")
 
 	zshell("source/completions/git-cliff.bash", "bash")
 	zshell("source/completions/git-cliff.fish", "fish")

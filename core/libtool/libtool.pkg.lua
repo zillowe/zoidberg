@@ -1,11 +1,14 @@
 -- NOTE: libtool must be rebuilt (revision bump) with each new GCC version.
 local version = ZOI.VERSION or "2.6.2"
+local sha512 = "7517648aaa704a87a35ce23c47dd6415c1ac81056aadb076960cd93c0ee31c431ab95aa85a4cc1eaaee1dcf860a90898fb6514f0bb4aa70b940757c8301260cf"
+-- Release signing key (Ileana Dumitrescu), from upstream's keyring.
+local signing_key = "FA26CA784BE188927F22B99F6570EA01146F7354"
 
 metadata({
 	name = "libtool",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "A generic library support script",
 	website = "https://www.gnu.org/software/libtool",
@@ -52,26 +55,14 @@ dependencies({
 	},
 })
 
-local sha512 = "7517648aaa704a87a35ce23c47dd6415c1ac81056aadb076960cd93c0ee31c431ab95aa85a4cc1eaaee1dcf860a90898fb6514f0bb4aa70b940757c8301260cf"
--- Release signing key (Ileana Dumitrescu), from upstream's keyring.
-local signing_key = "FA26CA784BE188927F22B99F6570EA01146F7354"
-
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "libtool-" .. version .. ".tar.xz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://ftpmirror.gnu.org/gnu/libtool" \
@@ -84,29 +75,40 @@ function prepare()
 		fetch "libtool-$VER.tar.xz"
 		fetch "libtool-$VER.tar.xz.sig"
 		echo "$SHA512  libtool-$VER.tar.xz" | sha512sum -c -
-	]])
+	]],
+		opts
+	)
 	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
 	if not verifySignature(tarball, tarball .. ".sig", key) then
 		error("bad upstream signature on " .. tarball)
 	end
-	sh([[tar -xf "libtool-$VER.tar.xz"]])
+	cmd([[tar -xf "libtool-$VER.tar.xz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "libtool-$VER"
 		./configure \
 			--prefix=/usr \
 			lt_cv_sys_lib_dlsearch_path_spec="/usr/lib /usr/lib32"
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		make -C "libtool-$VER" DESTDIR="$ROOT" install
-	]])
+	]],
+		opts
+	)
+
+	zlicense("libtool-" .. version .. "/COPYING")
+	-- libltdl is LGPL-2.1-or-later.
+	zlicense("libtool-" .. version .. "/libltdl/COPYING.LIB")
 end
 
 function test()

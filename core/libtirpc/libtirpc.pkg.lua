@@ -7,7 +7,7 @@ metadata({
 	name = "libtirpc",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Transport-independent RPC library",
 	website = "https://sourceforge.net/projects/libtirpc/",
@@ -26,6 +26,9 @@ metadata({
 	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
+	backup = {
+		"${usrroot}/etc/netconfig",
+	},
 })
 
 dependencies({
@@ -36,6 +39,7 @@ dependencies({
 					"pacman:base-devel",
 					"pacman:curl",
 					"pacman:gcc",
+					"pacman:krb5",
 					"pacman:make",
 				},
 			},
@@ -44,26 +48,19 @@ dependencies({
 	runtime = {
 		required = {
 			"zoi:@core/glibc",
+			"zoi:@core/krb5",
 		},
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "libtirpc-" .. version .. ".tar.bz2"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://downloads.sourceforge.net/sourceforge/libtirpc"; do
@@ -73,26 +70,32 @@ function prepare()
 		}
 		fetch "libtirpc-$VER.tar.bz2"
 		echo "$SHA512  libtirpc-$VER.tar.bz2" | sha512sum -c -
-	]])
-	sh([[tar -xf "libtirpc-$VER.tar.bz2"]])
+	]],
+		opts
+	)
+	cmd([[tar -xf "libtirpc-$VER.tar.bz2"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "libtirpc-$VER"
-		./configure --prefix=/usr --sysconfdir=/etc --disable-static --disable-gssapi
+		# GSSAPI (RPCSEC_GSS) support via krb5, as in Arch
+		./configure --prefix=/usr --sysconfdir=/etc --disable-static --enable-gssapi
+		sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 		make -j"$(nproc)"
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "libtirpc-$VER"
 		make DESTDIR="$ROOT" install
-		for f in COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/libtirpc/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+	zlicense("libtirpc-" .. version .. "/COPYING")
 end

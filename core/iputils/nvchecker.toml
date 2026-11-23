@@ -1,3 +1,4 @@
 [iputils]
 source = "git"
 git = "https://github.com/iputils/iputils.git"
+include_regex = '^\d{8}$'

@@ -7,7 +7,7 @@ metadata({
 	name = "lz4",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Extremely fast compression algorithm",
 	website = "https://lz4.org",
@@ -50,22 +50,14 @@ dependencies({
 	},
 })
 
--- Runs a script in a subshell with `set -e` and fails the build on error.
-local function sh(script)
-	local loc = LOCATION or {}
-	local root = loc.ROOT or (STAGING_DIR and (STAGING_DIR .. "/usrroot")) or ""
-	local env = "VER='" .. version .. "'\n"
-		.. "SHA512='" .. sha512 .. "'\n"
-		.. "ROOT='" .. root .. "'\n"
-	local _, stderr, code = cmd("(\nset -e\n" .. env .. script .. "\n)")
-	if code ~= 0 then
-		error("command failed with exit code " .. tostring(code) .. "\n" .. (stderr or ""))
-	end
-end
+-- Every shell step runs checked (`set -e`, a failure stops the build) with
+-- these variables. `$ROOT` (the staged system root) is always set by cmd().
+local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
 	local tarball = "lz4-" .. version .. ".tar.gz"
-	sh([[
+	cmd(
+		[[
 		fetch() {
 			for base in \
 				"https://github.com/lz4/lz4/releases/download/v$VER"; do
@@ -75,12 +67,15 @@ function prepare()
 		}
 		fetch "lz4-$VER.tar.gz"
 		echo "$SHA512  lz4-$VER.tar.gz" | sha512sum -c -
-	]])
-	sh([[tar -xf "lz4-$VER.tar.gz"]])
+	]],
+		opts
+	)
+	cmd([[tar -xf "lz4-$VER.tar.gz"]], opts)
 end
 
 function build()
-	sh([[
+	cmd(
+		[[
 		cd "lz4-$VER"
 		meson setup _build build/meson \
 			--prefix=/usr \
@@ -88,17 +83,24 @@ function build()
 			-Ddefault_library=shared \
 			-Dprograms=true
 		meson compile -C _build
-	]])
+	]],
+		opts
+	)
 end
 
 function package()
-	sh([[
-		mkdir -p "$ROOT"
+	cmd(
+		[[
 		cd "lz4-$VER"
 		meson install -C _build --destdir "$ROOT"
-		for f in LICENSE lib/LICENSE programs/COPYING; do
-			[ -f "$f" ] && install -Dm644 "$f" "$ROOT/usr/share/licenses/lz4/$(basename "$f")"
-		done
-		true
-	]])
+	]],
+		opts
+	)
+
+	-- lib/ (BSD-2-Clause) and programs/ (GPL-2.0) carry their own licenses;
+	-- suffix the directory so they don't collide.
+	local src = "lz4-" .. version
+	zlicense(src .. "/LICENSE")
+	zlicense(src .. "/lib/LICENSE", "LICENSE.lib")
+	zlicense(src .. "/programs/COPYING", "COPYING.programs")
 end
