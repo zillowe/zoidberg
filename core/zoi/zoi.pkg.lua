@@ -1,80 +1,18 @@
-local version = "1.29.15"
-local tag = "Prod-Release-" .. version
-local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/" .. tag .. "/downloads"
--- Zillowe release signing key (79590A44041642E9), as published at
+local version = ZOI.VERSION or "1.29.16"
+local sha512 = "SHA512_OF_THE_RELEASE_SOURCE_TARBALL"
+local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/Prod-Release-" .. version .. "/downloads"
+-- Zillowe release signing key, as published at
 -- https://zillowe.pages.dev/keys/zillowe-main.asc.
-local function public_key()
-	return LOCATION.PKGLUADIR .. "/keys/pgp/B2DF6A70FAEBAF2F43D9D68B79590A44041642E9.asc"
-end
+local signing_key = "B2DF6A70FAEBAF2F43D9D68B79590A44041642E9"
 
-local function platform()
-	local os, arch = SYSTEM.OS, SYSTEM.ARCH
-	if arch == "386" then
-		error("zoi has no pre-built 32-bit x86 artifact; the release pipeline " .. "builds amd64 and arm64 only")
-	end
-
-	return os, arch
-end
-
-local function archive_name()
-	local os, arch = platform()
-	return "zoi-" .. os .. "-" .. arch .. (os == "windows" and ".zip" or ".tar.zst")
-end
-
-local function binary_name()
-	return SYSTEM.OS == "windows" and "zoi.exe" or "zoi"
-end
-
-local function published_sha512(name)
-	local out, _, _ = cmd("cat checksums.txt")
-	if not out or out == "" then
-		return nil
-	end
-
-	for line in out:gmatch("[^\r\n]+") do
-		local hash, entry = line:match("^(%x+)%s+%.?/(.+)$")
-		if hash and entry == name then
-			return hash
-		end
-	end
-
-	return nil
-end
-
-local function fetch_verified()
-	local archive = archive_name()
-
-	UTILS.DOWNLOAD(release .. "/checksums.txt", "checksums.txt")
-
-	local sha = published_sha512(archive)
-	if not sha then
-		error(
-			"release "
-				.. tag
-				.. " publishes no sha512 for "
-				.. archive
-				.. "; either the artifact is missing or the manifest is "
-				.. "malformed"
-		)
-	end
-
-	UTILS.DOWNLOAD(release .. "/" .. archive, archive, "sha512-" .. sha)
-	UTILS.DOWNLOAD(release .. "/" .. archive .. ".asc", archive .. ".asc")
-
-	if not verifySignature(archive, archive .. ".asc", public_key()) then
-		error(
-			"the signature on " .. archive .. " is not valid for the Zillowe " .. "release key; refusing to install it"
-		)
-	end
-
-	return archive
-end
+local build_env = IMPORT("env.toml") or {}
 
 metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
 	revision = "1",
+	debug = { sub_package = true },
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zoi.git",
@@ -90,7 +28,9 @@ metadata({
 		email = "contact@zillowe.qzz.io",
 	},
 	bins = { "zoi" },
-	types = { "pre-compiled" },
+	types = { "source" },
+	sub_packages = { "main", "zoid" },
+	main_subs = { "main" },
 	scope = "system",
 	scopes = { "system" },
 	zoios = true,
@@ -99,61 +39,105 @@ metadata({
 })
 
 dependencies({
-	runtime = {
-		required = {
-			"zoi:@core/git",
-			"zoi:@core/openssl",
+	build = {
+		types = {
+			source = {
+				required = {
+					"pacman:asciidoctor",
+					"pacman:base-devel",
+					"pacman:clang",
+					"pacman:curl",
+					"pacman:just",
+					"pacman:perl",
+					"pacman:pkgconf",
+					"pacman:rust",
+				},
+			},
 		},
-		optional = {
-			"zoi:@core/bubblewrap:for building pure packages and running isolated apps",
+	},
+	runtime = {
+		sub_packages = {
+			main = {
+				required = {
+					"zoi:@core/gcc:libgcc",
+					"zoi:@core/git",
+					"zoi:@core/glibc",
+				},
+				optional = {
+					"zoi:@core/bubblewrap:for building pure packages and running isolated apps",
+				},
+			},
+			zoid = {
+				required = {
+					"zoi:@core/zoi:main",
+				},
+			},
 		},
 	},
 })
 
 function prepare()
-	local archive = fetch_verified()
-	local build_dir = BUILD_DIR or (LOCATION and LOCATION.BUILDDIR) or "."
-	UTILS.EXTRACT(build_dir .. "/" .. archive, "source")
-
-	UTILS.DOWNLOAD(release .. "/zoi.1", "zoi.1")
-	UTILS.DOWNLOAD(release .. "/zoi-rs.3", "zoi-rs.3")
-	UTILS.DOWNLOAD(release .. "/zoi-lua.5", "zoi-lua.5")
-
-	UTILS.DOWNLOAD(release .. "/LICENSE", "LICENSE")
+	local tarball = "zoi-" .. version .. ".tar.gz"
+	cmd(
+		[[
+		curl -sSfL --retry 3 --retry-all-errors "$RELEASE/$TARBALL" -o "$TARBALL"
+		curl -sSfL --retry 3 --retry-all-errors "$RELEASE/$TARBALL.asc" -o "$TARBALL.asc"
+		echo "$SHA512  $TARBALL" | sha512sum -c -
+	]],
+		{ check = true, env = { RELEASE = release, TARBALL = tarball, SHA512 = sha512 } }
+	)
+	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
+	if not verifySignature(tarball, tarball .. ".asc", key) then
+		error("bad release signature on " .. tarball)
+	end
+	cmd([[tar -xf "$TARBALL"]], { check = true, env = { TARBALL = tarball } })
 end
 
-function package()
-	local bin = "source/" .. binary_name()
+function build()
+	local env = { VER = version }
+	for name, value in pairs(build_env) do
+		env[name] = value
+	end
+	cmd(
+		[[
+		cd "zoi-$VER"
+		./configure --prefix=/usr --with-bin=all
+		just build
+		just man
+		just completions
+	]],
+		{ check = true, env = env }
+	)
+end
 
-	if ZOI.scope == "system" then
-		zcp(bin, "${usrroot}/usr/bin/zoi")
-	else
-		zcp(bin, "${pkgstore}/bin/zoi")
+function package(args)
+	local src = "zoi-" .. version
+	if args.sub == "zoid" then
+		zcp(src .. "/target/release/zoid", "${usrroot}/usr/bin/zoid")
+		zcp(src .. "/crates/daemon/zoid.service", "${usrroot}/usr/lib/systemd/system/zoid.service")
+		-- Restarts a running zoid after an update so the new daemon is loaded
+		zcp("${pkgluadir}/hooks/zoid-restart.hook.yaml", "${pkgstore}/hooks/zoid-restart.hook.yaml")
+		zman(src .. "/dist/man/zoid.8")
+		zlicense(src .. "/LICENSE")
+		return
 	end
 
-	cmd(bin .. " generate-completions bash > zoi.bash")
-	cmd(bin .. " generate-completions zsh > _zoi")
-	cmd(bin .. " generate-completions fish > zoi.fish")
+	local bin = src .. "/target/release/zoi"
+	zcp(bin, "${usrroot}/usr/bin/zoi")
 
-	zshell("zoi.bash", "bash")
-	zshell("_zoi", "zsh")
-	zshell("zoi.fish", "fish")
+	local completions = src .. "/dist/completions/"
+	zshell(completions .. "zoi.bash", "bash")
+	zshell(completions .. "_zoi", "zsh")
+	zshell(completions .. "zoi.fish", "fish")
+	zshell(completions .. "zoi.elv", "elvish")
 
-	zman("zoi.1")
-	zman("zoi-rs.3")
-	zman("zoi-lua.5")
-
-	zlicense("LICENSE")
+	zman(src .. "/dist/man/zoi.1")
+	zman(src .. "/dist/man/zoi-rs.3")
+	zman(src .. "/dist/man/zoi-lua.5")
+	zlicense(src .. "/LICENSE")
 end
 
 function test()
-	local bin = LOCATION.STAGINGDIR .. "/data/pkgstore/bin/zoi"
-	if ZOI.scope == "system" then
-		bin = LOCATION.STAGINGDIR .. "/data/usrroot/usr/bin/zoi"
-	end
-
-	local _, _, code = cmd(bin .. " --version")
+	local _, _, code = cmd("/usr/bin/zoi --version")
 	return code == 0
 end
-
-function uninstall() end

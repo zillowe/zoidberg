@@ -4,7 +4,7 @@ metadata({
 	name = "parlex",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "4",
 	description = "Package set for a bootable Parlex Linux installation",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
@@ -42,7 +42,7 @@ dependencies({
 			-- Privilege escalation
 			"zoi:@core/sudo",
 			-- Zoi daemon
-			"zoi:@core/zoid",
+			"zoi:@core/zoi:zoid",
 		},
 	},
 })

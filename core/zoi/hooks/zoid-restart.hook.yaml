@@ -2,7 +2,6 @@ name: zoid-restart
 description: Restarting zoid to load the updated daemon...
 platforms: ["linux"]
 trigger:
-  packages: ["zoid"]
   paths:
     - "${usrroot}/usr/bin/zoid"
     - "${usrroot}/usr/lib/systemd/system/zoid.service"
