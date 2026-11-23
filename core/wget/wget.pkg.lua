@@ -42,6 +42,7 @@ dependencies({
 			source = {
 				required = {
 					"pacman:curl",
+					"pacman:texinfo",
 					"pacman:gcc",
 					"pacman:gnutls",
 					"pacman:libidn2",

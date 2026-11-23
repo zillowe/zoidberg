@@ -174,7 +174,7 @@ generate-child:
             "    - $TAG" \
             "  variables:" \
             "    PKG_FILE: \"$PKG_FILE\"" \
-            "    TARGET: \"$TARGET\"" \
+            "    ZOI_BUILD_PLATFORM: \"$TARGET\"" \
             "    PKG_VERSION: \"$PKG_VERSION\"" \
             "  before_script:" \
             "    - |" \
@@ -191,19 +191,19 @@ generate-child:
             '      mkdir -p built_packages' \
             '      GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")' \
             '      SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"' \
-            '      echo "Building $PKG_FILE for $TARGET..."' \
-            '      zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages $SIGN_ARG' \
+            '      echo "Building $PKG_FILE for $ZOI_BUILD_PLATFORM..."' \
+            '      zoi package build "$PKG_FILE" --install-deps --platform "$ZOI_BUILD_PLATFORM" --method native -o built_packages $SIGN_ARG' \
             '      echo "Bundling .zsa for $PKG_FILE..."' \
             '      zoi package bundle "$PKG_FILE" -o built_packages' \
             '      PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)' \
             '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
             '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
             '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
-            '      echo "Generating .zdelta for $PKG_FILE ($TARGET)..."' \
+            '      echo "Generating .zdelta for $PKG_FILE ($ZOI_BUILD_PLATFORM)..."' \
             '      VERSIONS_JSON_TMP=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic&sort=desc&order_by=created_at")' \
             '      PREV_VERSION=$(echo "$VERSIONS_JSON_TMP" | jq -r --arg V "$PKG_VERSION" ".[] | select(.version != \"latest\" and .version != \$V) | .version" | head -n 1)' \
             '      if [ -n "$PREV_VERSION" ]; then' \
-            '        find built_packages -name "${PKG_NAME}-${PKG_VERSION}-${TARGET}*.zpa" | while read -r NEW_ZPA; do' \
+            '        find built_packages -name "${PKG_NAME}-${PKG_VERSION}-${ZOI_BUILD_PLATFORM}*.zpa" | while read -r NEW_ZPA; do' \
             '          NEW_ZPA_NAME=$(basename "$NEW_ZPA")' \
             '          PREV_ZPA_NAME=$(echo "$NEW_ZPA_NAME" | sed "s/${PKG_NAME}-${PKG_VERSION}-/${PKG_NAME}-${PREV_VERSION}-/")' \
             '          DELTA_OUT="built_packages/${NEW_ZPA_NAME%.zpa}.zdelta"' \
@@ -263,7 +263,7 @@ generate-child:
             "    - $TAG" \
             "  variables:" \
             "    PKG_FILE: \"$PKG_FILE\"" \
-            "    TARGET: \"$TARGET\"" \
+            "    ZOI_BUILD_PLATFORM: \"$TARGET\"" \
             "    PKG_VERSION: \"$PKG_VERSION\"" \
             "  before_script:" \
             "    - |" \
@@ -279,19 +279,19 @@ generate-child:
             '      mkdir -p built_packages' \
             '      GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")' \
             '      SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"' \
-            '      echo "Building $PKG_FILE for $TARGET..."' \
-            '      zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages $SIGN_ARG' \
+            '      echo "Building $PKG_FILE for $ZOI_BUILD_PLATFORM..."' \
+            '      zoi package build "$PKG_FILE" --install-deps --platform "$ZOI_BUILD_PLATFORM" --method native -o built_packages $SIGN_ARG' \
             '      echo "Bundling .zsa for $PKG_FILE..."' \
             '      zoi package bundle "$PKG_FILE" -o built_packages' \
             '      PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)' \
             '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
             '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
             '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
-            '      echo "Generating .zdelta for $PKG_FILE ($TARGET)..."' \
+            '      echo "Generating .zdelta for $PKG_FILE ($ZOI_BUILD_PLATFORM)..."' \
             '      VERSIONS_JSON_TMP=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic&sort=desc&order_by=created_at")' \
             '      PREV_VERSION=$(echo "$VERSIONS_JSON_TMP" | jq -r --arg V "$PKG_VERSION" ".[] | select(.version != \"latest\" and .version != \$V) | .version" | head -n 1)' \
             '      if [ -n "$PREV_VERSION" ]; then' \
-            '        find built_packages -name "${PKG_NAME}-${PKG_VERSION}-${TARGET}*.zpa" | while read -r NEW_ZPA; do' \
+            '        find built_packages -name "${PKG_NAME}-${PKG_VERSION}-${ZOI_BUILD_PLATFORM}*.zpa" | while read -r NEW_ZPA; do' \
             '          NEW_ZPA_NAME=$(basename "$NEW_ZPA")' \
             '          PREV_ZPA_NAME=$(echo "$NEW_ZPA_NAME" | sed "s/${PKG_NAME}-${PKG_VERSION}-/${PKG_NAME}-${PREV_VERSION}-/")' \
             '          DELTA_OUT="built_packages/${NEW_ZPA_NAME%.zpa}.zdelta"' \
@@ -352,7 +352,7 @@ generate-child:
             "  variables:" \
             "    PKG_FILE: \"$PKG_FILE\"" \
             "    PKG_VERSION: \"$PKG_VERSION\"" \
-            "    TARGET: \"$TARGET\"" \
+            "    ZOI_BUILD_PLATFORM: \"$TARGET\"" \
             "  before_script:" \
             '    - choco install jq -y' \
             '    - powershell -c "irm zillowe.pages.dev/scripts/zoi/install.ps1|iex"' \
@@ -377,19 +377,19 @@ generate-child:
             '      New-Item -ItemType Directory -Force -Path built_packages' \
             '      $GpgKeyId = if (Test-Path gpg_key_id.txt) { Get-Content gpg_key_id.txt } else { "" }' \
             '      $SignArg = if ($GpgKeyId) { "--sign $GpgKeyId" } else { "" }' \
-            '      Write-Host "Building $env:PKG_FILE for $env:TARGET..."' \
-            '      zoi package build "$env:PKG_FILE" --install-deps --platform "$env:TARGET" --method native -o built_packages $SignArg' \
+            '      Write-Host "Building $env:PKG_FILE for $env:ZOI_BUILD_PLATFORM..."' \
+            '      zoi package build "$env:PKG_FILE" --install-deps --platform "$env:ZOI_BUILD_PLATFORM" --method native -o built_packages $SignArg' \
             '      Write-Host "Bundling .zsa for $env:PKG_FILE..."' \
             '      zoi package bundle "$env:PKG_FILE" -o built_packages' \
             '      $PkgJson = (zoi package inspect "$env:PKG_FILE" --json | ConvertFrom-Json)' \
             '      $PkgName = $PkgJson.name' \
             '      $PkgRepo = $PkgJson.repo' \
             '      $PkgIdUpload = if ($PkgRepo -eq $null -or $PkgRepo -eq "null" -or $PkgRepo -eq "") { $PkgName } else { $PkgRepo.Replace("/", ".") + "." + $PkgName }' \
-            '      Write-Host "Generating .zdelta for $env:PKG_FILE ($env:TARGET)..."' \
+            '      Write-Host "Generating .zdelta for $env:PKG_FILE ($env:ZOI_BUILD_PLATFORM)..."' \
             '      $VersionsJsonRaw = curl.exe --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=$PkgIdUpload&package_type=generic&sort=desc&order_by=created_at"' \
             '      $PrevVersion = @($VersionsJsonRaw | ConvertFrom-Json | Where-Object { $_.version -ne "latest" -and $_.version -ne $env:PKG_VERSION } | Select-Object -ExpandProperty version -Unique) | Select-Object -First 1' \
             '      if ($PrevVersion) {' \
-            '        Get-ChildItem -Path built_packages -Filter "$($PkgName)-$($env:PKG_VERSION)-$($env:TARGET)*.zpa" | ForEach-Object {' \
+            '        Get-ChildItem -Path built_packages -Filter "$($PkgName)-$($env:PKG_VERSION)-$($env:ZOI_BUILD_PLATFORM)*.zpa" | ForEach-Object {' \
             '          $NewZpa = $_' \
             '          $NewZpaName = $NewZpa.Name' \
             '          $PrevZpaName = $NewZpaName.Replace("$($PkgName)-$($env:PKG_VERSION)-", "$($PkgName)-$($PrevVersion)-")' \

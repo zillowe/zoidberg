@@ -62,7 +62,9 @@ local srcdir = "openldap-LMDB_" .. version .. "/libraries/liblmdb"
 function prepare()
 	cmd(
 		[[
-		curl -sSfL --retry 3 --retry-all-errors \
+		# git.openldap.org rate-limits archive downloads (HTTP 429), and CI
+		# runs prepare() twice (build, then bundle): back off and retry.
+		curl -sSfL --retry 8 --retry-delay 20 --retry-all-errors \
 			"https://git.openldap.org/openldap/openldap/-/archive/LMDB_$VER/openldap-LMDB_$VER.tar.gz" \
 			-o "openldap-LMDB_$VER.tar.gz"
 		echo "$SHA512  openldap-LMDB_$VER.tar.gz" | sha512sum -c -

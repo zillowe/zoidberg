@@ -68,6 +68,7 @@ dependencies({
 				required = {
 					"pacman:bison",
 					"pacman:curl",
+					"pacman:patch",
 					"pacman:flex",
 					"pacman:gcc",
 					"pacman:iptables",

@@ -42,8 +42,10 @@ dependencies({
 			source = {
 				required = {
 					"pacman:brotli",
+					"pacman:curl",
 					"pacman:gcc",
 					"pacman:make",
+					"pacman:patch",
 					"pacman:perl",
 					"pacman:tar",
 					"pacman:zlib",

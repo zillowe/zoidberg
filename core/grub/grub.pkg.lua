@@ -70,6 +70,7 @@ dependencies({
 				required = {
 					"pacman:bison",
 					"pacman:curl",
+					"pacman:diffutils",
 					"pacman:device-mapper",
 					"pacman:flex",
 					"pacman:freetype2",

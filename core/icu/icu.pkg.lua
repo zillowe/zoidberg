@@ -99,6 +99,9 @@ function build()
 	-- Options as Arch.
 	cmd(
 		[[
+		# ICU's makefiles use $(TARGET); a TARGET in the environment (CI
+		# sets one) would replace it and break the build.
+		unset TARGET
 		cd icu/source
 		./configure \
 			--prefix=/usr \
@@ -112,7 +115,13 @@ function build()
 end
 
 function package()
-	cmd([[make -C icu/source DESTDIR="$ROOT" install]], opts)
+	cmd(
+		[[
+		unset TARGET
+		make -C icu/source DESTDIR="$ROOT" install
+	]],
+		opts
+	)
 	zlicense("icu/LICENSE")
 end
 

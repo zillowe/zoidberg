@@ -39,6 +39,10 @@ metadata({
 	types = { "source" },
 	zoios = true,
 	zsa = false,
+	-- The full build prints tens of thousands of lines and overflows CI's
+	-- 4 MB job log before any error; a failing step still reports its
+	-- stderr.
+	quiet = { "build", "package" },
 })
 
 dependencies({
@@ -134,6 +138,11 @@ local kbuild_env = [[
 ]]
 
 function prepare()
+	-- prepare() runs again for every sub-package in the same build
+	-- directory; download, verify, unpack, patch and configure only once.
+	if UTILS.FS.exists(BUILD_DIR .. "/linux-" .. upstream_ver .. "/.zoi-prepared") then
+		return
+	end
 	cmd(
 		[[
 		fetch() {
@@ -182,6 +191,7 @@ function prepare()
 		diff -u "$PKGLUADIR/files/config.x86_64" .config || :
 		make -s kernelrelease > version
 		echo "Prepared linux version $(cat version)"
+		touch .zoi-prepared
 	]],
 		opts
 	)

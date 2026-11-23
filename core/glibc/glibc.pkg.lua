@@ -70,6 +70,7 @@ dependencies({
 			source = {
 				required = {
 					"pacman:curl",
+					"pacman:patch",
 					"pacman:python",
 					"pacman:gcc",
 					"pacman:make",
@@ -113,6 +114,11 @@ function prepare()
 	local tarball = "glibc-" .. version .. ".tar.xz"
 	cmd(
 		[[
+		# prepare() runs again for every sub-package in the same build
+		# directory; download, unpack and patch only once.
+		if [ -f "glibc-$VER/.zoi-prepared" ]; then
+			exit 0
+		fi
 		fetch() {
 			for base in \
 				"https://ftpmirror.gnu.org/gnu/glibc" \
@@ -134,6 +140,11 @@ function prepare()
 	end
 	cmd(
 		[[
+		# prepare() runs again for every sub-package in the same build
+		# directory; the tree is unpacked and patched only once.
+		if [ -f "glibc-$VER/.zoi-prepared" ]; then
+			exit 0
+		fi
 		tar -xf "glibc-$VER.tar.xz"
 		cd "glibc-$VER"
 		# Fixes from the release/2.44/master branch made after the release
@@ -142,6 +153,7 @@ function prepare()
 		# configure.ac; keep the scripts newer so make never reruns autoconf.
 		touch sysdeps/ieee754/ldbl-opt/configure \
 			sysdeps/unix/sysv/linux/powerpc/configure
+		touch .zoi-prepared
 		cd ..
 		mkdir -p glibc-build lib32-glibc-build locales
 	]],

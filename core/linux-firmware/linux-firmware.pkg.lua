@@ -57,6 +57,11 @@ dependencies({
 local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
+	-- prepare() runs again for every sub-package in the same build
+	-- directory; download, verify and unpack the 672 MB tarball only once.
+	if UTILS.FS.exists(BUILD_DIR .. "/linux-firmware-" .. version .. "/.zoi-prepared") then
+		return
+	end
 	local tarball = "linux-firmware-" .. version .. ".tar.xz"
 	cmd(
 		[[
@@ -86,6 +91,7 @@ function prepare()
 		[[
 		tar -xf "linux-firmware-$VER.tar"
 		rm -f "linux-firmware-$VER.tar"
+		touch "linux-firmware-$VER/.zoi-prepared"
 	]],
 		opts
 	)

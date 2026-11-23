@@ -36,6 +36,7 @@ dependencies({
 			source = {
 				required = {
 					"pacman:curl",
+					"pacman:diffutils",
 					"pacman:gcc",
 					"pacman:gettext",
 					"pacman:m4",

@@ -335,6 +335,11 @@ local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 function prepare()
 	cmd(
 		[[
+		# prepare() runs again for every sub-package in the same build
+		# directory; download, unpack and patch only once.
+		if [ -f "gcc-$VER/.zoi-prepared" ]; then
+			exit 0
+		fi
 		fetch() {
 			for base in \
 				"https://ftpmirror.gnu.org/gnu/gcc/gcc-$VER" \
@@ -360,6 +365,7 @@ function prepare()
 
 		# Tune branch prediction cost
 		patch -Np1 -i "$PKGLUADIR/patches/tune_branch_prediction_cost.patch"
+		touch .zoi-prepared
 		cd ..
 
 		mkdir -p gcc-build libgccjit-build split
