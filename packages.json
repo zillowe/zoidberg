@@ -6,7 +6,7 @@
       "repo_type": "official",
       "version": "2.4.0",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Access control list utilities, libraries and headers",
       "scope": "system",
       "scopes": [
@@ -38,7 +38,7 @@
       "repo_type": "official",
       "version": "2.6.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Extended attribute support library for ACL support",
       "scope": "system",
       "scopes": [
@@ -55,12 +55,9 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
+              "pacman:curl",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
-              "pacman:libtool",
               "pacman:make"
             ]
           }
@@ -73,20 +70,23 @@
       "repo_type": "official",
       "version": "4.2.1",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Userspace components of the audit framework",
       "scope": "system",
       "scopes": [
         "system"
       ],
-      "sub_packages": [],
-      "main_sub_packages": [],
+      "sub_packages": [
+        "main",
+        "python"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
       "vuln": [],
       "dependencies": {
         "runtime": [
-          "zoi:@core/bash",
-          "zoi:@core/glibc",
-          "zoi:@core/libcap-ng"
+          "zoi:@core/glibc"
         ],
         "build": [
           {
@@ -96,11 +96,15 @@
               "pacman:automake",
               "pacman:curl",
               "pacman:gcc",
+              "pacman:krb5",
               "pacman:libcap-ng",
+              "pacman:libldap",
               "pacman:libtool",
               "pacman:linux-api-headers",
               "pacman:make",
               "pacman:patch",
+              "pacman:python",
+              "pacman:swig",
               "pacman:systemd",
               "pacman:tar"
             ]
@@ -114,7 +118,7 @@
       "repo_type": "official",
       "version": "2.73",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A GNU tool for automatically configuring source code",
       "scope": "system",
       "scopes": [
@@ -150,9 +154,9 @@
     "@core/automake": {
       "repo": "core",
       "repo_type": "official",
-      "version": "1.19",
+      "version": "1.20",
       "epoch": 0,
-      "revision": "3",
+      "revision": "1",
       "description": "A GNU tool for automatically creating Makefiles",
       "scope": "system",
       "scopes": [
@@ -171,8 +175,8 @@
             "type": "source",
             "packages": [
               "pacman:autoconf",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:make",
               "pacman:patch",
               "pacman:perl",
@@ -213,7 +217,7 @@
       "repo_type": "official",
       "version": "5.3.20",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "The GNU Bourne Again shell",
       "scope": "system",
       "scopes": [
@@ -252,7 +256,7 @@
       "repo_type": "official",
       "version": "2.47",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A set of programs to assemble and manipulate binary and object files",
       "scope": "system",
       "scopes": [
@@ -266,6 +270,7 @@
           "zoi:@core/gcc:libgcc",
           "zoi:@core/gcc:libstdc++",
           "zoi:@core/glibc",
+          "zoi:@core/jansson",
           "zoi:@core/zlib",
           "zoi:@core/zstd"
         ],
@@ -275,11 +280,11 @@
             "packages": [
               "pacman:base-devel",
               "pacman:bison",
+              "pacman:curl",
               "pacman:flex",
               "pacman:gcc",
-              "pacman:git",
+              "pacman:jansson",
               "pacman:make",
-              "pacman:patch",
               "pacman:texinfo",
               "pacman:zlib",
               "pacman:zstd"
@@ -294,7 +299,7 @@
       "repo_type": "official",
       "version": "3.8.2",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "The GNU general-purpose parser generator",
       "scope": "system",
       "scopes": [
@@ -334,14 +339,19 @@
       "repo_type": "official",
       "version": "1.2.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Generic-purpose lossless compression algorithm",
       "scope": "system",
       "scopes": [
         "system"
       ],
-      "sub_packages": [],
-      "main_sub_packages": [],
+      "sub_packages": [
+        "main",
+        "python"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
       "vuln": [],
       "dependencies": {
         "runtime": [
@@ -356,7 +366,12 @@
               "pacman:curl",
               "pacman:gcc",
               "pacman:make",
-              "pacman:ninja"
+              "pacman:ninja",
+              "pacman:python",
+              "pacman:python-build",
+              "pacman:python-installer",
+              "pacman:python-setuptools",
+              "pacman:python-wheel"
             ]
           }
         ],
@@ -368,7 +383,7 @@
       "repo_type": "official",
       "version": "0.13.1",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Unprivileged sandboxing tool",
       "scope": "system",
       "scopes": [
@@ -389,9 +404,9 @@
             "packages": [
               "pacman:base-devel",
               "pacman:bash-completion",
+              "pacman:curl",
               "pacman:docbook-xsl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:libcap",
               "pacman:libxslt",
               "pacman:meson",
@@ -407,7 +422,7 @@
       "repo_type": "official",
       "version": "1.0.8",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A high-quality data compression program",
       "scope": "system",
       "scopes": [
@@ -440,7 +455,7 @@
       "repo_type": "official",
       "version": "20240618",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Common CA certificates and trust management utilities",
       "scope": "system",
       "scopes": [
@@ -475,7 +490,7 @@
       "repo_type": "official",
       "version": "3.134",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Mozilla's set of trusted CA certificates",
       "scope": "system",
       "scopes": [
@@ -504,7 +519,7 @@
       "repo_type": "official",
       "version": "9.12",
       "epoch": 0,
-      "revision": "7",
+      "revision": "8",
       "description": "The basic file, shell and text manipulation utilities of the GNU operating system",
       "scope": "system",
       "scopes": [
@@ -528,13 +543,10 @@
             "packages": [
               "pacman:acl",
               "pacman:attr",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
               "pacman:gmp",
-              "pacman:gperf",
               "pacman:libcap",
               "pacman:make",
               "pacman:openssl",
@@ -553,7 +565,7 @@
       "repo_type": "official",
       "version": "2.15",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A tool to copy files into or out of a cpio or tar archive",
       "scope": "system",
       "scopes": [
@@ -571,15 +583,12 @@
             "type": "source",
             "packages": [
               "pacman:base-devel",
-              "pacman:autoconf",
-              "pacman:automake",
+              "pacman:bzip2",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:gettext",
-              "pacman:git",
               "pacman:make",
-              "pacman:rsync",
-              "pacman:texinfo",
-              "pacman:wget"
+              "pacman:patch",
+              "pacman:tar"
             ]
           }
         ],
@@ -591,7 +600,7 @@
       "repo_type": "official",
       "version": "2.8.8",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Userspace setup tool for transparent encryption of block devices using dm-crypt",
       "scope": "system",
       "scopes": [
@@ -635,7 +644,7 @@
       "repo_type": "official",
       "version": "8.23.0",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Command line tool and library for transferring data with URLs",
       "scope": "system",
       "scopes": [
@@ -649,9 +658,13 @@
           "zoi:@core/brotli",
           "zoi:@core/ca-certificates",
           "zoi:@core/glibc",
+          "zoi:@core/krb5",
           "zoi:@core/libidn2",
           "zoi:@core/libnghttp2",
+          "zoi:@core/libnghttp3",
+          "zoi:@core/libngtcp2",
           "zoi:@core/libpsl",
+          "zoi:@core/libssh2",
           "zoi:@core/openssl",
           "zoi:@core/zlib",
           "zoi:@core/zstd"
@@ -663,9 +676,11 @@
               "pacman:brotli",
               "pacman:ca-certificates",
               "pacman:gcc",
-              "pacman:git",
+              "pacman:krb5",
               "pacman:libidn2",
               "pacman:libnghttp2",
+              "pacman:libnghttp3",
+              "pacman:libngtcp2",
               "pacman:libpsl",
               "pacman:libssh2",
               "pacman:make",
@@ -679,12 +694,156 @@
         "test": []
       }
     },
+    "@core/cyrus-sasl": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.1.28",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Cyrus Simple Authentication Service Layer (SASL) library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [
+        "main",
+        "libs"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:autoconf",
+              "pacman:automake",
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gdbm",
+              "pacman:krb5",
+              "pacman:libldap",
+              "pacman:libtool",
+              "pacman:libxcrypt",
+              "pacman:make",
+              "pacman:openssl",
+              "pacman:pam",
+              "pacman:patch",
+              "pacman:pkgconf",
+              "pacman:sqlite",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/dbus": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.16.4",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Freedesktop.org message bus system",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/audit",
+          "zoi:@core/expat",
+          "zoi:@core/glibc",
+          "zoi:@core/libcap-ng",
+          "zoi:@core/systemd:libs"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:audit",
+              "pacman:curl",
+              "pacman:docbook-xsl",
+              "pacman:expat",
+              "pacman:gcc",
+              "pacman:libcap-ng",
+              "pacman:meson",
+              "pacman:ninja",
+              "pacman:patch",
+              "pacman:pkgconf",
+              "pacman:python",
+              "pacman:systemd",
+              "pacman:tar",
+              "pacman:xmlto",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/dbus-broker": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "37",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Linux D-Bus Message Broker (with the dbus.service units)",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/audit",
+          "zoi:@core/dbus",
+          "zoi:@core/expat",
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/glibc",
+          "zoi:@core/libcap-ng",
+          "zoi:@core/systemd:libs"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:audit",
+              "pacman:curl",
+              "pacman:expat",
+              "pacman:gcc",
+              "pacman:libcap-ng",
+              "pacman:meson",
+              "pacman:ninja",
+              "pacman:patch",
+              "pacman:pkgconf",
+              "pacman:python-docutils",
+              "pacman:systemd",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/debugedit": {
       "repo": "core",
       "repo_type": "official",
       "version": "5.4",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Tool to mangle source locations in .debug files",
       "scope": "system",
       "scopes": [
@@ -730,7 +889,7 @@
       "repo_type": "official",
       "version": "2.03.44",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Device mapper userspace library and tools",
       "scope": "system",
       "scopes": [
@@ -765,7 +924,7 @@
       "repo_type": "official",
       "version": "3.12",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Utility programs used for creating patch files",
       "scope": "system",
       "scopes": [
@@ -783,19 +942,10 @@
             "type": "source",
             "packages": [
               "pacman:base-devel",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:gcc",
-              "pacman:gettext",
-              "pacman:git",
-              "pacman:gperf",
-              "pacman:help2man",
               "pacman:make",
-              "pacman:python",
               "pacman:tar",
-              "pacman:texinfo",
-              "pacman:wget",
               "pacman:xz"
             ]
           }
@@ -806,9 +956,9 @@
     "@core/dracut": {
       "repo": "core",
       "repo_type": "official",
-      "version": "111",
+      "version": "113",
       "epoch": 0,
-      "revision": "4",
+      "revision": "1",
       "description": "An event driven initramfs infrastructure",
       "scope": "system",
       "scopes": [
@@ -836,11 +986,50 @@
             "packages": [
               "pacman:asciidoctor",
               "pacman:bash-completion",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:make",
               "pacman:pkgconf",
               "pacman:rust"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/e2fsprogs": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.47.4",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Ext2/3/4 filesystem utilities",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc",
+          "zoi:@core/util-linux:libs"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:systemd",
+              "pacman:tar",
+              "pacman:util-linux",
+              "pacman:xz"
             ]
           }
         ],
@@ -852,8 +1041,44 @@
       "repo_type": "official",
       "version": "18",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Linux user-space application to modify the EFI Boot Manager",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/efivar",
+          "zoi:@core/glibc",
+          "zoi:@core/popt"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:efivar",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:popt"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/efivar": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "39",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Tools and libraries to work with EFI variables",
       "scope": "system",
       "scopes": [
         "system"
@@ -869,12 +1094,12 @@
           {
             "type": "source",
             "packages": [
-              "pacman:efivar",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:make",
+              "pacman:mandoc",
               "pacman:pkgconf",
-              "pacman:popt"
+              "pacman:tar"
             ]
           }
         ],
@@ -886,7 +1111,7 @@
       "repo_type": "official",
       "version": "0.197",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Handle ELF object files and DWARF debugging information",
       "scope": "system",
       "scopes": [
@@ -894,7 +1119,8 @@
       ],
       "sub_packages": [
         "main",
-        "libelf"
+        "libelf",
+        "debuginfod"
       ],
       "main_sub_packages": [
         "main"
@@ -909,16 +1135,18 @@
             "type": "source",
             "packages": [
               "pacman:base-devel",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:bison",
               "pacman:bzip2",
+              "pacman:curl",
               "pacman:flex",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
+              "pacman:json-c",
+              "pacman:libarchive",
+              "pacman:libmicrohttpd",
               "pacman:m4",
               "pacman:make",
+              "pacman:sqlite",
               "pacman:xz",
               "pacman:zlib",
               "pacman:zstd"
@@ -933,7 +1161,7 @@
       "repo_type": "official",
       "version": "2.10.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "An XML parser library",
       "scope": "system",
       "scopes": [
@@ -951,8 +1179,8 @@
             "type": "source",
             "packages": [
               "pacman:cmake",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:make"
             ]
           }
@@ -963,9 +1191,9 @@
     "@core/fakeroot": {
       "repo": "core",
       "repo_type": "official",
-      "version": "1.37.2",
+      "version": "2.1.4",
       "epoch": 0,
-      "revision": "3",
+      "revision": "1",
       "description": "Tool for simulating superuser privileges",
       "scope": "system",
       "scopes": [
@@ -989,8 +1217,8 @@
               "pacman:base-devel",
               "pacman:autoconf",
               "pacman:automake",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:libtool",
               "pacman:make",
               "pacman:po4a",
@@ -1006,7 +1234,7 @@
       "repo_type": "official",
       "version": "5.48",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "File type identification utility",
       "scope": "system",
       "scopes": [
@@ -1028,14 +1256,11 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:bzip2",
+              "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
-              "pacman:git",
               "pacman:libseccomp",
-              "pacman:libtool",
               "pacman:make",
               "pacman:xz",
               "pacman:zlib",
@@ -1051,7 +1276,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "Base Parlex Linux files",
       "scope": "system",
       "scopes": [
@@ -1073,7 +1298,7 @@
       "repo_type": "official",
       "version": "4.11.0",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "GNU utilities to locate files (find, xargs)",
       "scope": "system",
       "scopes": [
@@ -1090,8 +1315,6 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -1108,9 +1331,9 @@
     "@core/flex": {
       "repo": "core",
       "repo_type": "official",
-      "version": "2.6.4",
+      "version": "2.7.5",
       "epoch": 0,
-      "revision": "3",
+      "revision": "1",
       "description": "A tool for generating text-scanning programs",
       "scope": "system",
       "scopes": [
@@ -1129,16 +1352,11 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:help2man",
-              "pacman:libtool",
               "pacman:m4",
               "pacman:make",
-              "pacman:patch",
               "pacman:tar"
             ]
           }
@@ -1149,9 +1367,9 @@
     "@core/gawk": {
       "repo": "core",
       "repo_type": "official",
-      "version": "5.4.1",
+      "version": "5.4.2",
       "epoch": 0,
-      "revision": "5",
+      "revision": "1",
       "description": "GNU version of awk",
       "scope": "system",
       "scopes": [
@@ -1171,8 +1389,6 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -1189,9 +1405,9 @@
     "@core/gcc": {
       "repo": "core",
       "repo_type": "official",
-      "version": "16.2.1+r23+gd564253eb6c8",
+      "version": "16.2.0",
       "epoch": 0,
-      "revision": "10",
+      "revision": "1",
       "description": "The GNU Compiler Collection - C and C++ frontends and runtimes",
       "scope": "system",
       "scopes": [
@@ -1248,8 +1464,8 @@
               "pacman:flex",
               "pacman:gawk",
               "pacman:gcc-ada",
+              "pacman:curl",
               "pacman:gcc-d",
-              "pacman:git",
               "pacman:gmp",
               "pacman:lib32-gcc-libs",
               "pacman:lib32-glibc",
@@ -1274,7 +1490,7 @@
       "repo_type": "official",
       "version": "1.26",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU database library",
       "scope": "system",
       "scopes": [
@@ -1308,7 +1524,7 @@
       "repo_type": "official",
       "version": "1.0",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "GNU internationalization and localization system",
       "scope": "system",
       "scopes": [
@@ -1321,9 +1537,13 @@
         "runtime": [
           "zoi:@core/acl",
           "zoi:@core/attr",
+          "zoi:@core/bash",
           "zoi:@core/curl",
+          "zoi:@core/gcc:libgcc",
           "zoi:@core/gcc:libgomp",
+          "zoi:@core/gcc:libstdc++",
           "zoi:@core/glibc",
+          "zoi:@core/gnulib-l10n",
           "zoi:@core/json-c",
           "zoi:@core/libunistring",
           "zoi:@core/libxml2",
@@ -1354,9 +1574,9 @@
     "@core/git": {
       "repo": "core",
       "repo_type": "official",
-      "version": "2.56.0",
+      "version": "2.56.1",
       "epoch": 0,
-      "revision": "4",
+      "revision": "1",
       "description": "The fast distributed version control system",
       "scope": "system",
       "scopes": [
@@ -1374,6 +1594,8 @@
           "zoi:@core/openssl",
           "zoi:@core/pcre2",
           "zoi:@core/perl",
+          "zoi:@core/perl-error",
+          "zoi:@core/perl-mailtools",
           "zoi:@core/shadow",
           "zoi:@core/zlib"
         ],
@@ -1386,7 +1608,6 @@
               "pacman:curl",
               "pacman:expat",
               "pacman:gcc",
-              "pacman:git",
               "pacman:make",
               "pacman:openssl",
               "pacman:pcre2",
@@ -1404,9 +1625,9 @@
     "@core/glibc": {
       "repo": "core",
       "repo_type": "official",
-      "version": "2.44+r50+g1848099f063e",
+      "version": "2.44",
       "epoch": 0,
-      "revision": "7",
+      "revision": "1",
       "description": "GNU C Library for Parlex Linux",
       "scope": "system",
       "scopes": [
@@ -1430,8 +1651,7 @@
           {
             "type": "source",
             "packages": [
-              "pacman:gd",
-              "pacman:git",
+              "pacman:curl",
               "pacman:python",
               "pacman:gcc",
               "pacman:make",
@@ -1454,7 +1674,7 @@
       "repo_type": "official",
       "version": "6.3.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A free library for arbitrary precision arithmetic",
       "scope": "system",
       "scopes": [
@@ -1479,11 +1699,98 @@
               "pacman:curl",
               "pacman:gcc",
               "pacman:libtool",
-              "pacman:lzip",
               "pacman:m4",
               "pacman:make",
               "pacman:patch",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/gnulib-l10n": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "20241231",
+      "epoch": 0,
+      "revision": "1",
+      "description": "The Gnulib localizations",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gettext",
+              "pacman:make",
               "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/gnutls": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.8.14",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A library which provides a secure layer over a reliable transport layer",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/brotli",
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/gcc:libstdc++",
+          "zoi:@core/glibc",
+          "zoi:@core/gmp",
+          "zoi:@core/libidn2",
+          "zoi:@core/libtasn1",
+          "zoi:@core/libunistring",
+          "zoi:@core/nettle",
+          "zoi:@core/p11-kit",
+          "zoi:@core/zlib",
+          "zoi:@core/zstd"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:brotli",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gmp",
+              "pacman:libidn2",
+              "pacman:libtasn1",
+              "pacman:libunistring",
+              "pacman:make",
+              "pacman:nettle",
+              "pacman:p11-kit",
+              "pacman:pkgconf",
+              "pacman:tar",
+              "pacman:tpm2-tss",
+              "pacman:xz",
+              "pacman:zlib",
+              "pacman:zstd"
             ]
           }
         ],
@@ -1495,7 +1802,7 @@
       "repo_type": "official",
       "version": "3.12",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "A string search utility",
       "scope": "system",
       "scopes": [
@@ -1513,8 +1820,6 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -1531,9 +1836,9 @@
     "@core/groff": {
       "repo": "core",
       "repo_type": "official",
-      "version": "1.24.2",
+      "version": "1.25.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "1",
       "description": "GNU troff text-formatting system",
       "scope": "system",
       "scopes": [
@@ -1554,12 +1859,10 @@
             "type": "source",
             "packages": [
               "pacman:base-devel",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:bison",
+              "pacman:curl",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
               "pacman:m4",
               "pacman:make",
               "pacman:netpbm",
@@ -1577,7 +1880,7 @@
       "repo_type": "official",
       "version": "2.16",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "GNU GRand Unified Bootloader (2)",
       "scope": "system",
       "scopes": [
@@ -1596,25 +1899,21 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:autogen",
-              "pacman:automake",
               "pacman:bison",
+              "pacman:curl",
               "pacman:device-mapper",
               "pacman:flex",
               "pacman:freetype2",
               "pacman:fuse3",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
               "pacman:help2man",
               "pacman:libusb",
               "pacman:make",
+              "pacman:patch",
               "pacman:python",
-              "pacman:rsync",
               "pacman:texinfo",
               "pacman:ttf-dejavu",
-              "pacman:wget",
               "pacman:xz"
             ]
           }
@@ -1627,7 +1926,7 @@
       "repo_type": "official",
       "version": "1.15",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "GNU compression utility",
       "scope": "system",
       "scopes": [
@@ -1644,8 +1943,6 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -1661,9 +1958,9 @@
     "@core/hwdata": {
       "repo": "core",
       "repo_type": "official",
-      "version": "0.412",
+      "version": "0.413",
       "epoch": 0,
-      "revision": "4",
+      "revision": "1",
       "description": "Hardware identification databases (pci.ids, usb.ids, etc.)",
       "scope": "system",
       "scopes": [
@@ -1678,7 +1975,7 @@
           {
             "type": "source",
             "packages": [
-              "pacman:git",
+              "pacman:curl",
               "pacman:make"
             ]
           }
@@ -1689,9 +1986,9 @@
     "@core/iana-etc": {
       "repo": "core",
       "repo_type": "official",
-      "version": "2026.10.30",
+      "version": "2026.11.23",
       "epoch": 0,
-      "revision": "4",
+      "revision": "1",
       "description": "/etc/protocols and /etc/services provided by IANA",
       "scope": "system",
       "scopes": [
@@ -1713,12 +2010,48 @@
         "test": []
       }
     },
+    "@core/icu": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "79.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "International Components for Unicode library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/gcc:libstdc++",
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:python",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/iproute2": {
       "repo": "core",
       "repo_type": "official",
       "version": "7.3.0",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "IP Routing Utilities (ip, tc, ss, bridge, devlink)",
       "scope": "system",
       "scopes": [
@@ -1742,9 +2075,9 @@
             "type": "source",
             "packages": [
               "pacman:bison",
+              "pacman:curl",
               "pacman:flex",
               "pacman:gcc",
-              "pacman:git",
               "pacman:iptables",
               "pacman:libbpf",
               "pacman:libcap",
@@ -1764,8 +2097,8 @@
       "repo_type": "official",
       "version": "1.8.13",
       "epoch": 0,
-      "revision": "2",
-      "description": "Linux kernel packet control tool (legacy backend) and the libxtables library",
+      "revision": "3",
+      "description": "Linux kernel packet control tool (using nft interface) and the libxtables library",
       "scope": "system",
       "scopes": [
         "system"
@@ -1775,7 +2108,14 @@
       "vuln": [],
       "dependencies": {
         "runtime": [
-          "zoi:@core/glibc"
+          "zoi:@core/bash",
+          "zoi:@core/glibc",
+          "zoi:@core/libmnl",
+          "zoi:@core/libnetfilter_conntrack",
+          "zoi:@core/libnfnetlink",
+          "zoi:@core/libnftnl",
+          "zoi:@core/libpcap",
+          "zoi:@core/nftables"
         ],
         "build": [
           {
@@ -1784,8 +2124,14 @@
               "pacman:base-devel",
               "pacman:curl",
               "pacman:gcc",
+              "pacman:libmnl",
+              "pacman:libnetfilter_conntrack",
+              "pacman:libnfnetlink",
+              "pacman:libnftnl",
+              "pacman:libpcap",
               "pacman:linux-api-headers",
               "pacman:make",
+              "pacman:patch",
               "pacman:pkgconf"
             ]
           }
@@ -1798,7 +2144,7 @@
       "repo_type": "official",
       "version": "20250605",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Network monitoring tools, including ping, arping, and tracepath",
       "scope": "system",
       "scopes": [
@@ -1817,9 +2163,9 @@
           {
             "type": "source",
             "packages": [
+              "pacman:curl",
               "pacman:docbook-xsl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:libcap",
               "pacman:libidn2",
               "pacman:meson",
@@ -1831,12 +2177,46 @@
         "test": []
       }
     },
+    "@core/jansson": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.15.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "C library for encoding, decoding and manipulating JSON data",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:bzip2",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/json-c": {
       "repo": "core",
       "repo_type": "official",
       "version": "0.19",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "JSON implementation in C",
       "scope": "system",
       "scopes": [
@@ -1864,12 +2244,88 @@
         "test": []
       }
     },
+    "@core/kbd": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.10.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Keytable files and keyboard utilities",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/gzip",
+          "zoi:@core/pam"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:bzip2",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gzip",
+              "pacman:make",
+              "pacman:pam",
+              "pacman:pkgconf",
+              "pacman:xz",
+              "pacman:zlib",
+              "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/keyutils": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.6.3",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Linux Key Management Utilities",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/kmod": {
       "repo": "core",
       "repo_type": "official",
       "version": "34.3",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Linux kernel module management tools and library (modprobe, lsmod, depmod)",
       "scope": "system",
       "scopes": [
@@ -1890,9 +2346,9 @@
           {
             "type": "source",
             "packages": [
+              "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
-              "pacman:git",
               "pacman:meson",
               "pacman:ninja",
               "pacman:openssl",
@@ -1907,12 +2363,58 @@
         "test": []
       }
     },
+    "@core/krb5": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.22.3",
+      "epoch": 0,
+      "revision": "1",
+      "description": "The Kerberos network authentication system",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/e2fsprogs",
+          "zoi:@core/glibc",
+          "zoi:@core/keyutils",
+          "zoi:@core/lmdb",
+          "zoi:@core/openldap:libs",
+          "zoi:@core/openssl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:e2fsprogs",
+              "pacman:gcc",
+              "pacman:keyutils",
+              "pacman:libldap",
+              "pacman:lmdb",
+              "pacman:make",
+              "pacman:openssl",
+              "pacman:perl",
+              "pacman:pkgconf",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/less": {
       "repo": "core",
       "repo_type": "official",
       "version": "710",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "A terminal based program for viewing text files",
       "scope": "system",
       "scopes": [
@@ -1943,12 +2445,61 @@
         "test": []
       }
     },
+    "@core/libarchive": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.8.11",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Multi-format archive and compression library",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/acl",
+          "zoi:@core/bzip2",
+          "zoi:@core/glibc",
+          "zoi:@core/libxml2",
+          "zoi:@core/lz4",
+          "zoi:@core/openssl",
+          "zoi:@core/xz",
+          "zoi:@core/zlib",
+          "zoi:@core/zstd"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:acl",
+              "pacman:bzip2",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libxml2",
+              "pacman:lz4",
+              "pacman:make",
+              "pacman:openssl",
+              "pacman:pkgconf",
+              "pacman:tar",
+              "pacman:xz",
+              "pacman:zlib",
+              "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/libbpf": {
       "repo": "core",
       "repo_type": "official",
       "version": "1.8.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Library for loading eBPF programs and reading and manipulating eBPF objects from user-space",
       "scope": "system",
       "scopes": [
@@ -1985,7 +2536,7 @@
       "repo_type": "official",
       "version": "2.78",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "POSIX 1003.1e capabilities",
       "scope": "system",
       "scopes": [
@@ -2004,13 +2555,15 @@
             "type": "source",
             "packages": [
               "pacman:base-devel",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:go",
               "pacman:linux-api-headers",
               "pacman:make",
               "pacman:pam",
-              "pacman:patch"
+              "pacman:patch",
+              "pacman:tar",
+              "pacman:xz"
             ]
           }
         ],
@@ -2022,14 +2575,19 @@
       "repo_type": "official",
       "version": "0.9.6",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A library for Linux that makes using posix capabilities easy",
       "scope": "system",
       "scopes": [
         "system"
       ],
-      "sub_packages": [],
-      "main_sub_packages": [],
+      "sub_packages": [
+        "main",
+        "python"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
       "vuln": [],
       "dependencies": {
         "runtime": [
@@ -2046,6 +2604,44 @@
               "pacman:gcc",
               "pacman:libtool",
               "pacman:make",
+              "pacman:python",
+              "pacman:swig",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libedit": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "20260512_3.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Command line editor library providing generic line editing, history, and tokenization functions",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/ncurses"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gzip",
+              "pacman:make",
+              "pacman:ncurses",
               "pacman:tar"
             ]
           }
@@ -2058,7 +2654,7 @@
       "repo_type": "official",
       "version": "3.8.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Portable foreign function interface library",
       "scope": "system",
       "scopes": [
@@ -2085,12 +2681,83 @@
         "test": []
       }
     },
+    "@core/libgcrypt": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.12.4",
+      "epoch": 0,
+      "revision": "1",
+      "description": "General purpose cryptographic library based on the code from GnuPG",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/libgpg-error"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:bzip2",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libgpg-error",
+              "pacman:make",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libgpg-error": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.61",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Support library for libgcrypt",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:bzip2",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/libidn2": {
       "repo": "core",
       "repo_type": "official",
       "version": "2.3.8",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Free software implementation of IDNA2008, Punycode and TR46",
       "scope": "system",
       "scopes": [
@@ -2124,7 +2791,7 @@
       "repo_type": "official",
       "version": "0.28",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Library for manipulating sets and relations of integer points bounded by linear constraints",
       "scope": "system",
       "scopes": [
@@ -2155,12 +2822,48 @@
         "test": []
       }
     },
+    "@core/libmicrohttpd": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.0.11",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Small C library to run an HTTP server as part of another application",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/gnutls"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gnutls",
+              "pacman:make",
+              "pacman:patch",
+              "pacman:pkgconf",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/libmnl": {
       "repo": "core",
       "repo_type": "official",
       "version": "1.0.5",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Minimalistic user-space library oriented to Netlink developers",
       "scope": "system",
       "scopes": [
@@ -2192,7 +2895,7 @@
       "repo_type": "official",
       "version": "1.4.1",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Library for the arithmetic of complex numbers with arbitrarily high precision",
       "scope": "system",
       "scopes": [
@@ -2224,12 +2927,123 @@
         "test": []
       }
     },
+    "@core/libnetfilter_conntrack": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.1.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Library providing an API to the in-kernel connection tracking state table",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/libmnl",
+          "zoi:@core/libnfnetlink"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libmnl",
+              "pacman:libnfnetlink",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libnfnetlink": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.0.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Low-level library for netfilter related kernel/userspace communication",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:bzip2",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libnftnl": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.3.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Netfilter library providing interface to the nf_tables subsystem",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/libmnl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libmnl",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/libnghttp2": {
       "repo": "core",
       "repo_type": "official",
       "version": "1.71.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Framing layer of the HTTP/2 protocol, implemented as a C library",
       "scope": "system",
       "scopes": [
@@ -2256,12 +3070,160 @@
         "test": []
       }
     },
+    "@core/libnghttp3": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.19.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "HTTP/3 library written in C",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libngtcp2": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.26.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Implementation of IETF QUIC protocol",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/openssl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:openssl",
+              "pacman:pkgconf",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libnsl": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.0.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Public client interface library for NIS(YP)",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/libtirpc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libtirpc",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libpcap": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.11.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A system-independent interface for user-level packet capture",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/dbus",
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:bison",
+              "pacman:curl",
+              "pacman:dbus",
+              "pacman:flex",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/libpipeline": {
       "repo": "core",
       "repo_type": "official",
       "version": "1.5.8",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A C library for manipulating pipelines of subprocesses",
       "scope": "system",
       "scopes": [
@@ -2291,9 +3253,9 @@
     "@core/libpsl": {
       "repo": "core",
       "repo_type": "official",
-      "version": "0.21.5",
+      "version": "0.23.3",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Public Suffix List library",
       "scope": "system",
       "scopes": [
@@ -2328,7 +3290,7 @@
     "@core/libseccomp": {
       "repo": "core",
       "repo_type": "official",
-      "version": "2.6.0",
+      "version": "2.6.2",
       "epoch": 0,
       "revision": "1",
       "description": "Enhanced seccomp library",
@@ -2336,8 +3298,13 @@
       "scopes": [
         "system"
       ],
-      "sub_packages": [],
-      "main_sub_packages": [],
+      "sub_packages": [
+        "main",
+        "python"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
       "vuln": [],
       "dependencies": {
         "runtime": [
@@ -2349,9 +3316,54 @@
             "packages": [
               "pacman:base-devel",
               "pacman:curl",
+              "pacman:cython",
               "pacman:gcc",
               "pacman:gperf",
-              "pacman:make"
+              "pacman:make",
+              "pacman:python",
+              "pacman:python-build",
+              "pacman:python-installer",
+              "pacman:python-setuptools",
+              "pacman:python-wheel"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/libssh2": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.11.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A library implementing the SSH2 protocol as defined by Internet Drafts",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/openssl",
+          "zoi:@core/zlib"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:openssl",
+              "pacman:patch",
+              "pacman:tar",
+              "pacman:xz",
+              "pacman:zlib"
             ]
           }
         ],
@@ -2363,7 +3375,7 @@
       "repo_type": "official",
       "version": "4.21.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The ASN.1 library used in GnuTLS",
       "scope": "system",
       "scopes": [
@@ -2395,7 +3407,7 @@
       "repo_type": "official",
       "version": "1.3.8",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Transport-independent RPC library",
       "scope": "system",
       "scopes": [
@@ -2406,7 +3418,8 @@
       "vuln": [],
       "dependencies": {
         "runtime": [
-          "zoi:@core/glibc"
+          "zoi:@core/glibc",
+          "zoi:@core/krb5"
         ],
         "build": [
           {
@@ -2415,6 +3428,7 @@
               "pacman:base-devel",
               "pacman:curl",
               "pacman:gcc",
+              "pacman:krb5",
               "pacman:make"
             ]
           }
@@ -2427,7 +3441,7 @@
       "repo_type": "official",
       "version": "2.6.2",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "A generic library support script",
       "scope": "system",
       "scopes": [
@@ -2463,7 +3477,7 @@
       "repo_type": "official",
       "version": "1.5",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Library for manipulating Unicode strings and C strings",
       "scope": "system",
       "scopes": [
@@ -2495,7 +3509,7 @@
       "repo_type": "official",
       "version": "4.5.2",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Modern library for one-way hashing of passwords",
       "scope": "system",
       "scopes": [
@@ -2535,7 +3549,7 @@
       "repo_type": "official",
       "version": "2.15.4",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "XML C parser and toolkit",
       "scope": "system",
       "scopes": [
@@ -2547,6 +3561,7 @@
       "dependencies": {
         "runtime": [
           "zoi:@core/glibc",
+          "zoi:@core/icu",
           "zoi:@core/zlib"
         ],
         "build": [
@@ -2556,6 +3571,7 @@
               "pacman:base-devel",
               "pacman:curl",
               "pacman:gcc",
+              "pacman:icu",
               "pacman:meson",
               "pacman:ninja",
               "pacman:zlib"
@@ -2568,9 +3584,9 @@
     "@core/linux": {
       "repo": "core",
       "repo_type": "official",
-      "version": "7.2.14.parlex.1",
+      "version": "7.3.5.parlex.1",
       "epoch": 0,
-      "revision": "8",
+      "revision": "1",
       "description": "The Linux kernel and modules (Parlex Linux)",
       "scope": "system",
       "scopes": [
@@ -2598,23 +3614,28 @@
               "pacman:binutils",
               "pacman:bison",
               "pacman:cpio",
+              "pacman:curl",
               "pacman:diffutils",
+              "pacman:file",
               "pacman:flex",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
               "pacman:kmod",
               "pacman:libelf",
               "pacman:make",
               "pacman:openssl",
               "pacman:pahole",
+              "pacman:patch",
               "pacman:perl",
               "pacman:python",
+              "pacman:rust",
+              "pacman:rust-bindgen",
+              "pacman:rust-src",
               "pacman:tar",
+              "pacman:xxhash",
               "pacman:xz",
               "pacman:zlib",
-              "pacman:zstd",
-              "pacman:patch"
+              "pacman:zstd"
             ]
           }
         ],
@@ -2626,7 +3647,7 @@
       "repo_type": "official",
       "version": "20261019",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Firmware files for Linux",
       "scope": "system",
       "scopes": [
@@ -2647,13 +3668,46 @@
           {
             "type": "source",
             "packages": [
-              "pacman:git",
+              "pacman:curl",
               "pacman:make",
               "pacman:parallel",
-              "pacman:python",
               "pacman:rdfind",
               "pacman:tar",
+              "pacman:xz",
               "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/lmdb": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.0.3",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Symas Lightning Memory-Mapped Database",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:tar"
             ]
           }
         ],
@@ -2665,7 +3719,7 @@
       "repo_type": "official",
       "version": "1.11.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Extremely fast compression algorithm",
       "scope": "system",
       "scopes": [
@@ -2698,7 +3752,7 @@
       "repo_type": "official",
       "version": "1.4.21",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "The GNU macro processor",
       "scope": "system",
       "scopes": [
@@ -2716,18 +3770,10 @@
             "type": "source",
             "packages": [
               "pacman:base-devel",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:gcc",
-              "pacman:gettext",
-              "pacman:git",
-              "pacman:gperf",
-              "pacman:help2man",
               "pacman:make",
-              "pacman:python",
               "pacman:tar",
-              "pacman:texinfo",
               "pacman:xz"
             ]
           }
@@ -2740,7 +3786,7 @@
       "repo_type": "official",
       "version": "4.4.1",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "GNU make utility to maintain groups of programs",
       "scope": "system",
       "scopes": [
@@ -2773,7 +3819,7 @@
       "repo_type": "official",
       "version": "2.13.3",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A utility for reading man pages",
       "scope": "system",
       "scopes": [
@@ -2813,12 +3859,47 @@
         "test": []
       }
     },
+    "@core/mpdecimal": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "4.0.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Package for correctly-rounded arbitrary precision decimal floating point arithmetic",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/gcc:libstdc++"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/mpfr": {
       "repo": "core",
       "repo_type": "official",
       "version": "4.2.2",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Multiple-precision floating-point library",
       "scope": "system",
       "scopes": [
@@ -2837,12 +3918,9 @@
             "type": "source",
             "packages": [
               "pacman:base-devel",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:gcc",
               "pacman:gmp",
-              "pacman:libtool",
               "pacman:make",
               "pacman:tar",
               "pacman:xz"
@@ -2857,7 +3935,7 @@
       "repo_type": "official",
       "version": "6.6",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "System V Release 4.0 curses emulation library",
       "scope": "system",
       "scopes": [
@@ -2877,23 +3955,24 @@
             "type": "source",
             "packages": [
               "pacman:autoconf-archive",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:make",
-              "pacman:patch"
+              "pacman:patch",
+              "pacman:tar"
             ]
           }
         ],
         "test": []
       }
     },
-    "@core/openssh": {
+    "@core/nettle": {
       "repo": "core",
       "repo_type": "official",
-      "version": "10.6p1",
+      "version": "4.0",
       "epoch": 0,
-      "revision": "4",
-      "description": "SSH protocol implementation for remote login, command execution and file transfer",
+      "revision": "1",
+      "description": "A low-level cryptographic library",
       "scope": "system",
       "scopes": [
         "system"
@@ -2904,7 +3983,139 @@
       "dependencies": {
         "runtime": [
           "zoi:@core/glibc",
+          "zoi:@core/gmp"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:gmp",
+              "pacman:make",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/nftables": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.1.7",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Netfilter tables userspace tools",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/gmp",
+          "zoi:@core/jansson",
+          "zoi:@core/libmnl",
+          "zoi:@core/libnftnl",
+          "zoi:@core/readline"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:bison",
+              "pacman:curl",
+              "pacman:flex",
+              "pacman:gcc",
+              "pacman:gmp",
+              "pacman:jansson",
+              "pacman:libmnl",
+              "pacman:libnftnl",
+              "pacman:make",
+              "pacman:pkgconf",
+              "pacman:readline",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/openldap": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.7.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Lightweight Directory Access Protocol (LDAP) client and server",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [
+        "main",
+        "libs"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libsasl",
+              "pacman:libtool",
+              "pacman:libxcrypt",
+              "pacman:make",
+              "pacman:openssl",
+              "pacman:perl",
+              "pacman:systemd",
+              "pacman:tar",
+              "pacman:util-linux"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/openssh": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "10.6p2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "SSH protocol implementation for remote login, command execution and file transfer",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc",
+          "zoi:@core/krb5",
+          "zoi:@core/libedit",
+          "zoi:@core/libxcrypt",
           "zoi:@core/openssl",
+          "zoi:@core/pam",
           "zoi:@core/zlib"
         ],
         "build": [
@@ -2914,7 +4125,6 @@
               "pacman:gcc",
               "pacman:krb5",
               "pacman:libedit",
-              "pacman:libfido2",
               "pacman:libxcrypt",
               "pacman:make",
               "pacman:openssl",
@@ -2932,7 +4142,7 @@
       "repo_type": "official",
       "version": "4.1.0",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "The Open Source toolkit for cryptography and Transport Layer Security (TLS/SSL)",
       "scope": "system",
       "scopes": [
@@ -2969,7 +4179,7 @@
       "repo_type": "official",
       "version": "0.26.6",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Loads and enumerates PKCS#11 modules, and provides the system trust store",
       "scope": "system",
       "scopes": [
@@ -3002,12 +4212,51 @@
         "test": []
       }
     },
+    "@core/pahole": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.32",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Type info tools (pahole, dwarves)",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/elfutils:libelf",
+          "zoi:@core/glibc",
+          "zoi:@core/zlib"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:cmake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libelf",
+              "pacman:ninja",
+              "pacman:tar",
+              "pacman:xz",
+              "pacman:zlib"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/pam": {
       "repo": "core",
       "repo_type": "official",
       "version": "1.7.3",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "PAM (Pluggable Authentication Modules) library",
       "scope": "system",
       "scopes": [
@@ -3020,6 +4269,8 @@
         "runtime": [
           "zoi:@core/audit",
           "zoi:@core/glibc",
+          "zoi:@core/libnsl",
+          "zoi:@core/libtirpc",
           "zoi:@core/libxcrypt",
           "zoi:@core/pambase",
           "zoi:@core/systemd:libs"
@@ -3029,6 +4280,7 @@
             "type": "source",
             "packages": [
               "pacman:base-devel",
+              "pacman:curl",
               "pacman:audit",
               "pacman:docbook-xml",
               "pacman:docbook-xsl",
@@ -3037,14 +4289,17 @@
               "pacman:fop",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
+              "pacman:libnsl",
+              "pacman:libtirpc",
               "pacman:libxcrypt",
               "pacman:libxml2",
               "pacman:libxslt",
               "pacman:meson",
               "pacman:ninja",
               "pacman:systemd",
-              "pacman:w3m"
+              "pacman:tar",
+              "pacman:w3m",
+              "pacman:xz"
             ]
           }
         ],
@@ -3056,7 +4311,7 @@
       "repo_type": "official",
       "version": "20260616",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Base PAM configuration for services",
       "scope": "system",
       "scopes": [
@@ -3072,7 +4327,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Package set for a bootable Parlex Linux installation",
       "scope": "system",
       "scopes": [
@@ -3090,7 +4345,7 @@
           "zoi:@core/grub",
           "zoi:@core/systemd",
           "zoi:@core/sudo",
-          "zoi:@core/zoid"
+          "zoi:@core/zoi:zoid"
         ],
         "build": [],
         "test": []
@@ -3101,7 +4356,7 @@
       "repo_type": "official",
       "version": "2.8.1",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "A utility to apply patch files to original sources",
       "scope": "system",
       "scopes": [
@@ -3136,7 +4391,7 @@
       "repo_type": "official",
       "version": "3.15.0",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "PCI bus configuration space access library and tools (lspci, setpci)",
       "scope": "system",
       "scopes": [
@@ -3155,11 +4410,13 @@
           {
             "type": "source",
             "packages": [
+              "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
-              "pacman:git",
               "pacman:kmod",
-              "pacman:make"
+              "pacman:make",
+              "pacman:tar",
+              "pacman:xz"
             ]
           }
         ],
@@ -3171,7 +4428,7 @@
       "repo_type": "official",
       "version": "10.49",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A library that implements Perl 5-style regular expressions. 2nd version",
       "scope": "system",
       "scopes": [
@@ -3191,14 +4448,12 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:bzip2",
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
-              "pacman:libtool",
               "pacman:make",
               "pacman:readline",
+              "pacman:tar",
               "pacman:zlib"
             ]
           }
@@ -3211,7 +4466,7 @@
       "repo_type": "official",
       "version": "5.44.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A highly capable, feature-rich programming language",
       "scope": "system",
       "scopes": [
@@ -3229,10 +4484,113 @@
           {
             "type": "source",
             "packages": [
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:libxcrypt",
-              "pacman:make"
+              "pacman:make",
+              "pacman:patch",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/perl-error": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "0.17031",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Perl/CPAN Error module - Error/exception handling in an OO-ish way",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/perl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:make",
+              "pacman:perl",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/perl-mailtools": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.22",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Various e-mail related modules",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/perl",
+          "zoi:@core/perl-timedate"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:make",
+              "pacman:perl",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/perl-timedate": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.35",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Date formating subroutines",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/perl"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:make",
+              "pacman:perl",
+              "pacman:tar"
             ]
           }
         ],
@@ -3242,9 +4600,9 @@
     "@core/pkgconf": {
       "repo": "core",
       "repo_type": "official",
-      "version": "3.0.10",
+      "version": "3.0.11",
       "epoch": 0,
-      "revision": "3",
+      "revision": "1",
       "description": "Package compiler and linker metadata toolkit",
       "scope": "system",
       "scopes": [
@@ -3261,8 +4619,8 @@
           {
             "type": "source",
             "packages": [
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:meson",
               "pacman:ninja"
             ]
@@ -3276,7 +4634,7 @@
       "repo_type": "official",
       "version": "1.19",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Command line option parsing library",
       "scope": "system",
       "scopes": [
@@ -3308,7 +4666,7 @@
       "repo_type": "official",
       "version": "4.0.7",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Utilities for monitoring your system and its processes (ps, top, free, etc.)",
       "scope": "system",
       "scopes": [
@@ -3327,18 +4685,17 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
+              "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
-              "pacman:libtool",
               "pacman:make",
               "pacman:ncurses",
               "pacman:pkgconf",
               "pacman:po4a",
-              "pacman:systemd"
+              "pacman:systemd",
+              "pacman:tar",
+              "pacman:xz"
             ]
           }
         ],
@@ -3350,7 +4707,7 @@
       "repo_type": "official",
       "version": "23.7",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Miscellaneous procfs tools (fuser, killall, pstree)",
       "scope": "system",
       "scopes": [
@@ -3368,16 +4725,239 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
+              "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
               "pacman:gettext",
-              "pacman:git",
-              "pacman:libtool",
               "pacman:make",
               "pacman:ncurses",
-              "pacman:po4a"
+              "pacman:po4a",
+              "pacman:tar",
+              "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/python": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.14.10",
+      "epoch": 0,
+      "revision": "1",
+      "description": "The Python programming language",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bzip2",
+          "zoi:@core/expat",
+          "zoi:@core/gdbm",
+          "zoi:@core/glibc",
+          "zoi:@core/libffi",
+          "zoi:@core/mpdecimal",
+          "zoi:@core/ncurses",
+          "zoi:@core/openssl",
+          "zoi:@core/readline",
+          "zoi:@core/sqlite",
+          "zoi:@core/tzdata",
+          "zoi:@core/util-linux:libs",
+          "zoi:@core/xz",
+          "zoi:@core/zlib",
+          "zoi:@core/zstd"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:bluez-libs",
+              "pacman:bzip2",
+              "pacman:curl",
+              "pacman:expat",
+              "pacman:gcc",
+              "pacman:gdbm",
+              "pacman:libffi",
+              "pacman:make",
+              "pacman:mpdecimal",
+              "pacman:ncurses",
+              "pacman:openssl",
+              "pacman:patch",
+              "pacman:readline",
+              "pacman:sqlite",
+              "pacman:tar",
+              "pacman:tzdata",
+              "pacman:util-linux-libs",
+              "pacman:xz",
+              "pacman:zlib",
+              "pacman:zstd"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/python-cffi": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.1.1",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Foreign Function Interface for Python calling C code",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/libffi",
+          "zoi:@core/python",
+          "zoi:@core/python-pycparser"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:libffi",
+              "pacman:pkgconf",
+              "pacman:python",
+              "pacman:python-build",
+              "pacman:python-installer",
+              "pacman:python-setuptools",
+              "pacman:python-wheel",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/python-cryptography": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "50.0.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A package designed to expose cryptographic recipes and primitives to Python developers",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/gcc:libgcc",
+          "zoi:@core/glibc",
+          "zoi:@core/openssl",
+          "zoi:@core/python",
+          "zoi:@core/python-cffi"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:clang",
+              "pacman:curl",
+              "pacman:lld",
+              "pacman:llvm",
+              "pacman:openssl",
+              "pacman:patch",
+              "pacman:pkgconf",
+              "pacman:python",
+              "pacman:python-build",
+              "pacman:python-cffi",
+              "pacman:python-installer",
+              "pacman:python-maturin",
+              "pacman:python-setuptools",
+              "pacman:python-wheel",
+              "pacman:rust",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/python-pefile": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2024.8.26",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Python PE parsing module",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/python"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:python",
+              "pacman:python-build",
+              "pacman:python-installer",
+              "pacman:python-setuptools",
+              "pacman:python-wheel",
+              "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/python-pycparser": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "3.12",
+      "epoch": 0,
+      "revision": "1",
+      "description": "C parser and AST generator written in Python",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/python"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:python",
+              "pacman:python-build",
+              "pacman:python-installer",
+              "pacman:python-setuptools",
+              "pacman:python-wheel",
+              "pacman:tar"
             ]
           }
         ],
@@ -3389,7 +4969,7 @@
       "repo_type": "official",
       "version": "8.3.6",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "GNU readline library",
       "scope": "system",
       "scopes": [
@@ -3425,7 +5005,7 @@
       "repo_type": "official",
       "version": "4.10",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "GNU stream editor",
       "scope": "system",
       "scopes": [
@@ -3446,12 +5026,9 @@
             "packages": [
               "pacman:acl",
               "pacman:attr",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
-              "pacman:gettext",
               "pacman:make",
               "pacman:tar",
               "pacman:xz"
@@ -3464,9 +5041,9 @@
     "@core/shadow": {
       "repo": "core",
       "repo_type": "official",
-      "version": "4.20.0",
+      "version": "4.20.4",
       "epoch": 0,
-      "revision": "10",
+      "revision": "1",
       "description": "Password and account management tool suite with support for shadow files and PAM",
       "scope": "system",
       "scopes": [
@@ -3496,7 +5073,6 @@
               "pacman:diffutils",
               "pacman:docbook-xsl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:itstool",
               "pacman:libcap",
               "pacman:libtool",
@@ -3518,21 +5094,22 @@
       "repo_type": "official",
       "version": "3.54.1",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A C library that implements an SQL database engine",
       "scope": "system",
       "scopes": [
         "system"
       ],
-      "sub_packages": [],
-      "main_sub_packages": [],
+      "sub_packages": [
+        "main",
+        "tcl"
+      ],
+      "main_sub_packages": [
+        "main"
+      ],
       "vuln": [],
       "dependencies": {
-        "runtime": [
-          "zoi:@core/glibc",
-          "zoi:@core/readline",
-          "zoi:@core/zlib"
-        ],
+        "runtime": [],
         "build": [
           {
             "type": "source",
@@ -3555,7 +5132,7 @@
       "repo_type": "official",
       "version": "1.9.17.p2",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Give certain users the ability to run some commands as root",
       "scope": "system",
       "scopes": [
@@ -3567,6 +5144,9 @@
       "dependencies": {
         "runtime": [
           "zoi:@core/glibc",
+          "zoi:@core/openldap:libs",
+          "zoi:@core/openssl",
+          "zoi:@core/pam",
           "zoi:@core/zlib"
         ],
         "build": [
@@ -3594,7 +5174,7 @@
       "repo_type": "official",
       "version": "262.1",
       "epoch": 0,
-      "revision": "9",
+      "revision": "10",
       "description": "System and service manager for Linux",
       "scope": "system",
       "scopes": [
@@ -3618,8 +5198,8 @@
             "type": "source",
             "packages": [
               "pacman:acl",
-              "pacman:apparmor",
               "pacman:audit",
+              "pacman:bzip2",
               "pacman:bash-completion",
               "pacman:bpf",
               "pacman:clang",
@@ -3627,7 +5207,6 @@
               "pacman:curl",
               "pacman:diffutils",
               "pacman:docbook-xsl",
-              "pacman:git",
               "pacman:gnutls",
               "pacman:gperf",
               "pacman:intltool",
@@ -3637,14 +5216,12 @@
               "pacman:libarchive",
               "pacman:libbpf",
               "pacman:libelf",
-              "pacman:libfido2",
               "pacman:libgcrypt",
+              "pacman:libgpg-error",
               "pacman:libidn2",
               "pacman:libmicrohttpd",
-              "pacman:libpwquality",
               "pacman:libseccomp",
               "pacman:libxcrypt",
-              "pacman:libxkbcommon",
               "pacman:libxslt",
               "pacman:linux-api-headers",
               "pacman:linux-headers",
@@ -3660,13 +5237,11 @@
               "pacman:python-lxml",
               "pacman:python-pefile",
               "pacman:python-pyelftools",
-              "pacman:qrencode",
               "pacman:quota-tools",
               "pacman:rsync",
               "pacman:rust",
               "pacman:rust-bindgen",
               "pacman:shadow",
-              "pacman:tpm2-tss",
               "pacman:util-linux",
               "pacman:xz",
               "pacman:zlib",
@@ -3682,7 +5257,7 @@
       "repo_type": "official",
       "version": "1.35",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "Utility used to store, backup, and transport files",
       "scope": "system",
       "scopes": [
@@ -3706,8 +5281,6 @@
             "packages": [
               "pacman:acl",
               "pacman:attr",
-              "pacman:autoconf",
-              "pacman:automake",
               "pacman:curl",
               "pacman:diffutils",
               "pacman:gcc",
@@ -3721,12 +5294,47 @@
         "test": []
       }
     },
+    "@core/tcl": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "9.1.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Powerful, easy-to-learn dynamic programming language",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/zlib"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:sed",
+              "pacman:tar",
+              "pacman:zlib"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/texinfo": {
       "repo": "core",
       "repo_type": "official",
       "version": "7.3",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "GNU documentation system for on-line information and printed output",
       "scope": "system",
       "scopes": [
@@ -3760,12 +5368,44 @@
         "test": []
       }
     },
+    "@core/tzdata": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2026f",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Sources for time zone and daylight saving time data",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/util-linux": {
       "repo": "core",
       "repo_type": "official",
       "version": "2.42.4",
       "epoch": 0,
-      "revision": "9",
+      "revision": "10",
       "description": "Miscellaneous system utilities for Linux",
       "scope": "system",
       "scopes": [
@@ -3773,7 +5413,8 @@
       ],
       "sub_packages": [
         "main",
-        "libs"
+        "libs",
+        "python"
       ],
       "main_sub_packages": [
         "main"
@@ -3790,12 +5431,12 @@
             "packages": [
               "pacman:asciidoctor",
               "pacman:bison",
+              "pacman:curl",
               "pacman:cryptsetup",
               "pacman:diffutils",
               "pacman:file",
               "pacman:flex",
               "pacman:gcc",
-              "pacman:git",
               "pacman:libcap-ng",
               "pacman:libxcrypt",
               "pacman:meson",
@@ -3820,7 +5461,7 @@
       "repo_type": "official",
       "version": "1.25.0",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Network utility to retrieve files from the web",
       "scope": "system",
       "scopes": [
@@ -3833,18 +5474,24 @@
         "runtime": [
           "zoi:@core/ca-certificates",
           "zoi:@core/glibc",
+          "zoi:@core/gnutls",
+          "zoi:@core/libidn2",
+          "zoi:@core/libpsl",
+          "zoi:@core/nettle",
+          "zoi:@core/pcre2",
+          "zoi:@core/util-linux:libs",
           "zoi:@core/zlib"
         ],
         "build": [
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
+              "pacman:curl",
               "pacman:gcc",
               "pacman:gnutls",
               "pacman:libidn2",
               "pacman:libpsl",
+              "pacman:lzip",
               "pacman:make",
               "pacman:nettle",
               "pacman:pcre2",
@@ -3863,7 +5510,7 @@
       "repo_type": "official",
       "version": "2.25",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A utility to show the full path of commands",
       "scope": "system",
       "scopes": [
@@ -3896,7 +5543,7 @@
       "repo_type": "official",
       "version": "0.8.4",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "Extremely fast non-cryptographic hash algorithm",
       "scope": "system",
       "scopes": [
@@ -3913,8 +5560,8 @@
           {
             "type": "source",
             "packages": [
+              "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:make"
             ]
           }
@@ -3927,7 +5574,7 @@
       "repo_type": "official",
       "version": "5.8.4",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Library and command line tools for XZ and LZMA compressed files",
       "scope": "system",
       "scopes": [
@@ -3944,16 +5591,11 @@
           {
             "type": "source",
             "packages": [
-              "pacman:autoconf",
-              "pacman:automake",
+              "pacman:curl",
               "pacman:diffutils",
               "pacman:doxygen",
               "pacman:gcc",
-              "pacman:gettext",
-              "pacman:git",
-              "pacman:libtool",
-              "pacman:make",
-              "pacman:po4a"
+              "pacman:make"
             ]
           }
         ],
@@ -3963,9 +5605,9 @@
     "@core/zlib": {
       "repo": "core",
       "repo_type": "official",
-      "version": "1.3.2",
+      "version": "1.4",
       "epoch": 0,
-      "revision": "4",
+      "revision": "1",
       "description": "Compression library implementing the deflate compression method found in gzip and PKZIP",
       "scope": "system",
       "scopes": [
@@ -3995,7 +5637,6 @@
               "pacman:gcc",
               "pacman:libtool",
               "pacman:make",
-              "pacman:patch",
               "pacman:tar",
               "pacman:xz"
             ]
@@ -4007,7 +5648,7 @@
     "@core/zoi": {
       "repo": "core",
       "repo_type": "official",
-      "version": "1.29.15",
+      "version": "1.29.17",
       "epoch": 0,
       "revision": "1",
       "description": "Advanced Package Manager & Environment Orchestrator",
@@ -4015,38 +5656,31 @@
       "scopes": [
         "system"
       ],
-      "sub_packages": [],
-      "main_sub_packages": [],
-      "vuln": [],
-      "dependencies": {
-        "runtime": [
-          "zoi:@core/git",
-          "zoi:@core/openssl",
-          "zoi:@core/bubblewrap:for building pure packages and running isolated apps"
-        ],
-        "build": [],
-        "test": []
-      }
-    },
-    "@core/zoid": {
-      "repo": "core",
-      "repo_type": "official",
-      "version": "1.29.15",
-      "epoch": 0,
-      "revision": "1",
-      "description": "ZoiOS privileged system daemon",
-      "scope": "system",
-      "scopes": [
-        "system"
+      "sub_packages": [
+        "main",
+        "zoid"
       ],
-      "sub_packages": [],
-      "main_sub_packages": [],
+      "main_sub_packages": [
+        "main"
+      ],
       "vuln": [],
       "dependencies": {
-        "runtime": [
-          "zoi:@core/zoi"
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:asciidoctor",
+              "pacman:base-devel",
+              "pacman:clang",
+              "pacman:curl",
+              "pacman:just",
+              "pacman:perl",
+              "pacman:pkgconf",
+              "pacman:rust"
+            ]
+          }
         ],
-        "build": [],
         "test": []
       }
     },
@@ -4055,7 +5689,7 @@
       "repo_type": "official",
       "version": "1.5.7",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Zstandard - Fast real-time compression algorithm",
       "scope": "system",
       "scopes": [
@@ -4080,7 +5714,6 @@
               "pacman:cmake",
               "pacman:curl",
               "pacman:gcc",
-              "pacman:git",
               "pacman:lz4",
               "pacman:ninja",
               "pacman:patch",
@@ -4123,12 +5756,70 @@
         "test": []
       }
     },
+    "@extra/fastfetch": {
+      "repo": "extra",
+      "repo_type": "official",
+      "version": "2.71.0",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A feature-rich and performance oriented neofetch like system information tool",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/hwdata: GPU names (pci.ids)",
+          "zoi:@core/zlib: faster image output with the kitty graphics protocol",
+          "zoi:@core/sqlite: SQLite integration and Soar package count"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:cmake",
+              "pacman:curl",
+              "pacman:gcc",
+              "pacman:ninja",
+              "pacman:pkgconf",
+              "pacman:python",
+              "pacman:chafa",
+              "pacman:dbus",
+              "pacman:dconf",
+              "pacman:imagemagick",
+              "pacman:libdrm",
+              "pacman:libelf",
+              "pacman:libglvnd",
+              "pacman:libva",
+              "pacman:libvdpau",
+              "pacman:libxcb",
+              "pacman:libxrandr",
+              "pacman:lua",
+              "pacman:ocl-icd",
+              "pacman:opencl-headers",
+              "pacman:sqlite",
+              "pacman:vulkan-headers",
+              "pacman:vulkan-icd-loader",
+              "pacman:wayland",
+              "pacman:xfconf",
+              "pacman:zlib"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@extra/git-cliff": {
       "repo": "extra",
       "repo_type": "official",
       "version": "2.14.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "A highly customizable changelog generator",
       "scope": "user",
       "sub_packages": [],
@@ -4233,7 +5924,7 @@
       "repo_type": "official",
       "version": "1.0.0",
       "epoch": 0,
-      "revision": "3",
+      "revision": "4",
       "description": "A Rust project template with the Zillowe conventions: rustfmt, .editorconfig, workspace lints, Justfile and CI.",
       "scope": "user",
       "sub_packages": [],
