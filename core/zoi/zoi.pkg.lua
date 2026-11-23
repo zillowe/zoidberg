@@ -1,5 +1,5 @@
-local version = ZOI.VERSION or "1.29.16"
-local sha512 = "SHA512_OF_THE_RELEASE_SOURCE_TARBALL"
+local version = ZOI.VERSION or "1.29.17"
+local sha512 = "908e6f7c53fa6a1b1acf341202899ea603a9db75b2714562556b198c683b5e39407f050664b4d67dfaa7712ad955fab541286a854e5804f6fb2fc72a5da32d3e"
 local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/Prod-Release-" .. version .. "/downloads"
 -- Zillowe release signing key, as published at
 -- https://zillowe.pages.dev/keys/zillowe-main.asc.

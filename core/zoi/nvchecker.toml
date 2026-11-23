@@ -2,3 +2,5 @@
 source = "gitlab"
 gitlab = "zillowe/zillwen/zusty/zoi"
 use_max_tag = true
+include_regex = '^Prod-Release-\d+\.\d+\.\d+$'
+prefix = "Prod-Release-"
