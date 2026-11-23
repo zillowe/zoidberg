@@ -1,0 +1,46 @@
+From 2cb5882dda27341011a034feb6d1d2b5a7c61a3a Mon Sep 17 00:00:00 2001
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+Date: Mon, 5 Jan 2026 20:39:38 +0100
+Subject: [PATCH] systemd: create locked dbus user if possible
+
+Since there is no need to log in as the dbus user, fully lock the
+account. The same is done with system users in systemd itself.
+
+The feature is available since systemd 257. Use if possible,
+otherwise stay with minimum version requirement 209.
+
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+---
+ bus/sysusers.d/dbus.conf.in | 2 +-
+ meson.build                 | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/bus/sysusers.d/dbus.conf.in b/bus/sysusers.d/dbus.conf.in
+index fb35702dd..92c815d5d 100644
+--- a/bus/sysusers.d/dbus.conf.in
++++ b/bus/sysusers.d/dbus.conf.in
+@@ -2,4 +2,4 @@
+ # at boot on systemd-based systems that ship with an unpopulated
+ # /etc. See sysusers.d(5) for details.
+ 
+-u @DBUS_USER@ - "System Message Bus"
++u@DBUS_USER_LOCK@ @DBUS_USER@ - "System Message Bus"
+diff --git a/meson.build b/meson.build
+index 7281b7ec6..9e6479db6 100644
+--- a/meson.build
++++ b/meson.build
+@@ -549,6 +549,11 @@ if use_systemd
+             : '/usr/lib/systemd/user'
+         )
+     endif
++
++    # Version 257 and above support locked system accounts; use if available.
++    if systemd.version().version_compare('>=257')
++        data_config.set('DBUS_USER_LOCK', '!')
++    endif
+ else
+     systemctl = ''
+ endif
+-- 
+GitLab
+

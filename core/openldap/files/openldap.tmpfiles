@@ -1,0 +1,7 @@
+D /run/openldap 0755 ldap ldap -
+
+f /var/lib/openldap/.placeholder 0644 ldap ldap - "prevent pwcheck error; the package manager should not remove ~ldap"
+# slapd drops privileges to ldap:ldap and must be able to read its config
+# (Arch sets this ownership at packaging time).
+z /etc/openldap/slapd.conf 0640 root ldap -
+z /etc/openldap/slapd.ldif 0640 root ldap -

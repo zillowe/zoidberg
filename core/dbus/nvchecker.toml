@@ -1,0 +1,4 @@
+[dbus]
+source = "regex"
+url = "https://dbus.freedesktop.org/releases/dbus/"
+regex = 'dbus-(\d+\.\d*[02468]\.\d+)\.tar\.xz'

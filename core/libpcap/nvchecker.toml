@@ -1,0 +1,4 @@
+[libpcap]
+source = "regex"
+url = "https://www.tcpdump.org/release/"
+regex = 'libpcap-(\d+\.\d+\.\d+)\.tar\.xz'

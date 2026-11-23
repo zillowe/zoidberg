@@ -1,0 +1,4 @@
+[gnulib-l10n]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/gnulib/"
+regex = 'gnulib-l10n-(\d{8})\.tar\.gz'

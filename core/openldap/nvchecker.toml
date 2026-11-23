@@ -1,0 +1,7 @@
+[openldap]
+source = "git"
+git = "https://git.openldap.org/openldap/openldap.git"
+include_regex = '^OPENLDAP_REL_ENG_\d+_\d+_\d+$'
+prefix = "OPENLDAP_REL_ENG_"
+from_pattern = '_'
+to_pattern = '.'

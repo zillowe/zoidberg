@@ -1,0 +1,5 @@
+[jansson]
+source = "github"
+github = "akheron/jansson"
+use_latest_release = true
+prefix = "v"

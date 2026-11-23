@@ -1,0 +1,4 @@
+[libgcrypt]
+source = "regex"
+url = "https://www.gnupg.org/ftp/gcrypt/libgcrypt/"
+regex = 'libgcrypt-(\d+(?:\.\d+)+)\.tar\.bz2'

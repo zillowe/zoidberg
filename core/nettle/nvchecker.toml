@@ -1,0 +1,4 @@
+[nettle]
+source = "regex"
+url = "https://ftp.gnu.org/gnu/nettle/"
+regex = 'nettle-(\d+(?:\.\d+)+)\.tar\.gz'

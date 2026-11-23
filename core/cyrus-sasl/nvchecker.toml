@@ -1,0 +1,6 @@
+[cyrus-sasl]
+source = "github"
+github = "cyrusimap/cyrus-sasl"
+use_max_tag = true
+include_regex = '^cyrus-sasl-\d+\.\d+\.\d+$'
+prefix = "cyrus-sasl-"

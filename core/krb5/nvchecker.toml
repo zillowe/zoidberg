@@ -1,0 +1,4 @@
+[krb5]
+source = "regex"
+url = "https://web.mit.edu/kerberos/dist/"
+regex = 'krb5-(\d+\.\d+(?:\.\d+)?)\.tar\.gz'

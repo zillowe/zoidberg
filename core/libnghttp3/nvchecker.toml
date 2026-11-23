@@ -1,0 +1,5 @@
+[libnghttp3]
+source = "github"
+github = "ngtcp2/nghttp3"
+use_latest_release = true
+prefix = "v"

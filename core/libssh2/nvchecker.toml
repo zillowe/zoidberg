@@ -1,0 +1,5 @@
+[libssh2]
+source = "github"
+github = "libssh2/libssh2"
+use_latest_release = true
+prefix = "libssh2-"

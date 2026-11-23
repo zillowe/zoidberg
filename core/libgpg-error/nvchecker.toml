@@ -1,0 +1,4 @@
+[libgpg-error]
+source = "regex"
+url = "https://www.gnupg.org/ftp/gcrypt/libgpg-error/"
+regex = 'libgpg-error-(\d+(?:\.\d+)+)\.tar\.bz2'

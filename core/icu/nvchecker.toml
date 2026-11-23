@@ -1,0 +1,6 @@
+[icu]
+source = "github"
+github = "unicode-org/icu"
+use_latest_release = true
+include_regex = '^release-\d+\.\d+(\.\d+)?$'
+prefix = "release-"

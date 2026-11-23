@@ -1,0 +1,6 @@
+[tcl]
+source = "git"
+git = "https://github.com/tcltk/tcl"
+include_regex = '^core-\d+-\d+-\d+$'
+from_pattern = '^core-(\d+)-(\d+)-(\d+)$'
+to_pattern = '\1.\2.\3'

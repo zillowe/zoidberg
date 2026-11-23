@@ -1,0 +1,4 @@
+[efivar]
+source = "git"
+git = "https://github.com/rhboot/efivar"
+include_regex = '^\d+$'

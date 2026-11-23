@@ -1,0 +1,14 @@
+Zoidberg-specific (same change as Arch Linux's sed in prepare()): the
+1.0.11 release tarball still defines MHD_VERSION as 1.0.10 (0x01001000).
+
+--- a/src/include/microhttpd.h	2026-11-23 21:58:29.541104104 +0300
++++ b/src/include/microhttpd.h	2026-11-23 21:58:29.546104129 +0300
+@@ -101,7 +101,7 @@
+  * they are parsed as decimal numbers.
+  * Example: 0x01093001 = 1.9.30-1.
+  */
+-#define MHD_VERSION 0x01001000
++#define MHD_VERSION 0x01001100
+ 
+ /* If generic headers don't work on your platform, include headers
+    which define 'va_list', 'size_t', 'ssize_t', 'intptr_t', 'off_t',

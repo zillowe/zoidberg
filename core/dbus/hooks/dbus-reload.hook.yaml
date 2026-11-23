@@ -1,0 +1,15 @@
+name: dbus-reload
+description: Reloading system bus configuration...
+platforms: ["linux"]
+trigger:
+  paths:
+    - "${usrroot}/etc/dbus-1/system.d/*.conf"
+    - "${usrroot}/usr/share/dbus-1/system.d/*.conf"
+    - "${usrroot}/usr/share/dbus-1/system-services/*.service"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/lib/systemd/systemd-hook ]; then
+      /usr/lib/systemd/systemd-hook reload dbus.service
+    fi

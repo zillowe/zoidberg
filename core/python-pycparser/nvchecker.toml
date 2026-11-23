@@ -1,0 +1,3 @@
+[python-pycparser]
+source = "pypi"
+pypi = "pycparser"

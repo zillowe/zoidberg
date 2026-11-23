@@ -1,0 +1,3 @@
+[python-pefile]
+source = "pypi"
+pypi = "pefile"

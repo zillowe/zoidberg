@@ -1,0 +1,5 @@
+[kbd]
+source = "git"
+git = "https://git.kernel.org/pub/scm/linux/kernel/git/legion/kbd.git"
+include_regex = '^v\d+\.\d+\.\d+$'
+prefix = "v"

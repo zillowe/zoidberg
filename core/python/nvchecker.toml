@@ -1,0 +1,6 @@
+[python]
+source = "regex"
+url = "https://www.python.org/ftp/python/"
+# Track the 3.14 series (the minor Arch Linux ships); its maintenance
+# releases have no pre-releases.
+regex = 'href="(3\.14\.\d+)/"'

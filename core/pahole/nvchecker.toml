@@ -1,0 +1,4 @@
+[pahole]
+source = "regex"
+url = "https://fedorapeople.org/~acme/dwarves/"
+regex = 'dwarves-(\d+\.\d+)\.tar\.xz'

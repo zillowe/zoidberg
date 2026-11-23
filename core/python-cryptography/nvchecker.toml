@@ -1,0 +1,3 @@
+[python-cryptography]
+source = "pypi"
+pypi = "cryptography"

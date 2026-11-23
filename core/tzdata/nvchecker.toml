@@ -1,0 +1,7 @@
+[tzdata]
+# This file holds only the current release (e.g. "2026f"). nvchecker's default
+# version sort reads the letter suffix as a pre-release tag, so a tag listing
+# would pick the wrong maximum.
+source = "regex"
+url = "https://data.iana.org/time-zones/tzdb/version"
+regex = '^(\d{4}[a-z])$'
