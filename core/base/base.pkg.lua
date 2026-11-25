@@ -4,7 +4,7 @@ metadata({
 	name = "base",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	description = "Minimal userland for Parlex Linux and isolated (--pure) build roots",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
@@ -53,6 +53,9 @@ dependencies({
 					"zoi:@core/psmisc",
 					"zoi:@core/shadow",
 					"zoi:@core/util-linux",
+					-- Time zones and console keymaps (system.lua timezone/keymap)
+					"zoi:@core/tzdata",
+					"zoi:@core/kbd",
 					"zoi:@core/bzip2",
 					"zoi:@core/gzip",
 					"zoi:@core/xz",
