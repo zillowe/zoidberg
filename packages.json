@@ -1353,6 +1353,7 @@
             "type": "source",
             "packages": [
               "pacman:curl",
+              "pacman:diffutils",
               "pacman:gcc",
               "pacman:gettext",
               "pacman:m4",
@@ -1652,6 +1653,7 @@
             "type": "source",
             "packages": [
               "pacman:curl",
+              "pacman:patch",
               "pacman:python",
               "pacman:gcc",
               "pacman:make",
@@ -1901,6 +1903,7 @@
             "packages": [
               "pacman:bison",
               "pacman:curl",
+              "pacman:diffutils",
               "pacman:device-mapper",
               "pacman:flex",
               "pacman:freetype2",
@@ -2076,6 +2079,7 @@
             "packages": [
               "pacman:bison",
               "pacman:curl",
+              "pacman:patch",
               "pacman:flex",
               "pacman:gcc",
               "pacman:iptables",
@@ -4162,8 +4166,10 @@
             "type": "source",
             "packages": [
               "pacman:brotli",
+              "pacman:curl",
               "pacman:gcc",
               "pacman:make",
+              "pacman:patch",
               "pacman:perl",
               "pacman:tar",
               "pacman:zlib",
@@ -5487,6 +5493,7 @@
             "type": "source",
             "packages": [
               "pacman:curl",
+              "pacman:texinfo",
               "pacman:gcc",
               "pacman:gnutls",
               "pacman:libidn2",
