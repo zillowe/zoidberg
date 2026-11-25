@@ -192,7 +192,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Minimal userland for Parlex Linux and isolated (--pure) build roots",
       "scope": "system",
       "scopes": [
