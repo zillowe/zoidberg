@@ -4,7 +4,7 @@ metadata({
 	name = "base",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	description = "Minimal userland for Parlex Linux and isolated (--pure) build roots",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
@@ -24,7 +24,7 @@ metadata({
 	type = "collection",
 	types = { "source" },
 	zoios = true,
-	sub_packages = { "main", "dev" },
+	sub_packages = { "main", "dev", "docs" },
 	main_subs = { "main" },
 })
 
@@ -59,14 +59,21 @@ dependencies({
 					"zoi:@core/bzip2",
 					"zoi:@core/gzip",
 					"zoi:@core/xz",
-					-- Documentation
+					-- Pager (systemctl, journalctl, git)
 					"zoi:@core/less",
-					"zoi:@core/man-db",
 					-- Zoi Core
 					"zoi:@core/zoi",
 					-- Networking
 					"zoi:@core/iputils",
 					"zoi:@core/iproute2",
+				},
+			},
+			-- man and its formatter (man-db, groff); optional, as headless
+			-- systems rarely need them.
+			docs = {
+				required = {
+					"zoi:@core/base:main",
+					"zoi:@core/man-db",
 				},
 			},
 			dev = {
