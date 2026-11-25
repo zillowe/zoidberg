@@ -156,7 +156,13 @@ function build()
 
 		# The patches only touch scripts; keep make from regenerating the
 		# shipped build system.
-		find . -type f \( -name "config.hin" -o -name "configh.in" -o -name "config.h.in" -o -name "Makefile.in" -o -name "aclocal.m4" -o -name "configure" \) -exec touch -c {} +
+		# Touch them in dependency order (inputs first) so each is newer
+		# than what it is generated from.
+		find . -type f -name aclocal.m4 -exec touch {} +
+		sleep 1
+		find . -type f -name configure -exec touch {} +
+		sleep 1
+		find . -type f \( -name "config*.h.in" -o -name "config.hin" -o -name "configh.in" -o -name "Makefile.in" \) -exec touch {} +
 
 		# x86_64-efi build
 		./configure \
