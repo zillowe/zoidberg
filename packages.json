@@ -192,7 +192,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "Minimal userland for Parlex Linux and isolated (--pure) build roots",
       "scope": "system",
       "scopes": [
@@ -200,7 +200,8 @@
       ],
       "sub_packages": [
         "main",
-        "dev"
+        "dev",
+        "docs"
       ],
       "main_sub_packages": [
         "main"
@@ -3651,7 +3652,7 @@
       "repo_type": "official",
       "version": "20261019",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Firmware files for Linux",
       "scope": "system",
       "scopes": [
@@ -3660,7 +3661,25 @@
       "sub_packages": [
         "main",
         "whence",
-        "amd_ucode"
+        "other",
+        "amd_ucode",
+        "amd",
+        "amdgpu",
+        "atheros",
+        "broadcom",
+        "cirrus",
+        "intel",
+        "liquidio",
+        "marvell",
+        "mediatek",
+        "mellanox",
+        "nfp",
+        "nvidia",
+        "qcom",
+        "qlogic",
+        "radeon",
+        "realtek",
+        "ti"
       ],
       "main_sub_packages": [
         "main"
@@ -3673,6 +3692,7 @@
             "type": "source",
             "packages": [
               "pacman:curl",
+              "pacman:libarchive",
               "pacman:make",
               "pacman:parallel",
               "pacman:rdfind",
@@ -4333,7 +4353,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Package set for a bootable Parlex Linux installation",
       "scope": "system",
       "scopes": [
@@ -4346,12 +4366,31 @@
         "runtime": [
           "zoi:@core/base",
           "zoi:@core/linux",
-          "zoi:@core/linux-firmware",
           "zoi:@core/dracut",
           "zoi:@core/grub",
           "zoi:@core/systemd",
           "zoi:@core/sudo",
-          "zoi:@core/zoi:zoid"
+          "zoi:@core/zoi:zoid",
+          "zoi:@core/linux-firmware:main:the default set (all common vendors)",
+          "zoi:@core/linux-firmware:amd_ucode:AMD CPU microcode",
+          "zoi:@core/linux-firmware:intel:firmware for Intel Wi-Fi, Bluetooth, GPUs and CPU-integrated devices",
+          "zoi:@core/linux-firmware:amdgpu:firmware for AMD Radeon GPUs (amdgpu driver)",
+          "zoi:@core/linux-firmware:radeon:firmware for older AMD/ATI GPUs (radeon driver)",
+          "zoi:@core/linux-firmware:nvidia:firmware for NVIDIA GPUs (nouveau, nova)",
+          "zoi:@core/linux-firmware:realtek:firmware for Realtek network, Wi-Fi and Bluetooth",
+          "zoi:@core/linux-firmware:atheros:firmware for Qualcomm Atheros Wi-Fi and Bluetooth",
+          "zoi:@core/linux-firmware:broadcom:firmware for Broadcom and Cypress network adapters",
+          "zoi:@core/linux-firmware:mediatek:firmware for MediaTek and Ralink Wi-Fi and Bluetooth",
+          "zoi:@core/linux-firmware:amd:firmware for non-GPU AMD devices (NPU, TEE)",
+          "zoi:@core/linux-firmware:cirrus:firmware for Cirrus Logic audio",
+          "zoi:@core/linux-firmware:ti:firmware for Texas Instruments audio and connectivity",
+          "zoi:@core/linux-firmware:other:firmware for other devices",
+          "zoi:@core/linux-firmware:marvell:firmware for Marvell devices",
+          "zoi:@core/linux-firmware:qcom:firmware for Qualcomm SoCs",
+          "zoi:@core/linux-firmware:qlogic:firmware for QLogic adapters",
+          "zoi:@core/linux-firmware:mellanox:firmware for Mellanox Spectrum switches",
+          "zoi:@core/linux-firmware:nfp:firmware for Netronome Flow Processors",
+          "zoi:@core/linux-firmware:liquidio:firmware for Cavium LiquidIO adapters"
         ],
         "build": [],
         "test": []
