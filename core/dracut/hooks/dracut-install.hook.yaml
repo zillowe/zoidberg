@@ -23,6 +23,11 @@ action:
         if [ -f "/usr/lib/modules/${kver}/vmlinuz" ]; then
           install -Dm0644 "/usr/lib/modules/${kver}/vmlinuz" "/boot/vmlinuz-${pkgbase}"
         fi
+        # Hooks run in name order, so kmod's depmod hook may not have run
+        # yet; dracut needs the module index.
+        if [ -e "/usr/lib/modules/${kver}/modules.order" ]; then
+          depmod "$kver"
+        fi
         dracut --force -L 3 "/boot/initramfs-${pkgbase}.img" --kver "$kver" || true
       done
     fi
