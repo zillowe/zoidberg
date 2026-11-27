@@ -1,5 +1,8 @@
-local version = ZOI.VERSION or "79.1"
-local sha512 = "9098adf9ba7fbe11d92963415cc80bf09de39ce1372414dbc2561e5f8ef57479a9fe4b6f7abc61911e4659e5953be987c459297d29e61b064d1931a16195a973"
+-- ICU follows Arch Linux's version (not upstream's latest): Zoidberg builds
+-- on Arch, so packages linking ICU (libxml2, ...) are built against Arch's
+-- libicu*.so.<major>, which this package has to provide.
+local version = ZOI.VERSION or "78.3"
+local sha512 = "04a49455e1489030c520a4bfd2664fa2171e7938d08f2acdbbcb1fda976639fd8b1f0704f2eec89ba59a7b6d118ceaab6ec5a096e40d9085a0895d91ce225245"
 -- Release signing key (ICU Release Robot), matching Arch Linux's
 -- validpgpkeys. The hash is upstream's, from the release's SHASUM512.txt,
 -- whose signature by this key was checked when it was recorded.
@@ -9,6 +12,8 @@ metadata({
 	name = "icu",
 	repo = "core",
 	version = version,
+	-- 79.1 was published before ICU was aligned with Arch.
+	epoch = 1,
 	revision = "1",
 	debug = { sub_package = true },
 	description = "International Components for Unicode library",
