@@ -70,8 +70,12 @@ dependencies({
 			main = {
 				required = {
 					"zoi:@core/gcc:libgcc",
+					"zoi:@core/gcc:libstdc++",
 					"zoi:@core/git",
 					"zoi:@core/glibc",
+					-- liblzma (the xz2 crate); libgit2, OpenSSL, SQLite and
+					-- zstd are built into Zoi.
+					"zoi:@core/xz",
 				},
 				optional = {
 					"zoi:@core/bubblewrap:for building pure packages and running isolated apps",
