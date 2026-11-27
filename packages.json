@@ -4511,7 +4511,7 @@
       "repo_type": "official",
       "version": "5.44.0",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "A highly capable, feature-rich programming language",
       "scope": "system",
       "scopes": [
@@ -4944,7 +4944,7 @@
       "repo_type": "official",
       "version": "2024.8.26",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Python PE parsing module",
       "scope": "system",
       "scopes": [
@@ -4979,7 +4979,7 @@
       "repo_type": "official",
       "version": "3.12",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "C parser and AST generator written in Python",
       "scope": "system",
       "scopes": [
