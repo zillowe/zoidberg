@@ -1,5 +1,5 @@
-local version = ZOI.VERSION or "1.29.17"
-local sha512 = "908e6f7c53fa6a1b1acf341202899ea603a9db75b2714562556b198c683b5e39407f050664b4d67dfaa7712ad955fab541286a854e5804f6fb2fc72a5da32d3e"
+local version = ZOI.VERSION or "1.29.21"
+local sha512 = "f67c2896d5689ae9f2f40c8461a59730a87afdfe417890766456210a54e56c7e97704bb1736a163bea302f041215f7af7707c92f200722f1a4920d8640b0a205"
 local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/Prod-Release-" .. version .. "/downloads"
 -- Zillowe release signing key, as published at
 -- https://zillowe.pages.dev/keys/zillowe-main.asc.
@@ -17,7 +17,7 @@ metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "3",
+	revision = "1",
 	debug = { sub_package = true },
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
@@ -73,9 +73,11 @@ dependencies({
 					"zoi:@core/gcc:libstdc++",
 					"zoi:@core/git",
 					"zoi:@core/glibc",
-					-- liblzma (the xz2 crate); libgit2, OpenSSL, SQLite and
-					-- zstd are built into Zoi.
+					-- liblzma (the xz2 crate) and libz (the built-in libgit2's
+					-- zlib); libgit2, OpenSSL, SQLite and zstd are built
+					-- into Zoi.
 					"zoi:@core/xz",
+					"zoi:@core/zlib",
 				},
 				optional = {
 					"zoi:@core/bubblewrap:for building pure packages and running isolated apps",
