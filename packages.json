@@ -959,7 +959,7 @@
       "repo_type": "official",
       "version": "113",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "An event driven initramfs infrastructure",
       "scope": "system",
       "scopes": [
