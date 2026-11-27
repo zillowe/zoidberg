@@ -1,0 +1,5 @@
+# Upstream stopped releasing in 2007; follows Arch Linux's copy.
+[vi]
+source = "archpkg"
+archpkg = "vi"
+strip_release = true
