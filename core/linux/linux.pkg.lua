@@ -1,3 +1,7 @@
+-- Versioning: <upstream>.parlex.<N>. N counts Parlex patchset releases for
+-- one upstream kernel (the patch's EXTRAVERSION, -parlex.<N>, so `uname -r`
+-- is 7.3.5-parlex.1) and starts again at 1 for a new upstream version.
+-- `revision` goes up with every change to this recipe or the patchset.
 local version = ZOI.VERSION or "7.3.5.parlex.1"
 local upstream_ver = string.match(version, "^(%d+%.%d+%.%d+)") or "7.3.5"
 local base_ver = string.match(upstream_ver, "^(%d+%.%d+)") or "7.3"
@@ -12,7 +16,7 @@ metadata({
 	name = "linux",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "The Linux kernel and modules (Parlex Linux)",
 	website = "https://kernel.org",
 	license = "GPL-2.0-only",
@@ -184,8 +188,9 @@ function prepare()
 		# unprivileged_userns_clone sysctl) with Parlex's EXTRAVERSION.
 		patch -Np1 -i "$PKGLUADIR/patches/0001-parlexlinux.patch"
 
-		# Arch's config.x86_64 with Parlex's LOCALVERSION, hostname and
-		# panic QR-code URL.
+		# Arch's config.x86_64 with Parlex's hostname and panic QR-code URL.
+		# LOCALVERSION stays empty as in Arch; the version suffix comes from
+		# the patch's EXTRAVERSION alone.
 		cp "$PKGLUADIR/files/config.x86_64" .config
 		make olddefconfig
 		diff -u "$PKGLUADIR/files/config.x86_64" .config || :
