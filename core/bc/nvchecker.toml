@@ -1,0 +1,4 @@
+[bc]
+source = "regex"
+url = "https://mirrors.kernel.org/gnu/bc/"
+regex = 'bc-([\d.]+)\.tar\.gz"'
