@@ -1,0 +1,5 @@
+[dosfstools]
+source = "github"
+github = "dosfstools/dosfstools"
+use_max_tag = true
+prefix = "v"
