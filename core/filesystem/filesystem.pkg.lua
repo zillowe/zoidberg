@@ -65,6 +65,8 @@ function package()
 		["dev"] = { "0755", "root", "root" },
 		["etc"] = { "0755", "root", "root" },
 		["etc/ld.so.conf.d"] = { "0755", "root", "root" },
+		-- Configuration of /opt packages (FHS 3.0, 3.7.2)
+		["etc/opt"] = { "0755", "root", "root" },
 		["etc/profile.d"] = { "0755", "root", "root" },
 		["etc/skel"] = { "0755", "root", "root" },
 		["home"] = { "0755", "root", "root" },
