@@ -192,7 +192,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "7",
+      "revision": "8",
       "description": "Minimal userland for Parlex Linux and isolated (--pure) build roots",
       "scope": "system",
       "scopes": [
@@ -246,6 +246,40 @@
               "pacman:patch",
               "pacman:readline",
               "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/bc": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.08.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "An arbitrary precision calculator language",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/readline"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:ed",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:readline"
             ]
           }
         ],
@@ -954,6 +988,37 @@
         "test": []
       }
     },
+    "@core/dosfstools": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "4.2",
+      "epoch": 0,
+      "revision": "1",
+      "description": "DOS filesystem utilities",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:gcc",
+              "pacman:make"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/dracut": {
       "repo": "core",
       "repo_type": "official",
@@ -1035,6 +1100,38 @@
               "pacman:tar",
               "pacman:util-linux",
               "pacman:xz"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/ed": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.22.6",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A POSIX-compliant line-oriented text editor",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:gcc",
+              "pacman:lzip",
+              "pacman:make"
             ]
           }
         ],
@@ -1281,7 +1378,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "7",
+      "revision": "8",
       "description": "Base Parlex Linux files",
       "scope": "system",
       "scopes": [
@@ -1804,6 +1901,41 @@
         "test": []
       }
     },
+    "@core/gpm": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "1.20.7.r38.ge82d1a6",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A mouse server for the console and xterm",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/bash",
+          "zoi:@core/glibc",
+          "zoi:@core/ncurses",
+          "zoi:@core/procps-ng"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:ncurses"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@core/grep": {
       "repo": "core",
       "repo_type": "official",
@@ -2048,6 +2180,47 @@
               "pacman:make",
               "pacman:python",
               "pacman:tar"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/inetutils": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "2.8",
+      "epoch": 0,
+      "revision": "1",
+      "description": "A collection of common network programs",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/libcap",
+          "zoi:@core/libxcrypt",
+          "zoi:@core/ncurses",
+          "zoi:@core/pam",
+          "zoi:@core/readline"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:gcc",
+              "pacman:libcap",
+              "pacman:libxcrypt",
+              "pacman:make",
+              "pacman:ncurses",
+              "pacman:pam",
+              "pacman:readline"
             ]
           }
         ],
@@ -3595,7 +3768,7 @@
       "repo_type": "official",
       "version": "7.3.5.parlex.1",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The Linux kernel and modules (Parlex Linux)",
       "scope": "system",
       "scopes": [
@@ -4357,7 +4530,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "6",
+      "revision": "7",
       "description": "Package set for a bootable Parlex Linux installation",
       "scope": "system",
       "scopes": [
@@ -4376,6 +4549,11 @@
           "zoi:@core/systemd:sysvcompat",
           "zoi:@core/sudo",
           "zoi:@core/zoi:zoid",
+          "zoi:@core/base:docs",
+          "zoi:@core/inetutils",
+          "zoi:@core/vim",
+          "zoi:@core/openssh",
+          "zoi:@core/dosfstools",
           "zoi:@core/linux-firmware:main:the default set (all common vendors)",
           "zoi:@core/linux-firmware:amd_ucode:AMD CPU microcode",
           "zoi:@core/linux-firmware:intel:firmware for Intel Wi-Fi, Bluetooth, GPUs and CPU-integrated devices",
@@ -5500,6 +5678,89 @@
               "pacman:sqlite",
               "pacman:systemd",
               "pacman:zlib"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/vi": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "070224",
+      "epoch": 1,
+      "revision": "1",
+      "description": "The original ex/vi text editor",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/glibc",
+          "zoi:@core/ncurses"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:gcc",
+              "pacman:make",
+              "pacman:ncurses"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
+    "@core/vim": {
+      "repo": "core",
+      "repo_type": "official",
+      "version": "9.2.1202",
+      "epoch": 0,
+      "revision": "1",
+      "description": "Vi Improved, a highly configurable, improved version of the vi text editor",
+      "scope": "system",
+      "scopes": [
+        "system"
+      ],
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [
+          "zoi:@core/acl",
+          "zoi:@core/glibc",
+          "zoi:@core/gpm",
+          "zoi:@core/libgcrypt",
+          "zoi:@core/ncurses",
+          "zoi:@core/zlib",
+          "zoi:@core/perl: Perl language support",
+          "zoi:@core/python: Python language support",
+          "zoi:@core/tcl: Tcl language support"
+        ],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:base-devel",
+              "pacman:acl",
+              "pacman:gawk",
+              "pacman:gcc",
+              "pacman:gpm",
+              "pacman:libgcrypt",
+              "pacman:make",
+              "pacman:ncurses",
+              "pacman:zlib",
+              "pacman:lua",
+              "pacman:perl",
+              "pacman:python",
+              "pacman:ruby",
+              "pacman:tcl"
             ]
           }
         ],
