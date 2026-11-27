@@ -5,13 +5,19 @@ local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/Prod-Re
 -- https://zillowe.pages.dev/keys/zillowe-main.asc.
 local signing_key = "B2DF6A70FAEBAF2F43D9D68B79590A44041642E9"
 
-local build_env = IMPORT("env.toml") or {}
+-- env.toml sits next to the recipe while building. An installed archive
+-- carries only this file, and its build values are no longer needed then.
+local env_ok, env = pcall(IMPORT, "env.toml")
+if not env_ok and not tostring(env):find("No such file", 1, true) then
+	error(env)
+end
+local build_env = env_ok and env or {}
 
 metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
