@@ -17,7 +17,7 @@ metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
@@ -89,6 +89,19 @@ dependencies({
 				},
 			},
 		},
+	},
+})
+
+-- zoid is the ZoiOS system daemon (`zoi system`, PackageKit), so it starts at
+-- boot once installed. Hooks are shared by both sub-packages; the unit file
+-- exists only when the zoid sub-package is installed.
+hooks({
+	post_install = {
+		[[
+		if [ -f /usr/lib/systemd/system/zoid.service ]; then
+			systemctl enable zoid.service
+		fi
+		]],
 	},
 })
 
