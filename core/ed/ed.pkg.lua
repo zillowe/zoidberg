@@ -1,7 +1,10 @@
 local version = ZOI.VERSION or "1.22.6"
 local sha512 = "50917800c9a27cc3eb131b79f3833b0090ff99fe9cf78f639d706db4bb1eb6568517c04911576a6f1f23e9b1fa5364af1bf2ca50091b7a84d15daa6f30249191"
--- Release signing key (Antonio Diaz Diaz), as listed by Arch Linux.
-local signing_key = "1E5AEE0B18C0DEB45D64AA0325B62C9821501AA0"
+-- Upstream signs releases with SHA-1 signatures, which Zoi's signature
+-- policy (Sequoia's standard policy) rejects. The release is pinned by the
+-- hash instead, which matches Arch Linux's checksum; the signature was
+-- checked with GnuPG against Antonio Diaz Diaz's key
+-- (1E5AEE0B18C0DEB45D64AA0325B62C9821501AA0) when the hash was pinned.
 
 metadata({
 	name = "ed",
@@ -56,7 +59,6 @@ dependencies({
 local opts = { check = true, env = { VER = version, SHA512 = sha512 } }
 
 function prepare()
-	local tarball = "ed-" .. version .. ".tar.lz"
 	cmd(
 		[[
 		fetch() {
@@ -69,16 +71,11 @@ function prepare()
 			return 1
 		}
 		fetch "ed-$VER.tar.lz"
-		fetch "ed-$VER.tar.lz.sig"
 		echo "$SHA512  ed-$VER.tar.lz" | sha512sum -c -
+		tar --lzip -xf "ed-$VER.tar.lz"
 	]],
 		opts
 	)
-	local key = LOCATION.PKGLUADIR .. "/keys/pgp/" .. signing_key .. ".asc"
-	if not verifySignature(tarball, tarball .. ".sig", key) then
-		error("bad upstream signature on " .. tarball)
-	end
-	cmd([[tar --lzip -xf "ed-$VER.tar.lz"]], opts)
 end
 
 function build()
