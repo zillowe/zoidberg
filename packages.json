@@ -5696,7 +5696,7 @@
       "repo_type": "official",
       "version": "1.29.17",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Advanced Package Manager & Environment Orchestrator",
       "scope": "system",
       "scopes": [
