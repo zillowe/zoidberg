@@ -8,7 +8,7 @@ metadata({
 	name = "fastfetch",
 	repo = "extra",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "A feature-rich and performance oriented neofetch like system information tool",
 	website = "https://github.com/fastfetch-cli/fastfetch",
 	git = "https://github.com/fastfetch-cli/fastfetch",
@@ -146,7 +146,9 @@ function package()
 	-- also installs is removed and staged with zlicense() instead. The
 	-- system config shows the Parlex logo; fastfetch reads it from
 	-- /etc/xdg/fastfetch/ when a user has no config of their own, and finds
-	-- "parlex.txt" in /usr/share/fastfetch/logos/.
+	-- the logo in /usr/share/fastfetch/logos/. Two versions are shipped:
+	-- parlex.txt (block characters, the default) and parlex-ascii.txt
+	-- (plain ASCII), chosen by "source" in the config.
 	cmd(
 		[[
 		cd "fastfetch-$VER"
@@ -154,6 +156,8 @@ function package()
 		rm -rf "$ROOT/usr/share/licenses"
 		install -Dm644 "$PKGLUADIR/files/parlex.txt" \
 			"$ROOT/usr/share/fastfetch/logos/parlex.txt"
+		install -Dm644 "$PKGLUADIR/files/parlex-ascii.txt" \
+			"$ROOT/usr/share/fastfetch/logos/parlex-ascii.txt"
 		install -Dm644 "$PKGLUADIR/files/config.jsonc" \
 			"$ROOT/etc/xdg/fastfetch/config.jsonc"
 	]],
