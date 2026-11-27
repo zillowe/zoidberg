@@ -1,5 +1,5 @@
-local version = ZOI.VERSION or "1.29.21"
-local sha512 = "f67c2896d5689ae9f2f40c8461a59730a87afdfe417890766456210a54e56c7e97704bb1736a163bea302f041215f7af7707c92f200722f1a4920d8640b0a205"
+local version = ZOI.VERSION or "1.29.22"
+local sha512 = "60fc76f9f64a4a8442ae3a34a9558463ba7bb89184f7aa3a3c65cf52b84e3ece56be1461788f965d1b7ff4e6906c50bfab0f3f65acbccaeed97b08193eebf67a"
 local release = "https://gitlab.com/zillowe/zillwen/zusty/zoi/-/releases/Prod-Release-" .. version .. "/downloads"
 -- Zillowe release signing key, as published at
 -- https://zillowe.pages.dev/keys/zillowe-main.asc.
@@ -17,7 +17,7 @@ metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "1",
 	debug = { sub_package = true },
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
@@ -144,6 +144,11 @@ function package(args)
 	if args.sub == "zoid" then
 		zcp(src .. "/target/release/zoid", "${usrroot}/usr/bin/zoid")
 		zcp(src .. "/crates/daemon/zoid.service", "${usrroot}/usr/lib/systemd/system/zoid.service")
+		-- Lets zoid own org.freedesktop.PackageKit on the system bus
+		zcp(
+			src .. "/crates/daemon/org.freedesktop.PackageKit.conf",
+			"${usrroot}/usr/share/dbus-1/system.d/org.freedesktop.PackageKit.conf"
+		)
 		-- Restarts a running zoid after an update so the new daemon is loaded
 		zcp("${pkgluadir}/hooks/zoid-restart.hook.yaml", "${pkgstore}/hooks/zoid-restart.hook.yaml")
 		zman(src .. "/dist/man/zoid.8")
