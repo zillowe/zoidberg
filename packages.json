@@ -70,7 +70,7 @@
       "repo_type": "official",
       "version": "4.2.1",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Userspace components of the audit framework",
       "scope": "system",
       "scopes": [
@@ -340,7 +340,7 @@
       "repo_type": "official",
       "version": "1.2.1",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Generic-purpose lossless compression algorithm",
       "scope": "system",
       "scopes": [
@@ -700,7 +700,7 @@
       "repo_type": "official",
       "version": "2.1.28",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Cyrus Simple Authentication Service Layer (SASL) library",
       "scope": "system",
       "scopes": [
@@ -1116,7 +1116,7 @@
       "repo_type": "official",
       "version": "0.197",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "Handle ELF object files and DWARF debugging information",
       "scope": "system",
       "scopes": [
@@ -1413,7 +1413,7 @@
       "repo_type": "official",
       "version": "16.2.0",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "The GNU Compiler Collection - C and C++ frontends and runtimes",
       "scope": "system",
       "scopes": [
@@ -1633,7 +1633,7 @@
       "repo_type": "official",
       "version": "2.44",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "GNU C Library for Parlex Linux",
       "scope": "system",
       "scopes": [
@@ -2021,8 +2021,8 @@
     "@core/icu": {
       "repo": "core",
       "repo_type": "official",
-      "version": "79.1",
-      "epoch": 0,
+      "version": "78.3",
+      "epoch": 1,
       "revision": "1",
       "description": "International Components for Unicode library",
       "scope": "system",
@@ -2584,7 +2584,7 @@
       "repo_type": "official",
       "version": "0.9.6",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "A library for Linux that makes using posix capabilities easy",
       "scope": "system",
       "scopes": [
@@ -3301,7 +3301,7 @@
       "repo_type": "official",
       "version": "2.6.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Enhanced seccomp library",
       "scope": "system",
       "scopes": [
@@ -4081,7 +4081,7 @@
       "repo_type": "official",
       "version": "2.7.2",
       "epoch": 0,
-      "revision": "1",
+      "revision": "2",
       "description": "Lightweight Directory Access Protocol (LDAP) client and server",
       "scope": "system",
       "scopes": [
@@ -5144,7 +5144,7 @@
       "repo_type": "official",
       "version": "3.54.1",
       "epoch": 0,
-      "revision": "4",
+      "revision": "5",
       "description": "A C library that implements an SQL database engine",
       "scope": "system",
       "scopes": [
@@ -5224,7 +5224,7 @@
       "repo_type": "official",
       "version": "262.1",
       "epoch": 0,
-      "revision": "10",
+      "revision": "11",
       "description": "System and service manager for Linux",
       "scope": "system",
       "scopes": [
@@ -5307,7 +5307,7 @@
       "repo_type": "official",
       "version": "1.35",
       "epoch": 0,
-      "revision": "7",
+      "revision": "8",
       "description": "Utility used to store, backup, and transport files",
       "scope": "system",
       "scopes": [
@@ -5455,7 +5455,7 @@
       "repo_type": "official",
       "version": "2.42.4",
       "epoch": 0,
-      "revision": "10",
+      "revision": "11",
       "description": "Miscellaneous system utilities for Linux",
       "scope": "system",
       "scopes": [
@@ -5701,7 +5701,7 @@
       "repo_type": "official",
       "version": "1.29.17",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "Advanced Package Manager & Environment Orchestrator",
       "scope": "system",
       "scopes": [
