@@ -9,7 +9,7 @@ metadata({
 	name = "perl",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "A highly capable, feature-rich programming language",
 	website = "https://www.perl.org",

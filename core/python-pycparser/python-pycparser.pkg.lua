@@ -7,7 +7,7 @@ metadata({
 	name = "python-pycparser",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "C parser and AST generator written in Python",
 	website = "https://github.com/eliben/pycparser",
 	license = "BSD-3-Clause",

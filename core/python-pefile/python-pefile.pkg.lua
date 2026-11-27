@@ -7,7 +7,7 @@ metadata({
 	name = "python-pefile",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "Python PE parsing module",
 	website = "https://github.com/erocarrera/pefile",
 	license = "MIT",
