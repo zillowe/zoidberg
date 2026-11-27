@@ -47,6 +47,7 @@ dependencies({
 					"pacman:acl",
 					"pacman:gawk",
 					"pacman:gcc",
+					"pacman:gpm",
 					"pacman:libgcrypt",
 					"pacman:make",
 					"pacman:ncurses",
@@ -66,6 +67,7 @@ dependencies({
 		required = {
 			"zoi:@core/acl",
 			"zoi:@core/glibc",
+			"zoi:@core/gpm",
 			"zoi:@core/libgcrypt",
 			"zoi:@core/ncurses",
 			"zoi:@core/zlib",
@@ -104,9 +106,8 @@ function prepare()
 end
 
 function build()
-	-- Options follow Arch Linux's terminal vim, except: gpm (console mouse)
-	-- is off because Zoidberg has no gpm package, and the build is credited
-	-- to Zoidberg. Arch's GUI build (gvim) needs GTK and is not packaged.
+	-- Options follow Arch Linux's terminal vim, credited to Zoidberg. Arch's
+	-- GUI build (gvim) needs GTK and is not packaged.
 	cmd(
 		[[
 		cd "vim-$VER"
@@ -116,7 +117,7 @@ function build()
 			--with-features=huge \
 			--with-compiledby='Zoidberg (ZoiOS)' \
 			--with-wayland=no \
-			--disable-gpm \
+			--enable-gpm \
 			--enable-acl \
 			--with-x=no \
 			--disable-gui \
