@@ -4,7 +4,7 @@ metadata({
 	name = "filesystem",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "8",
 	description = "Base Parlex Linux files",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "0BSD",
@@ -68,6 +68,9 @@ function package()
 		["etc/profile.d"] = { "0755", "root", "root" },
 		["etc/skel"] = { "0755", "root", "root" },
 		["home"] = { "0755", "root", "root" },
+		-- Mount points for removable media, as FHS 3.0 specifies (Arch
+		-- leaves it out; udisks and file managers use /run/media).
+		["media"] = { "0755", "root", "root" },
 		["mnt"] = { "0755", "root", "root" },
 		["opt"] = { "0755", "root", "root" },
 		["proc"] = { "0555", "root", "root" },
