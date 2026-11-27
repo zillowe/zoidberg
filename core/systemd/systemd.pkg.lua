@@ -9,7 +9,7 @@ metadata({
 	name = "systemd",
 	repo = "core",
 	version = version,
-	revision = "11",
+	revision = "12",
 	debug = { sub_package = true },
 	description = "System and service manager for Linux",
 	website = "https://systemd.io",
@@ -259,6 +259,9 @@ hooks({
 		if [ -f /etc/shells ] && ! grep -qe '^/usr/bin/systemd-home-fallback-shell$' /etc/shells; then
 			echo '/usr/bin/systemd-home-fallback-shell' >> /etc/shells
 		fi
+		# Enabled by default, as Arch does: a login prompt on the console
+		# (getty@tty1), remote mounts, and the user database socket.
+		systemctl enable getty@.service remote-fs.target systemd-userdbd.socket
 		]],
 	},
 	post_remove = {
