@@ -959,7 +959,7 @@
       "repo_type": "official",
       "version": "113",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "An event driven initramfs infrastructure",
       "scope": "system",
       "scopes": [
@@ -972,13 +972,17 @@
         "runtime": [
           "zoi:@core/bash",
           "zoi:@core/coreutils",
+          "zoi:@core/cpio",
           "zoi:@core/findutils",
           "zoi:@core/gawk",
+          "zoi:@core/gcc:libgcc",
           "zoi:@core/glibc",
           "zoi:@core/grep",
           "zoi:@core/kmod",
+          "zoi:@core/pkgconf",
           "zoi:@core/procps-ng",
           "zoi:@core/sed",
+          "zoi:@core/systemd:libs",
           "zoi:@core/util-linux"
         ],
         "build": [
@@ -4353,7 +4357,7 @@
       "repo_type": "official",
       "version": "2026.11",
       "epoch": 0,
-      "revision": "5",
+      "revision": "6",
       "description": "Package set for a bootable Parlex Linux installation",
       "scope": "system",
       "scopes": [
@@ -4369,6 +4373,7 @@
           "zoi:@core/dracut",
           "zoi:@core/grub",
           "zoi:@core/systemd",
+          "zoi:@core/systemd:sysvcompat",
           "zoi:@core/sudo",
           "zoi:@core/zoi:zoid",
           "zoi:@core/linux-firmware:main:the default set (all common vendors)",
