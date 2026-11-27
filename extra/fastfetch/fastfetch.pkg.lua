@@ -8,7 +8,7 @@ metadata({
 	name = "fastfetch",
 	repo = "extra",
 	version = version,
-	revision = "1",
+	revision = "2",
 	description = "A feature-rich and performance oriented neofetch like system information tool",
 	website = "https://github.com/fastfetch-cli/fastfetch",
 	git = "https://github.com/fastfetch-cli/fastfetch",
@@ -28,6 +28,9 @@ metadata({
 	platforms = { "linux-amd64" },
 	types = { "source" },
 	zoios = true,
+	backup = {
+		"${usrroot}/etc/xdg/fastfetch/config.jsonc",
+	},
 	tags = { "c", "cli", "system-info", "fetch" },
 })
 
@@ -140,12 +143,19 @@ end
 
 function package()
 	-- Installs shell completions, presets and the man page. The license it
-	-- also installs is removed and staged with zlicense() instead.
+	-- also installs is removed and staged with zlicense() instead. The
+	-- system config shows the Parlex logo; fastfetch reads it from
+	-- /etc/xdg/fastfetch/ when a user has no config of their own, and finds
+	-- "parlex.txt" in /usr/share/fastfetch/logos/.
 	cmd(
 		[[
 		cd "fastfetch-$VER"
 		DESTDIR="$ROOT" cmake --install _build
 		rm -rf "$ROOT/usr/share/licenses"
+		install -Dm644 "$PKGLUADIR/files/parlex.txt" \
+			"$ROOT/usr/share/fastfetch/logos/parlex.txt"
+		install -Dm644 "$PKGLUADIR/files/config.jsonc" \
+			"$ROOT/etc/xdg/fastfetch/config.jsonc"
 	]],
 		opts
 	)
