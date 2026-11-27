@@ -1,0 +1,6 @@
+# Upstream has not released since 1.20.7 (2012); follows the git snapshot
+# Arch Linux packages.
+[gpm]
+source = "archpkg"
+archpkg = "gpm"
+strip_release = true
