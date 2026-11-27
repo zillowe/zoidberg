@@ -4,7 +4,7 @@ metadata({
 	name = "parlex",
 	repo = "core",
 	version = version,
-	revision = "6",
+	revision = "7",
 	description = "Package set for a bootable Parlex Linux installation",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
@@ -45,6 +45,16 @@ dependencies({
 			"zoi:@core/sudo",
 			-- Zoi daemon
 			"zoi:@core/zoi:zoid",
+			-- Manual pages (man-db, groff)
+			"zoi:@core/base:docs",
+			-- hostname, ftp, telnet
+			"zoi:@core/inetutils",
+			-- A full editor next to vi
+			"zoi:@core/vim",
+			-- ssh client and server (the server is not enabled)
+			"zoi:@core/openssh",
+			-- mkfs.vfat, for EFI system partitions
+			"zoi:@core/dosfstools",
 		},
 		-- Firmware depends on the hardware, so the user picks it (Zoi prompts
 		-- for optional dependencies). A virtual machine needs none; real

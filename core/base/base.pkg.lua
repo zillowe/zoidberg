@@ -4,7 +4,7 @@ metadata({
 	name = "base",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "8",
 	description = "Minimal userland for Parlex Linux and isolated (--pure) build roots",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
@@ -66,6 +66,14 @@ dependencies({
 					-- Networking
 					"zoi:@core/iputils",
 					"zoi:@core/iproute2",
+					-- POSIX utilities beyond Arch's base, small enough for
+					-- build roots: diff/cmp, which, ed, bc (also needed by
+					-- kernel builds) and vi/ex.
+					"zoi:@core/diffutils",
+					"zoi:@core/which",
+					"zoi:@core/ed",
+					"zoi:@core/bc",
+					"zoi:@core/vi",
 				},
 			},
 			-- man and its formatter (man-db, groff); optional, as headless
@@ -94,7 +102,6 @@ dependencies({
 					"zoi:@core/patch",
 					"zoi:@core/pkgconf",
 					"zoi:@core/texinfo",
-					"zoi:@core/which",
 				},
 			},
 		},
