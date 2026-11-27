@@ -5699,7 +5699,7 @@
     "@core/zoi": {
       "repo": "core",
       "repo_type": "official",
-      "version": "1.29.21",
+      "version": "1.29.22",
       "epoch": 0,
       "revision": "1",
       "description": "Advanced Package Manager & Environment Orchestrator",
@@ -5812,7 +5812,7 @@
       "repo_type": "official",
       "version": "2.71.0",
       "epoch": 0,
-      "revision": "2",
+      "revision": "3",
       "description": "A feature-rich and performance oriented neofetch like system information tool",
       "scope": "system",
       "scopes": [
