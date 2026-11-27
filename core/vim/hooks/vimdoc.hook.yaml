@@ -1,0 +1,13 @@
+name: vim-helptags
+description: Updating Vim help tags...
+platforms: ["linux"]
+trigger:
+  dirs:
+    - "${usrroot}/usr/share/vim/vimfiles/doc"
+  operation: ["install", "upgrade", "remove"]
+action:
+  when: PostTransaction
+  exec: |
+    if [ -x /usr/bin/vim ] && [ -d /usr/share/vim/vimfiles/doc ]; then
+      /usr/bin/vim -es --cmd ":helptags /usr/share/vim/vimfiles/doc" --cmd ":q"
+    fi

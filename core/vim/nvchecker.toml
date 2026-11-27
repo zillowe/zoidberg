@@ -1,0 +1,5 @@
+# Follows Arch Linux's vim (Gentoo's Manifest supplies the pinned hash).
+[vim]
+source = "archpkg"
+archpkg = "vim"
+strip_release = true
