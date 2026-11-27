@@ -4,7 +4,7 @@ metadata({
 	name = "parlex",
 	repo = "core",
 	version = version,
-	revision = "5",
+	revision = "6",
 	description = "Package set for a bootable Parlex Linux installation",
 	website = "https://zillowe.qzz.io/docs/parlex/linux",
 	license = "Apache-2.0",
@@ -38,6 +38,9 @@ dependencies({
 			"zoi:@core/grub",
 			-- Init
 			"zoi:@core/systemd",
+			-- /usr/bin/init (the kernel's default init), halt, poweroff,
+			-- reboot and shutdown, as Arch's base pulls systemd-sysvcompat.
+			"zoi:@core/systemd:sysvcompat",
 			-- Privilege escalation
 			"zoi:@core/sudo",
 			-- Zoi daemon
