@@ -9,7 +9,7 @@ metadata({
 	name = "systemd",
 	repo = "core",
 	version = version,
-	revision = "10",
+	revision = "11",
 	debug = { sub_package = true },
 	description = "System and service manager for Linux",
 	website = "https://systemd.io",
@@ -68,6 +68,19 @@ metadata({
 		"timedatectl",
 		"udevadm",
 		"userdbctl",
+	},
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		libs = {},
+		resolvconf = { "resolvconf" },
+		sysvcompat = {
+			"halt",
+			"init",
+			"poweroff",
+			"reboot",
+			"shutdown",
+		},
+		ukify = { "ukify" },
 	},
 	sub_packages = { "main", "libs", "resolvconf", "sysvcompat", "ukify" },
 	main_subs = { "main" },

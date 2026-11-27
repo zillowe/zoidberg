@@ -17,7 +17,7 @@ metadata({
 	name = "sqlite",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "A C library that implements an SQL database engine",
 	website = "https://www.sqlite.org/",
@@ -45,6 +45,10 @@ metadata({
 		"sqlite3",
 		"sqlite3_expert",
 		"sqlite3_rsync",
+	},
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		tcl = { "sqltclsh" },
 	},
 	scope = "system",
 	scopes = { "system" },

@@ -6,7 +6,7 @@ metadata({
 	name = "audit",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "Userspace components of the audit framework",
 	website = "https://github.com/linux-audit/audit-userspace",
@@ -31,6 +31,10 @@ metadata({
 		"augenrules",
 		"autrace",
 		"auvirt",
+	},
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		python = {},
 	},
 	scope = "system",
 	scopes = { "system" },

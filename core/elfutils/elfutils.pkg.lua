@@ -8,7 +8,7 @@ metadata({
 	name = "elfutils",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "Handle ELF object files and DWARF debugging information",
 	website = "https://sourceware.org/elfutils/",
@@ -42,6 +42,11 @@ metadata({
 		"eu-strings",
 		"eu-strip",
 		"eu-unstrip",
+	},
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		libelf = {},
+		debuginfod = { "debuginfod", "debuginfod-find" },
 	},
 	scope = "system",
 	scopes = { "system" },

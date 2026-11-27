@@ -8,7 +8,7 @@ metadata({
 	name = "libcap-ng",
 	repo = "core",
 	version = version,
-	revision = "4",
+	revision = "5",
 	debug = { sub_package = true },
 	description = "A library for Linux that makes using posix capabilities easy",
 	website = "https://people.redhat.com/sgrubb/libcap-ng/",
@@ -23,6 +23,10 @@ metadata({
 		website = "https://people.redhat.com/sgrubb/libcap-ng/",
 	},
 	bins = { "captest", "filecap", "netcap", "pscap" },
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		python = {},
+	},
 	scope = "system",
 	scopes = { "system" },
 	platforms = { "linux-amd64" },

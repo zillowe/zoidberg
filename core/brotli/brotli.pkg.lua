@@ -6,7 +6,7 @@ metadata({
 	name = "brotli",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "Generic-purpose lossless compression algorithm",
 	website = "https://github.com/google/brotli",
@@ -21,6 +21,10 @@ metadata({
 		website = "https://github.com/google/brotli",
 	},
 	bins = { "brotli" },
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		python = {},
+	},
 	scope = "system",
 	scopes = { "system" },
 	platforms = { "linux-amd64" },

@@ -7,7 +7,7 @@ metadata({
 	name = "util-linux",
 	repo = "core",
 	version = version,
-	revision = "10",
+	revision = "11",
 	debug = { sub_package = true },
 	description = "Miscellaneous system utilities for Linux",
 	website = "https://github.com/util-linux/util-linux",
@@ -132,6 +132,11 @@ metadata({
 		"wipefs",
 		"write",
 		"zramctl",
+	},
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		libs = {},
+		python = {},
 	},
 	scope = "system",
 	scopes = { "system" },

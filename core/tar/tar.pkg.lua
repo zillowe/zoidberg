@@ -9,7 +9,7 @@ metadata({
 	name = "tar",
 	repo = "core",
 	version = version,
-	revision = "7",
+	revision = "8",
 	debug = { sub_package = true },
 	description = "Utility used to store, backup, and transport files",
 	website = "https://www.gnu.org/software/tar/",
@@ -24,6 +24,10 @@ metadata({
 		website = "https://www.fsf.org",
 	},
 	bins = { "tar" },
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		scripts = { "backup", "restore" },
+	},
 	scope = "system",
 	scopes = { "system" },
 	platforms = { "linux-amd64" },

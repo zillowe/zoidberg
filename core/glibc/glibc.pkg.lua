@@ -9,7 +9,7 @@ metadata({
 	name = "glibc",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	-- The dynamic loader, libc and libthread_db keep their symbols and debug
 	-- info: valgrind needs the loader's symbols and gdb needs libthread_db's
 	-- to debug threads.
@@ -47,6 +47,11 @@ metadata({
 		"makedb",
 		"rpcgen",
 		"sprof",
+	},
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		lib32 = {},
+		locales = {},
 	},
 	scope = "system",
 	scopes = { "system" },

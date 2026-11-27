@@ -12,7 +12,7 @@ metadata({
 	name = "cyrus-sasl",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Cyrus Simple Authentication Service Layer (SASL) library",
 	website = "https://www.cyrusimap.org/sasl/",
@@ -26,12 +26,10 @@ metadata({
 		name = "Carnegie Mellon University and the Cyrus project",
 		website = "https://github.com/cyrusimap/cyrus-sasl",
 	},
-	bins = {
-		"pluginviewer",
-		"saslauthd",
-		"sasldblistusers2",
-		"saslpasswd2",
-		"testsaslauthd",
+	bins = { "saslauthd", "testsaslauthd" },
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		libs = { "pluginviewer", "sasldblistusers2", "saslpasswd2" },
 	},
 	scope = "system",
 	scopes = { "system" },

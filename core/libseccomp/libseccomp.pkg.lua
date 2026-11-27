@@ -10,7 +10,7 @@ metadata({
 	name = "libseccomp",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Enhanced seccomp library",
 	website = "https://github.com/seccomp/libseccomp",
@@ -25,6 +25,10 @@ metadata({
 		website = "https://github.com/seccomp/libseccomp",
 	},
 	bins = { "scmp_sys_resolver" },
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		python = {},
+	},
 	scope = "system",
 	scopes = { "system" },
 	platforms = { "linux-amd64" },

@@ -17,7 +17,7 @@ metadata({
 	name = "zoi",
 	repo = "core",
 	version = version,
-	revision = "2",
+	revision = "3",
 	debug = { sub_package = true },
 	description = "Advanced Package Manager & Environment Orchestrator",
 	website = "https://zillowe.qzz.io/zds/zoi",
@@ -34,6 +34,10 @@ metadata({
 		email = "contact@zillowe.qzz.io",
 	},
 	bins = { "zoi" },
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		zoid = { "zoid" },
+	},
 	types = { "source" },
 	sub_packages = { "main", "zoid" },
 	main_subs = { "main" },

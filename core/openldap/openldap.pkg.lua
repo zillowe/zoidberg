@@ -14,7 +14,7 @@ metadata({
 	name = "openldap",
 	repo = "core",
 	version = version,
-	revision = "1",
+	revision = "2",
 	debug = { sub_package = true },
 	description = "Lightweight Directory Access Protocol (LDAP) client and server",
 	website = "https://www.openldap.org/",
@@ -51,6 +51,10 @@ metadata({
 		"slappasswd",
 		"slapschema",
 		"slaptest",
+	},
+	-- Binaries of sub-packages other than the ones above.
+	sub_bins = {
+		libs = {},
 	},
 	scope = "system",
 	scopes = { "system" },
