@@ -5960,7 +5960,7 @@
     "@core/zoi": {
       "repo": "core",
       "repo_type": "official",
-      "version": "1.29.22",
+      "version": "1.29.23",
       "epoch": 0,
       "revision": "1",
       "description": "Advanced Package Manager & Environment Orchestrator",
