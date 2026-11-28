@@ -93,10 +93,16 @@ function prepare()
 end
 
 function build()
-	-- Options follow Arch Linux's PKGBUILD.
+	-- Options follow Arch Linux's PKGBUILD, plus what current GCC needs for
+	-- this 2007 code: gnu17, because it defines its own `bool` (a keyword in
+	-- C23, GCC 15's default, as Arch does for gpm), and _GNU_SOURCE, so
+	-- glibc declares wcwidth() (GCC 14 rejects implicit declarations).
+	-- CFLAGS goes through the environment: on the make command line it
+	-- would replace libuxre's own CFLAGS and its include path.
 	cmd(
 		[[
 		cd "ex-$VER"
+		CFLAGS="${CFLAGS:--O2} -std=gnu17 -D_GNU_SOURCE" \
 		make ]] .. make_vars .. [[ TERMLIB=ncurses \
 			FEATURES="-DCHDIR -DFASTTAG -DUCVISUAL -DMB -DBIT8"
 	]],
